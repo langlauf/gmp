@@ -177,9 +177,9 @@ For example, {s1p, s1size}.
      S2SIZE.  The destination must be distinct from either input
      operands.
 
- - Function: mp_limb_t mpn_tdiv_qr (mp_limb_t *QP, mp_limb_t *RP,
-          mp_size_t QXN, const mp_limb_t *NP, mp_size_t NN, const
-          mp_limb_t *DP, mp_size_t DN)
+ - Function: void mpn_tdiv_qr (mp_limb_t *QP, mp_limb_t *RP, mp_size_t
+          QXN, const mp_limb_t *NP, mp_size_t NN, const mp_limb_t *DP,
+          mp_size_t DN)
      Divide {NP, NN} by {DP, DN}.  Write the quotient at QP and the
      remainder at RP.
 

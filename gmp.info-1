@@ -32,7 +32,7 @@ GNU MP
 ******
 
    This manual documents how to install and use the GNU multiple
-precision arithmetic library, version 3.1.
+precision arithmetic library, version 3.1.1.
 
 * Menu:
 
@@ -86,7 +86,7 @@ know that what they have is not what we distributed, so that any
 problems introduced by others will not reflect on our reputation.
 
    The precise conditions of the license for the GNU MP library are
-found in the Library General Public License that accompany the source
+found in the Lesser General Public License that accompany the source
 code.
 
 
@@ -255,12 +255,14 @@ Object Directory
      different.
 
      For some configurations specific compiler flags are set based on
-     the target CPU and compiler, for others `CFLAGS="-whatever"' can
-     be used to set the best flags.
+     the target CPU and compiler, see `CFLAGS' in the generated
+     `Makefile's.  The usual `CFLAGS="-whatever"' can be passed to
+     `./configure' to use something different or to set good flags for
+     systems GMP doesn't otherwise know.
 
-     If `CC' is set then `CFLAGS' must also be set.  This applies even
-     if `CC' is merely one of the choices GMP would make itself.  This
-     may change in a future release.
+     Note that if `CC' is set then `CFLAGS' must also be set.  This
+     applies even if `CC' is merely one of the choices GMP would make
+     itself.  This may change in a future release.
 
 `--disable-alloca'
      By default, GMP allocates temporary workspace using `alloca' if
@@ -536,6 +538,14 @@ SunOS 4 Native Tools
      .libs/libgmp.a', and when using `--enable-mpbsd' run `ranlib
      .libs/libmp.a' too.
 
+`version.c' compilation
+     The current `./configure' relies on certain features of `sed' that
+     some old systems don't have.  One symptom is `VERSION' not being
+     set correctly in the generated `config.h', leading to `version.c'
+     failing to compile.  Irix 5.3, MIPS RISC/OS and Ultrix 4.4 are
+     believed to be affected.  GNU `sed' is recommended, though it
+     might be possible to build by editing `config.h' manually instead.
+
 VAX running Ultrix
      You need to build and install the GNU assembler before you compile
      GMP.  The VAX assembly in GMP uses an instruction (`jsobgtr') that
@@ -742,6 +752,11 @@ GMP and Reentrancy
      `random'.  These routines are not reentrant, since they rely on
      global state.  (However the newer random number functions that
      accept a `gmp_randstate_t' parameter are reentrant.)
+
+   * If `alloca' is not available, or GMP is configured with
+     `--disable-alloca', the library is not reentrant, due to the
+     current implementation of `stack-alloc.c'.  In the generated
+     `config.h', `USE_STACK_ALLOC' set to 1 will mean not reentrant.
 
 
 File: gmp.info,  Node: Useful Macros and Constants,  Next: Compatibility with older versions,  Prev: GMP and Reentrancy,  Up: GMP Basics
@@ -1102,167 +1117,4 @@ Arithmetic Functions
 
  - Function: void mpz_abs (mpz_t ROP, mpz_t OP)
      Set ROP to the absolute value of OP.
-
-
-File: gmp.info,  Node: Integer Division,  Next: Integer Exponentiation,  Prev: Integer Arithmetic,  Up: Integer Functions
-
-Division Functions
-==================
-
-   Division is undefined if the divisor is zero, and passing a zero
-divisor to the divide or modulo functions, as well passing a zero mod
-argument to the `mpz_powm' and `mpz_powm_ui' functions, will make these
-functions intentionally divide by zero.  This lets the user handle
-arithmetic exceptions in these functions in the same manner as other
-arithmetic exceptions.
-
-   There are three main groups of division functions:
-   * Functions that truncate the quotient towards 0.  The names of
-     these functions start with `mpz_tdiv'.  The `t' in the name is
-     short for `truncate'.
-
-   * Functions that round the quotient towards -infinity).  The names
-     of these routines start with `mpz_fdiv'.  The `f' in the name is
-     short for `floor'.
-
-   * Functions that round the quotient towards +infinity.  The names of
-     these routines start with `mpz_cdiv'.  The `c' in the name is
-     short for `ceil'.
-
-   For each rounding mode, there are a couple of variants.  Here `q'
-means that the quotient is computed, while `r' means that the remainder
-is computed.  Functions that compute both the quotient and remainder
-have `qr' in the name.
-
- - Function: void mpz_tdiv_q (mpz_t Q, mpz_t N, mpz_t D)
- - Function: unsigned long int mpz_tdiv_q_ui (mpz_t Q, mpz_t N,
-          unsigned long int D)
-     Set Q to [N/D], truncated towards 0.
-
-     The function `mpz_tdiv_q_ui' returns the absolute value of the true
-     remainder.
-
- - Function: void mpz_tdiv_r (mpz_t R, mpz_t N, mpz_t D)
- - Function: unsigned long int mpz_tdiv_r_ui (mpz_t R, mpz_t N,
-          unsigned long int D)
-     Set R to (N - [N/D] * D), where the quotient is truncated towards
-     0.  Unless R becomes zero, it will get the same sign as N.
-
-     The function `mpz_tdiv_r_ui' returns the absolute value of the
-     remainder.
-
- - Function: void mpz_tdiv_qr (mpz_t Q, mpz_t R, mpz_t N, mpz_t D)
- - Function: unsigned long int mpz_tdiv_qr_ui (mpz_t Q, mpz_t R, mpz_t
-          N, unsigned long int D)
-     Set Q to [N/D], truncated towards 0.  Set R to (N - [N/D] * D).
-     Unless R becomes zero, it will get the same sign as N.  If Q and R
-     are the same variable, the results are undefined.
-
-     The function `mpz_tdiv_qr_ui' returns the absolute value of the
-     remainder.
-
- - Function: unsigned long int mpz_tdiv_ui (mpz_t N, unsigned long int
-          D)
-     Like `mpz_tdiv_r_ui', but the remainder is not stored anywhere; its
-     absolute value is just returned.
-
- - Function: void mpz_fdiv_q (mpz_t Q, mpz_t N, mpz_t D)
- - Function: unsigned long int mpz_fdiv_q_ui (mpz_t Q, mpz_t N,
-          unsigned long int D)
-     Set Q to N/D, rounded towards -infinity.
-
-     The function `mpz_fdiv_q_ui' returns the remainder.
-
- - Function: void mpz_fdiv_r (mpz_t R, mpz_t N, mpz_t D)
- - Function: unsigned long int mpz_fdiv_r_ui (mpz_t R, mpz_t N,
-          unsigned long int D)
-     Set R to (N - N/D * D), where the quotient is rounded towards
-     -infinity.  Unless R becomes zero, it will get the same sign as D.
-
-     The function `mpz_fdiv_r_ui' returns the remainder.
-
- - Function: void mpz_fdiv_qr (mpz_t Q, mpz_t R, mpz_t N, mpz_t D)
- - Function: unsigned long int mpz_fdiv_qr_ui (mpz_t Q, mpz_t R, mpz_t
-          N, unsigned long int D)
-     Set Q to N/D, rounded towards -infinity.  Set R to (N - N/D * D).
-     Unless R becomes zero, it will get the same sign as D.  If Q and R
-     are the same variable, the results are undefined.
-
-     The function `mpz_fdiv_qr_ui' returns the remainder.
-
- - Function: unsigned long int mpz_fdiv_ui (mpz_t N, unsigned long int
-          D)
-     Like `mpz_fdiv_r_ui', but the remainder is not stored anywhere; it
-     is just returned.
-
- - Function: void mpz_cdiv_q (mpz_t Q, mpz_t N, mpz_t D)
- - Function: unsigned long int mpz_cdiv_q_ui (mpz_t Q, mpz_t N,
-          unsigned long int D)
-     Set Q to N/D, rounded towards +infinity.
-
-     The function `mpz_cdiv_q_ui' returns the negated remainder.
-
- - Function: void mpz_cdiv_r (mpz_t R, mpz_t N, mpz_t D)
- - Function: unsigned long int mpz_cdiv_r_ui (mpz_t R, mpz_t N,
-          unsigned long int D)
-     Set R to (N - N/D * D), where the quotient is rounded towards
-     +infinity.  Unless R becomes zero, it will get the opposite sign
-     as D.
-
-     The function `mpz_cdiv_r_ui' returns the negated remainder.
-
- - Function: void mpz_cdiv_qr (mpz_t Q, mpz_t R, mpz_t N, mpz_t D)
- - Function: unsigned long int mpz_cdiv_qr_ui (mpz_t Q, mpz_t R, mpz_t
-          N, unsigned long int D)
-     Set Q to N/D, rounded towards +infinity.  Set R to (N - N/D * D).
-     Unless R becomes zero, it will get the opposite sign as D.  If Q
-     and R are the same variable, the results are undefined.
-
-     The function `mpz_cdiv_qr_ui' returns the negated remainder.
-
- - Function: unsigned long int mpz_cdiv_ui (mpz_t N, unsigned long int
-          D)
-     Like `mpz_tdiv_r_ui', but the remainder is not stored anywhere; its
-     negated value is just returned.
-
- - Function: void mpz_mod (mpz_t R, mpz_t N, mpz_t D)
- - Function: unsigned long int mpz_mod_ui (mpz_t R, mpz_t N, unsigned
-          long int D)
-     Set R to N `mod' D.  The sign of the divisor is ignored; the
-     result is always non-negative.
-
-     The function `mpz_mod_ui' returns the remainder.
-
- - Function: void mpz_divexact (mpz_t Q, mpz_t N, mpz_t D)
-     Set Q to N/D.  This function produces correct results only when it
-     is known in advance that D divides N.
-
-     Since mpz_divexact is much faster than any of the other routines
-     that produce the quotient (*note References:: Jebelean), it is the
-     best choice for instances in which exact division is known to
-     occur, such as reducing a rational to lowest terms.
-
- - Function: void mpz_tdiv_q_2exp (mpz_t Q, mpz_t N, unsigned long int
-          D)
-     Set Q to N divided by 2 raised to D.  The quotient is truncated
-     towards 0.
-
- - Function: void mpz_tdiv_r_2exp (mpz_t R, mpz_t N, unsigned long int
-          D)
-     Divide N by (2 raised to D), rounding the quotient towards 0, and
-     put the remainder in R.  Unless it is zero, R will have the same
-     sign as N.
-
- - Function: void mpz_fdiv_q_2exp (mpz_t Q, mpz_t N, unsigned long int
-          D)
-     Set Q to N divided by 2 raised to D, rounded towards -infinity.
-     This operation can also be defined as arithmetic right shift D bit
-     positions.
-
- - Function: void mpz_fdiv_r_2exp (mpz_t R, mpz_t N, unsigned long int
-          D)
-     Divide N by (2 raised to D), rounding the quotient towards
-     -infinity, and put the remainder in R.  The sign of R will always
-     be positive.  This operation can also be defined as masking of the
-     D least significant bits.
 

@@ -166,7 +166,7 @@ have is not what we distributed, so that any problems introduced by others
 will not reflect on our reputation.@refill
 
 The precise conditions of the license for the GNU MP library are found in the
-Library General Public License that accompany the source code.@refill
+Lesser General Public License that accompany the source code.@refill
 
 
 @node Introduction to GMP, Installing GMP, Copying, Top
@@ -415,12 +415,14 @@ normally preferred if it's present.  The usual @samp{CC=whatever} can be
 passed to @samp{./configure} to choose something different.
 
 For some configurations specific compiler flags are set based on the target
-CPU and compiler, for others @samp{CFLAGS="-whatever"} can be used to
-set the best flags.
+CPU and compiler, see @samp{CFLAGS} in the generated @file{Makefile}s.  The
+usual @samp{CFLAGS="-whatever"} can be passed to @samp{./configure} to use
+something different or to set good flags for systems GMP doesn't otherwise
+know.
 
-If @samp{CC} is set then @samp{CFLAGS} must also be set.  This applies even if
-@samp{CC} is merely one of the choices GMP would make itself.  This may change
-in a future release.
+Note that if @samp{CC} is set then @samp{CFLAGS} must also be set.  This
+applies even if @samp{CC} is merely one of the choices GMP would make itself.
+This may change in a future release.
 
 @item @option{--disable-alloca}
 @cindex Stack overflow segfaults
@@ -749,6 +751,15 @@ static library with the native @command{ar}.  After @samp{make}, run
 @samp{ranlib .libs/libgmp.a}, and when using @option{--enable-mpbsd} run
 @samp{ranlib .libs/libmp.a} too.
 
+@item @file{version.c} compilation
+
+The current @samp{./configure} relies on certain features of @command{sed}
+that some old systems don't have.  One symptom is @code{VERSION} not being set
+correctly in the generated @file{config.h}, leading to @file{version.c}
+failing to compile.  Irix 5.3, MIPS RISC/OS and Ultrix 4.4 are believed to be
+affected.  GNU @command{sed} is recommended, though it might be possible to
+build by editing @file{config.h} manually instead.
+
 @item VAX running Ultrix
 
 You need to build and install the GNU assembler before you compile GMP.  The VAX
@@ -986,6 +997,12 @@ generator from the C library, usually @code{mrand48} or @code{random}.  These
 routines are not reentrant, since they rely on global state.
 (However the newer random number functions that accept a
 @code{gmp_randstate_t} parameter are reentrant.)
+
+@item
+If @code{alloca} is not available, or GMP is configured with
+@samp{--disable-alloca}, the library is not reentrant, due to the current
+implementation of @file{stack-alloc.c}.  In the generated @file{config.h},
+@code{USE_STACK_ALLOC} set to 1 will mean not reentrant.
 @end itemize
 
 
@@ -2476,7 +2493,7 @@ Return the number of bytes written, or if an error occurred, return 0.
 Convert @var{op} to a double.
 @end deftypefun
 
-@deftypefun double mpq_set_d (mpq_t @var{rop}, double @var{d})
+@deftypefun void mpq_set_d (mpq_t @var{rop}, double @var{d})
 Set @var{rop} to the value of d, without rounding.
 @end deftypefun
 
@@ -3170,7 +3187,7 @@ This function requires that @var{s1size} is greater than or equal to
 @var{s2size}.  The destination must be distinct from either input operands.
 @end deftypefun
 
-@deftypefun mp_limb_t mpn_tdiv_qr (mp_limb_t *@var{qp}, mp_limb_t *@var{rp}, mp_size_t @var{qxn}, const mp_limb_t *@var{np}, mp_size_t @var{nn}, const mp_limb_t *@var{dp}, mp_size_t @var{dn})
+@deftypefun void mpn_tdiv_qr (mp_limb_t *@var{qp}, mp_limb_t *@var{rp}, mp_size_t @var{qxn}, const mp_limb_t *@var{np}, mp_size_t @var{nn}, const mp_limb_t *@var{dp}, mp_size_t @var{dn})
 Divide @{@var{np}, @var{nn}@} by @{@var{dp}, @var{dn}@}.  Write the quotient
 at @var{qp} and the remainder at @var{rp}.
 
