@@ -94,6 +94,14 @@ MA 02111-1307, USA. */
 #endif
 
 
+/* const and signed must match __gmp_const and __gmp_signed, so follow the
+   decision made for those in gmp.h.    */
+#if ! __GMP_HAVE_CONST
+#define const   /* empty */
+#define signed  /* empty */
+#endif
+
+
 /* "const" basically means a function does nothing but examine its arguments
    and give a return value, it doesn't read or write any memory (neither
    global nor pointed to by arguments), and has no other side-effects.  This
@@ -551,14 +559,6 @@ void __gmp_default_free _PROTO ((void *, size_t));
       (ptr) = (type *) (*__gmp_reallocate_func)                         \
         (ptr, (oldsize) * sizeof (type), (newsize) * sizeof (type));    \
   } while (0)
-
-
-/* const and signed must match __gmp_const and __gmp_signed, so follow the
-   decision made for those in gmp.h.    */
-#if ! __GMP_HAVE_CONST
-#define const   /* empty */
-#define signed  /* empty */
-#endif
 
 
 /* Dummy for non-gcc, code involving it will go dead. */
@@ -2443,7 +2443,7 @@ typedef unsigned int UDItype	__attribute__ ((mode (DI)));
 typedef unsigned char UQItype;
 typedef		 long SItype;
 typedef unsigned long USItype;
-#if defined _LONGLONG || defined _LONG_LONG_LIMB
+#if HAVE_LONG_LONG
 typedef	long long int DItype;
 typedef unsigned long long int UDItype;
 #else /* Assume `long' gives us a wide enough type.  Needed for hppa2.0w.  */
@@ -2478,6 +2478,7 @@ union ieee_double_extract
  || defined (__clipper__)						\
  || defined (__cris)							\
  || defined (__i386__)							\
+ || defined (__x86_64__)						\
  || defined (__i860__)							\
  || defined (__i960__)							\
  || defined (__ia64)							\
@@ -2526,7 +2527,7 @@ union ieee_double_extract
  || defined (__ibm032__)						\
  || defined (_IBMR2) || defined (_ARCH_PPC)				\
  || defined (__sh__)							\
- || defined (__sparc) || defined (sparc)				\
+ || defined (__sparc) || defined (sparc) || defined (__sparc__)		\
  || defined (__we32k__)
 #define _GMP_IEEE_FLOATS 1
 union ieee_double_extract

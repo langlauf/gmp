@@ -160,7 +160,7 @@ mpn_modexact_1c_odd (mp_srcptr src, mp_size_t size, mp_limb_t d, mp_limb_t c)
       if (l > c)
 	l += d;
 
-      ASSERT (l < d);
+      ASSERT (l <= d);
       return l;
     }
   else
@@ -172,7 +172,7 @@ mpn_modexact_1c_odd (mp_srcptr src, mp_size_t size, mp_limb_t d, mp_limb_t c)
       umul_ppmm (h, dummy, l, dmul);
       c += h;
 
-      ASSERT (c < d);
+      ASSERT (c <= d);
       return c;
     }
 }

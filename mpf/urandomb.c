@@ -32,6 +32,8 @@ mpf_urandomb (mpf_t rop, gmp_randstate_t rstate, unsigned long int nbits)
   mp_size_t nlimbs;
   mp_exp_t exp;
 
+  nbits = MIN (nbits, __GMPF_PREC_TO_BITS (rop->_mp_prec));
+
   rp = PTR (rop);
   nlimbs = (nbits + GMP_NUMB_BITS - 1) / GMP_NUMB_BITS;
 

@@ -19,6 +19,379 @@ the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA.
 
 
+2002-11-25  Kevin Ryde  <kevin@swox.se>
+
+	* Version 4.1.1 released.
+
+2002-11-25  Torbjorn Granlund  <tege@swox.com>
+
+	* mpfr/tests/tdiv.c: Decrease number of performed tests.
+
+2002-11-23  Kevin Ryde  <kevin@swox.se>
+
+	* tests/misc/t-printf.c, tests/misc/t-scanf.c (check_misc): Suppress
+	%zd test on glibc prior to 2.1, it's not supported.
+
+2002-11-19  Kevin Ryde  <kevin@swox.se>
+
+	* gmpxx.h (__gmp_randinit_lc_2exp_size_t): Return type is int.
+
+2002-11-17  Torbjorn Granlund  <tege@swox.com>
+
+	* mpn/ia64/addmul_1.asm: Don't clobber callee-saves register f16.
+	* mpn/ia64/mul_1.asm: Likewise.
+
+	* mpn/ia64/addmul_1.asm: Add pred.rel declarations.  Resolve RAW
+	hazards for condition code registers, duplicating code as needed.  Add
+	prediction to all branches.
+	* mpn/ia64/mul_1.asm: Likewise.
+	* mpn/ia64/add_n.asm: Likewise.
+	* mpn/ia64/sub_n.asm: Likewise.
+	* mpn/ia64/copyi.asm: Likewise.
+	* mpn/ia64/copyd.asm: Likewise
+
+2002-11-16  Kevin Ryde  <kevin@swox.se>
+
+	* configure.in, gmp.texi: Remove powerpc64 ABI=32L, doesn't work and
+	is unlikely to ever do so.
+	* configure.in: Allow ABI=32 for powerpc64.
+	Reported by David Edelsohn.
+
+2002-11-14  Kevin Ryde  <kevin@swox.se>
+
+	* gmp-h.in (__GMP_DECLSPEC_EXPORT, __GMP_DECLSPEC_IMPORT) [__GNUC__]:
+	Use __dllexport__ and __dllimport__ to keep out of application
+	namespace.
+
+	* Makefile.am (LIBGMPXX_LT_REVISION): Bump for istream changes.
+
+2002-11-14  Gerardo Ballabio <gerardo.ballabio@unimib.it>
+
+	* gmpxx.h (__gmp_randinit_default_t, __gmp_randinit_lc_2exp_t,
+	__gmp_randinit_lc_2exp_size_t): Use extern "C" { typedef ... }, for
+	the benefit of g++ prior to 3.2.
+
+2002-11-12  Kevin Ryde  <kevin@swox.se>
+
+	* mpn/generic/tdiv_qr.c: Add <stdlib.h> for abort().
+
+	* gmpxx.h (gmp_randclass constructors): Patch from Roberto Bagnara to
+	use extern "C" on C function pointer arguments.
+
+2002-11-07  Gerardo Ballabio <gerardo.ballabio@unimib.it>
+
+	* cxx/ismpf.cc, cxx/ismpq.cc, cxx/ismpz.cc: Don't skip whitespace
+	without ios::skipws.
+
+2002-11-06  Torbjorn Granlund  <tege@swox.com>
+
+	* mpn/generic/tdiv_qr.c: Remove a bogus assert.
+
+2002-11-04  Kevin Ryde  <kevin@swox.se>
+
+	* mpn/generic/mode1o.c, mpn/alpha/ev5/mode1o.c: Correction to ASSERTs.
+	Reported by Christoph Ludwig.
+
+2002-11-02  Kevin Ryde  <kevin@swox.se>
+
+	* gmp.texi (ABI and ISA): Add powerpc620 and powerpc630 to powerpc64.
+
+2002-11-01  Kevin Ryde  <kevin@swox.se>
+
+	* longlong.h: Test __x86_64__ not __x86_64.  Reported by Andreas
+	Jaeger.
+
+	* mpf/urandomb.c: Truncate nbits to precision of rop.
+
+	* gmp.texi (Known Build Problems): Add MacOS X C++ shared libraries.
+
+2002-10-29  Torbjorn Granlund  <tege@swox.com>
+
+	* configure.in (*-cray-unicos*): Pass -hnofastmd again.
+
+2002-10-28  Kevin Ryde  <kevin@swox.se>
+
+	* gmp-impl.h (union ieee_double_extract): IEEE little endian for
+	x86_64.  Reported by Andreas Jaeger.
+
+2002-10-25  Torbjorn Granlund  <tege@swox.com>
+
+	* tests/tadd.c: Disable test of denorms.
+
+2002-10-23  Linus Nordberg  <linus@swox.se>
+
+	* gmp.texi (Introduction to GMP): Update section about mailing
+	lists.
+
+2002-10-21  Torbjorn Granlund  <tege@swox.com>
+
+	* configure.in (*-cray-unicos*): Remove -hscalar0, it causes too much
+	performance loss.  Let's trust Cray to fix their compilers.
+
+	* mpn/cray/ieee/addmul_1.c: Handle overlap as in mul_1.c.
+	* mpn/cray/ieee/submul_1.c: Likewise.
+
+2002-10-20  Kevin Ryde  <kevin@swox.se>
+
+	* mpz/import.c, mpz/export.c: Use char* subtract from NULL to get
+	pointer alignment, for the benefit of Cray vector systems.
+
+2002-10-19  Kevin Ryde  <kevin@swox.se>
+
+	* configure.in (sparc v9 *bsd*): Add NetBSD and OpenBSD sparc64.
+	(x86 openbsd*): Extra underscore for _GLOBAL_OFFSET_TABLE_.
+
+	* demos/calc/calc.y: Change ={ to {, needed for bison 1.50.
+
+	* longlong.h (count_leading_zeros, count_trailing_zeros) [x86_64]:
+	Should be UDItype.
+
+2002-10-19  Torbjorn Granlund  <tege@swox.com>
+
+	* mpn/generic/rootrem.c: Avoid overflow in xnb calculation.
+	* mpz/root.c: Avoid overflow in rootnb calculation.
+
+2002-09-20  Gerardo Ballabio <gerardo.ballabio@unimib.it>
+
+	* gmpxx.h (__gmp_binary_equal, __gmp_binary_not_equal): Fix broken
+	mpq/double functions.
+
+2002-09-16  Kevin Ryde  <kevin@swox.se>
+
+	* gmp.texi (Notes for Particular Systems): Note cl /MD is required for
+	Microsoft C and MINGW to cooperate on I/O.
+	(Language Bindings): Add linbox.
+
+2002-09-14  Kevin Ryde  <kevin@swox.se>
+
+	* configure.in (GMP_C_RESTRICT): Remove this, currently unused, and
+	#define restrict causes problems for MS Visual C on win64.  Reported
+	by David Librik.
+
+2002-09-08  Kevin Ryde  <kevin@swox.se>
+
+	* acinclude.m4 (GMP_GCC_WA_MCPU): New macro.
+	* configure.in (alpha*-*-*): Use it to avoid -Wa,-mev67 if gas isn't
+	new enough to know ev67.  Reported by David Bremner.
+
+2002-09-07  Kevin Ryde  <kevin@swox.se>
+
+	* gmp.texi (Demonstration Programs): New section, expanding on what
+	was under "Build Options".
+	(Converting Floats): Don't need \ for _ in @var within @math.
+
+	* longlong.h: Define COUNT_LEADING_ZEROS_NEED_CLZ_TAB for all alphas,
+	since mpn/alpha/cntlz.asm always goes into libgmp.so, even for ev67
+	and ev68 which don't need it.  Reported by David Bremner.
+
+2002-09-02  Kevin Ryde  <kevin@swox.se>
+
+	* gmp-h.in (__GNU_MP_VERSION_PATCHLEVEL): Bump to 4.1.1.
+	* Makefile.am (LIBGMP_LT_REVISION, LIBMP_LT_REVISION): Increment.
+
+2002-08-26  Torbjorn Granlund  <tege@swox.com>
+
+	* gmp.texi (Converting Floats): Fix typo in mpf_get_d_2exp docs,
+	reported by Paul Zimmermann.
+
+2002-08-23  Torbjorn Granlund  <tege@swox.com>
+
+	* configure.in: Choose powerpc32/aix.m4 or powerpc64/aix.m4 based on
+	ABI, not configuration triple.
+
+2002-08-22  Kevin Ryde  <kevin@swox.se>
+
+	* configfsf.guess: Update to 2002-08-19.
+	* configfsf.sub: Update to 2002-08-20.
+
+2002-08-20  Kevin Ryde  <kevin@swox.se>
+
+	* gmp.texi (Known Build Problems): Binutils 2.12 is ok for libgmp.a.
+	(Notes for Particular Systems): Remove -march=pentiumpro, now ok.
+	(Emacs): New section.
+	(Language Bindings): Update MLton URL, reported by Stephen Weeks.
+
+2002-08-16  Torbjorn Granlund  <tege@swox.com>
+
+	* mpn/m68k/lshift.asm: Fix typo in !scale_available_p code.
+	* mpn/m68k/rshift.asm: Likewise.
+
+2002-08-09  Kevin Ryde  <kevin@swox.se>
+
+	* mpn/ia64/add_n.asm, mpn/ia64/sub_n.asm: Add .body.
+	* mpn/ia64/add_n.asm, mpn/ia64/addmul_1.asm, mpn/ia64/mul_1.asm,
+	mpn/ia64/sub_n.asm: Position .save ar.lc just before relevant
+	instruction.
+	* mpn/ia64/addmul_1.asm, mpn/ia64/mul_1.asm: Add .save ar.pfs and pr.
+	* mpn/ia64/copyd.asm, mpn/ia64/copyi.asm: Correction to .body position.
+	* mpn/ia64/lorrshift.asm: Add .prologue stuff.
+
+	* mpn/ia64/*.asm [hpux ABI=32]: Extend 32-bit operands to 64-bits, not
+	optimal and might not be sufficient, but seems to work.
+
+2002-08-07  Kevin Ryde  <kevin@swox.se>
+
+	* mpz/remove.c: Make src==0 return 0, not do DIVIDE_BY_ZERO.
+
+2002-08-05  Kevin Ryde  <kevin@swox.se>
+
+	* Makefile.am (libgmpxx_la_DEPENDENCIES): libgmp.la should be here,
+	not libgmpxx_la_LIBADD, for the benefit of "make -j2".
+
+2002-07-30  Kevin Ryde  <kevin@swox.se>
+
+	* gmp.texi (Known Build Problems): An easier workaround for DESTDIR,
+	using LD_LIBRARY_PATH.
+
+2002-07-27  Kevin Ryde  <kevin@swox.se>
+
+	* configure.in: Establish CONFIG_SHELL to avoid a problem with
+	AC_LIBTOOL_SYS_MAX_CMD_LEN, in particular with ia64-*-hpux*.
+
+	* tune/speed.h (SPEED_ROUTINE_MPN_GCD_FINDA): Don't let calls to
+	mpn_gcd_finda go dead.
+
+2002-07-21  Kevin Ryde  <kevin@swox.se>
+
+	* Makefile.am (DISTCLEANFILES): Add configure.lineno.
+
+	* tests/mpz/t-jac.c (try_si_zi): Correction to "a" parameter type.
+
+2002-07-17  Kevin Ryde  <kevin@swox.se>
+
+	* gmp.texi (Random State Initialization): Typo in m2exp described for
+	gmp_randinit_lc_2exp_size.
+	(Formatted Input Strings): Typo in %n summary.
+
+	* mpfr/acinclude.m4 (MPFR_CONFIGS): Patch by Vincent for an apparent
+	float rounding gremlin on powerpc.
+
+2002-07-15  Kevin Ryde  <kevin@swox.se>
+
+	* Makefile.am (PRINTF_OBJECTS): Avoid ending in a backslash, some hpux
+	makes don't like that.
+
+	* gmp-impl.h (ieee_double_extract): Test __sparc__, used by gcc 3.1.
+	Reported by nix@esperi.demon.co.uk.
+	* mpfr/mpfr-math.h (_MPFR_NAN_BYTES etc): Ditto.
+
+2002-07-13  Kevin Ryde  <kevin@swox.se>
+
+	* gmp-h.in (__GMP_EXTERN_INLINE): Don't use this during configure,
+	ie. __GMP_WITHIN_CONFIGURE, to avoid needing dependent routines.
+	* acinclude.m4 (GMP_H_EXTERN_INLINE): Consequent changes.
+
+	* gmp.texi (Number Theoretic Functions): Clarify return value.
+	Reported by Peter Keller.
+
+2002-07-10  Kevin Ryde  <kevin@swox.se>
+
+	* gmp-impl.h (DItype): Use HAVE_LONG_LONG to choose long long,
+	avoiding _LONGLONG which is in gcc but means something unrelated in MS
+	Visual C 7.0.  Reported by David Librik.
+
+2002-07-06  Kevin Ryde  <kevin@swox.se>
+
+	* gmp.texi (Low-level Functions): mpn_set_str takes "unsigned char *",
+	reported by Mark Sofroniou.
+	(C++ Interface General): Describe linking with libgmpxx and libgmp.
+
+2002-07-01  Kevin Ryde  <kevin@swox.se>
+
+	* gmp-h.in (mpz_export): Remove a spurious parameter name.
+
+2002-06-29  Kevin Ryde  <kevin@swox.se>
+
+	* mpf/inp_str.c: Fix returned count of chars read, reported by Paul
+	Zimmermann.  Also fix a memory leak for invalid input.
+
+2002-06-25  Kevin Ryde  <kevin@swox.se>
+
+	* configure.in (x86-*-*): Remove -march=pentiumpro check, seems ok
+	with current code.
+
+2002-06-23  Kevin Ryde  <kevin@swox.se>
+
+	* acinclude.m4 (GMP_GCC_ARM_UMODSI): Match bad "gcc --version" output
+	exactly, rather than parsing it with GMP_GCC_VERSION_GE.
+
+2002-06-22  Kevin Ryde  <kevin@swox.se>
+
+	* gmp-impl.h (const, signed): Move to near top of file, fixes
+	--enable-alloca=debug on K&R.
+
+2002-06-20  Kevin Ryde  <kevin@swox.se>
+
+	* mpn/ia64/submul_1.c: Add missing TMP_DECL, TMP_MARK, TMP_FREE.
+	Reported by Paul Zimmermann.
+
+2002-06-20  Gerardo Ballabio <gerardo.ballabio@unimib.it>
+
+	* gmpxx.h, mpfrxx.h: Remove mpz_classref, let mpq_class::get_num and
+	mpq_class::get_den return mpz_class& as per the documentation.
+	Reported by Roberto Bagnara.
+
+2002-06-15  Paul Zimmermann  <Paul.Zimmermann@loria.fr>
+
+	* mpfr/set_q.c: Allow for 1 bit numerator or denominator.
+
+2002-06-14  Kevin Ryde  <kevin@swox.se>
+
+	* tests/misc/t-scanf.c:	(fromstring_gmp_fscanf): Add missing va_end.
+	Don't mix varargs and fixed args functions, not good on x86_64.
+	Reported by Marcus Meissner.
+
+	* tests/mpz/t-cmp_d.c (check_one_2exp): Use volatile to force to
+	double, fixes gcc 3.1 with -O4.  Reported by Michael Lee.
+	* configure.in (AC_C_VOLATILE): New macro.
+
+2002-06-09  Kevin Ryde  <kevin@swox.se>
+
+	* mpfr/tests/tadd.c, mpfr/tests/tmul.c (check): Apply a hack to the
+	parameter order to make sparc gcc 2.95.2 happy.
+
+	* gmp.texi (Known Build Problems): Notes on MacOS and GCC.
+	(Low-level Functions): mpn_get_str accepts base==256.
+
+2002-06-09  Torbjorn Granlund  <tege@swox.com>
+
+	* randraw.c (lc): Remove broken ASSERT_ALWAYS.
+
+2002-06-08  Kevin Ryde  <kevin@swox.se>
+
+	* configure.in (alphev56): Fix to use ev5 path.
+
+	* mpfr/tests/tsqrt.c, mpfr/tests/tsqrt_ui.c: Suppress tests if sqrt is
+	not affected by mpfr_set_machine_rnd_mode.
+
+	* mpfr/mul_2si.c: Workaround a mips gcc 2.95.3 bug under -O2 -mabi=n32.
+
+2002-06-06  Kevin Ryde  <kevin@swox.se>
+
+	* configure.in, mpfr/tests/Makefile.am: Add $LIBM to $LIBS for
+	MPFR_CONFIGS so it detects fesetround, and let it go through to
+	$MPFR_LIBS.
+	* mpfr/rnd_mode.c: Use gmp-impl.h to get MPFR_HAVE_FESETROUND.
+
+	* tests/mpz/t-sizeinbase.c: Disable fake bits test, such pointer
+	setups are bogus and have been seen failing on hppa.
+
+2002-06-03  Kevin Ryde  <kevin@swox.se>
+
+	* mpn/sparc32/sparc-defs.m4: New file.
+	* configure.in (sparc*-*-*): Use it.
+	* acinclude.m4 (GMP_ASM_SPARC_REGISTER): New macro.
+	* configure.in (sparc64): Use it.  Also, use -Wc,-m64 for linking.
+	* mpn/sparc64/add_n.asm, mpn/sparc64/addmul_1.asm,
+	mpn/sparc64/copyd.asm, mpn/sparc64/copyi.asm, mpn/sparc64/lshift.asm,
+	mpn/sparc64/mul_1.asm, mpn/sparc64/rshift.asm,
+	mpn/sparc64/sqr_diagonal.asm, mpn/sparc64/sub_n.asm,
+	mpn/sparc64/submul_1.asm: Use REGISTER for .register.
+
+2002-06-01  Kevin Ryde  <kevin@swox.se>
+
+	* mpz/powm_ui.c: Fix for result range in certain circumstances.
+
 2002-05-23  Torbjorn Granlund  <tege@swox.com>
 
 	* Version 4.1 released.
@@ -76,7 +449,7 @@ MA 02111-1307, USA.
 	(gmp_mpn_functions_optional): Add mul_3, mul_4, addmul_2, addmul_3,
 	and addmul_4.
 	* acconfig.h: Add #undefs for new optional mpn functions.
-	
+
 2002-05-18  Kevin Ryde  <kevin@swox.se>
 
 	* gmp.texi (Integer Import and Export): Mention Cray unfilled words.
@@ -126,7 +499,7 @@ MA 02111-1307, USA.
 	before returning.
 	* mpz/root.c: Don't allocate extra limb for root value.
 	* mpz/perfpow.c: Undo last change.
-	
+
 2002-05-08  Torbjorn Granlund  <tege@swox.com>
 
 	* gmp-impl.h (powerpc BSWAP_LIMB_FETCH): Rename local variable to make
@@ -139,7 +512,7 @@ MA 02111-1307, USA.
 	* gmp-impl.h (mpn_rootrem): Add declaration.
 	* mpz/perfpow.c: Amend allocations for mpn_rootrem requirements.
 	* mpz/root.c: Rewrite to use mpn_rootrem.
-	
+
 2002-05-08  Kevin Ryde  <kevin@swox.se>
 
 	* gmp-impl.h (MUL_KARATSUBA_THRESHOLD etc): Remove forced nail values.

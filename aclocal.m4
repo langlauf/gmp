@@ -622,15 +622,16 @@ dnl  size==1 case in mpn/generic/mode1o.c, and this shows up in
 dnl  tests/mpz/t-jac.c as a wrong result from mpz_kronecker_ui.
 
 AC_DEFUN(GMP_GCC_ARM_UMODSI,
-[AC_MSG_CHECKING([whether gcc unsigned division works])
-GMP_GCC_VERSION_GE([$1], 2,95,4)
-case $gmp_compare_ge in
-yes)
-  ifelse([$2],,:,[$2])
-  gmp_gcc_arm_umodsi_result=yes ;;
-*)
-  ifelse([$3],,:,[$3])
-  gmp_gcc_arm_umodsi_result="no, gcc <= 2.95.3" ;;
+[AC_MSG_CHECKING([whether ARM gcc unsigned division works])
+tmp_version=`$1 --version`
+echo "$tmp_version" >&AC_FD_CC
+case $tmp_version in
+  [2.95 | 2.95.[123]])
+    ifelse([$3],,:,[$3])
+    gmp_gcc_arm_umodsi_result="no, gcc 2.95.[0123]" ;;
+  *)
+    ifelse([$2],,:,[$2])
+    gmp_gcc_arm_umodsi_result=yes ;;
 esac
 AC_MSG_RESULT([$gmp_gcc_arm_umodsi_result])
 ])
@@ -750,6 +751,40 @@ EOF
   else
       ifelse([$5],,:,[$5])
   fi
+fi
+])
+
+
+dnl  GMP_GCC_WA_MCPU(CC+CFLAGS, NEWFLAG [,ACTION-YES [,ACTION-NO]])
+dnl  --------------------------------------------------------------
+dnl  Check whether gcc (or gas rather) accepts a flag like "-Wa,-mev67".
+dnl
+dnl  Gas doesn't give an error for an unknown cpu, it only prints a warning
+dnl  like "Warning: Unknown CPU identifier `ev78'".
+dnl
+dnl  This is intended for use on alpha, since only recent versions of gas
+dnl  accept -mev67, but there's nothing here that's alpha specific.
+
+AC_DEFUN(GMP_GCC_WA_MCPU,
+[AC_MSG_CHECKING([assembler $1 $2])
+result=no
+cat >conftest.c <<EOF
+int main () {}
+EOF
+gmp_compile="$1 $2 -c conftest.c >conftest.out 2>&1"
+if AC_TRY_EVAL(gmp_compile); then
+  if grep "Unknown CPU identifier" conftest.out >/dev/null; then : ;
+  else
+    result=yes
+  fi    
+fi
+cat conftest.out >&AC_FD_CC
+rm -f conftest*
+AC_MSG_RESULT($result)
+if test "$result" = yes; then
+  ifelse([$3],,:,[$3])
+else
+  ifelse([$4],,:,[$4])
 fi
 ])
 
@@ -1748,6 +1783,28 @@ GMP_DEFINE_RAW(["define(<WANT_R_REGISTERS>,<$gmp_cv_asm_powerpc_r_registers>)"])
 ])
 
 
+dnl  GMP_ASM_SPARC_REGISTER
+dnl  ----------------------
+dnl  Determine whether the assembler accepts the ".register" directive.
+dnl  Old versions of solaris "as" don't.
+dnl
+dnl  See also mpn/sparc32/sparc-defs.m4 which uses the result of this test.
+
+AC_DEFUN(GMP_ASM_SPARC_REGISTER,
+[AC_REQUIRE([GMP_ASM_TEXT])
+AC_CACHE_CHECK([if the assembler accepts ".register"],
+               gmp_cv_asm_sparc_register,
+[GMP_TRY_ASSEMBLE(
+[	$gmp_cv_asm_text
+	.register	%g2,#scratch
+],
+[gmp_cv_asm_sparc_register=yes],
+[gmp_cv_asm_sparc_register=no])])
+
+GMP_DEFINE_RAW(["define(<HAVE_REGISTER>,<$gmp_cv_asm_sparc_register>)"])
+])
+
+
 dnl  GMP_C_ATTRIBUTE_CONST
 dnl  ---------------------
 
@@ -2457,8 +2514,9 @@ case $gmp_cv_c_inline in
 no) ;;
 *)
   AC_TRY_COMPILE(
-GMP_INCLUDE_GMP_H
-[#ifndef __GMP_EXTERN_INLINE
+[#define __GMP_WITHIN_CONFIGURE_INLINE 1
+]GMP_INCLUDE_GMP_H[
+#ifndef __GMP_EXTERN_INLINE
 die die die
 #endif
 ],,,
@@ -7921,16 +7979,30 @@ dnl IEEE-754 compatible rounding mode).
 if test -n "$GCC"; then
   AC_CACHE_CHECK([for gcc float-conversion bug], mpfr_cv_gcc_floatconv_bug, [
   AC_TRY_RUN([
+#include <float.h>
+#ifdef MPFR_HAVE_FESETROUND
+#include <fenv.h>
+#endif
 int main()
 {
   double x = 0.5;
   int i;
   for (i = 1; i <= 11; i++)
     x *= x;
-  return x == 0;
+  if (x != 0)
+    return 1;
+#ifdef MPFR_HAVE_FESETROUND
+  /* Useful test for the G4 PowerPC */
+  fesetround(FE_TOWARDZERO);
+  x = DBL_MAX;
+  x *= 2.0;
+  if (x != DBL_MAX)
+    return 1;
+#endif
+  return 0;
 }
-  ], [mpfr_cv_gcc_floatconv_bug="yes, use -ffloat-store"],
-     [mpfr_cv_gcc_floatconv_bug="no"],
+  ], [mpfr_cv_gcc_floatconv_bug="no"],
+     [mpfr_cv_gcc_floatconv_bug="yes, use -ffloat-store"],
      [mpfr_cv_gcc_floatconv_bug="cannot test, use -ffloat-store"])
   ])
   if test "$mpfr_cv_gcc_floatconv_bug" != "no"; then

@@ -136,6 +136,9 @@ MA 02111-1307, USA. */
 #define UDIV_NEEDS_NORMALIZATION 1
 #define UDIV_TIME 220
 #endif /* LONGLONG_STANDALONE */
+/* clz_tab is required by mpn/alpha/cntlz.asm, and that file is built for
+   all alphas, even though ev67 and ev68 don't need it. */
+#define COUNT_LEADING_ZEROS_NEED_CLZ_TAB
 #if HAVE_HOST_CPU_alphaev67 || HAVE_HOST_CPU_alphaev68
 #define count_leading_zeros(COUNT,X) \
   __asm__("ctlz %1,%0" : "=r"(COUNT) : "r"(X))
@@ -150,7 +153,6 @@ long __MPN(count_leading_zeros) _PROTO ((UDItype));
 #endif
 #define count_leading_zeros(count, x) \
   ((count) = __MPN(count_leading_zeros) (x))
-#define COUNT_LEADING_ZEROS_NEED_CLZ_TAB
 #endif /* LONGLONG_STANDALONE */
 #endif /* ! (ev67 || ev68) */
 #endif /* __alpha */
@@ -685,7 +687,7 @@ extern UWtype __MPN(udiv_qrnnd) _PROTO ((UWtype *, UWtype, UWtype, UWtype));
 #endif
 #endif /* 80x86 */
 
-#if defined (__x86_64) && W_TYPE_SIZE == 64
+#if defined (__x86_64__) && W_TYPE_SIZE == 64
 #define add_ssaaaa(sh, sl, ah, al, bh, bl) \
   __asm__ ("addq %5,%1\n\tadcq %3,%0"					\
 	   : "=r" ((UDItype)(sh)), "=&r" ((UDItype)(sl))		\
@@ -706,15 +708,15 @@ extern UWtype __MPN(udiv_qrnnd) _PROTO ((UWtype *, UWtype, UWtype, UWtype));
 	   : "0" ((UDItype)(n0)), "1" ((UDItype)(n1)), "rm" ((UDItype)(dx)))
 #define count_leading_zeros(count, x)					\
   do {									\
-    USItype __cbtmp;							\
+    UDItype __cbtmp;							\
     ASSERT ((x) != 0);							\
-    __asm__ ("bsrq %1,%0" : "=r" (__cbtmp) : "rm" ((USItype)(x)));	\
+    __asm__ ("bsrq %1,%0" : "=r" (__cbtmp) : "rm" ((UDItype)(x)));	\
     (count) = __cbtmp ^ 63;						\
   } while (0)
 #define count_trailing_zeros(count, x)					\
   do {									\
     ASSERT ((x) != 0);							\
-    __asm__ ("bsfq %1,%0" : "=r" (count) : "rm" ((USItype)(x)));	\
+    __asm__ ("bsfq %1,%0" : "=r" (count) : "rm" ((UDItype)(x)));	\
   } while (0)
 #endif /* x86_64 */
 

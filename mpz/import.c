@@ -19,6 +19,7 @@ along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA. */
 
+#include <stdio.h>  /* for NULL */
 #include "gmp.h"
 #include "gmp-impl.h"
 
@@ -58,7 +59,7 @@ mpz_import (mpz_ptr z, size_t count, int order,
      mask out the nail bits in the input data.  */
   if (nail == 0 && GMP_NAIL_BITS == 0)
     {
-      unsigned  align = (unsigned long) data % sizeof (mp_limb_t);
+      unsigned  align = ((char *) data - (char *) NULL) % sizeof (mp_limb_t);
 
       if (order == -1
           && size == sizeof (mp_limb_t)

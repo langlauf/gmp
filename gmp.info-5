@@ -1,7 +1,7 @@
 This is gmp.info, produced by makeinfo version 4.2 from gmp.texi.
 
 This manual describes how to install and use the GNU multiple precision
-arithmetic library, version 4.1.
+arithmetic library, version 4.1.1.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
 2001, 2002 Free Software Foundation, Inc.
@@ -17,6 +17,97 @@ INFO-DIR-SECTION GNU libraries
 START-INFO-DIR-ENTRY
 * gmp: (gmp).                   GNU Multiple Precision Arithmetic Library.
 END-INFO-DIR-ENTRY
+
+
+File: gmp.info,  Node: C++ Interface General,  Next: C++ Interface Integers,  Prev: C++ Class Interface,  Up: C++ Class Interface
+
+C++ Interface General
+=====================
+
+All the C++ classes and functions are available with
+
+     #include <gmpxx.h>
+
+   Programs should be linked with the `libgmpxx' and `libgmp'
+libraries.  For example,
+
+     g++ mycxxprog.cc -lgmpxx -lgmp
+
+The classes defined are
+
+ - Class: mpz_class
+ - Class: mpq_class
+ - Class: mpf_class
+
+   The standard operators and various standard functions are overloaded
+to allow arithmetic with these classes.  For example,
+
+     int
+     main (void)
+     {
+       mpz_class a, b, c;
+     
+       a = 1234;
+       b = "-5678";
+       c = a+b;
+       cout << "sum is " << c << "\n";
+       cout << "absolute value is " << abs(c) << "\n";
+     
+       return 0;
+     }
+
+   An important feature of the implementation is that an expression like
+`a=b+c' results in a single call to the corresponding `mpz_add',
+without using a temporary for the `b+c' part.  Expressions which by
+their nature imply intermediate values, like `a=b*c+d*e', still use
+temporaries though.
+
+   The classes can be freely intermixed in expressions, as can the
+classes and the standard types `long', `unsigned long' and `double'.
+Smaller types like `int' or `float' can also be intermixed, since C++
+will promote them.
+
+   Note that `bool' is not accepted directly, but must be explicitly
+cast to an `int' first.  This is because C++ will automatically convert
+any pointer to a `bool', so if GMP accepted `bool' it would make all
+sorts of invalid class and pointer combinations compile but almost
+certainly not do anything sensible.
+
+   Conversions back from the classes to standard C++ types aren't done
+automatically, instead member functions like `get_si' are provided (see
+the following sections for details).
+
+   Also there are no automatic conversions from the classes to the
+corresponding GMP C types, instead a reference to the underlying C
+object can be obtained with the following functions,
+
+ - Function: mpz_t mpz_class::get_mpz_t ()
+ - Function: mpq_t mpq_class::get_mpq_t ()
+ - Function: mpf_t mpf_class::get_mpf_t ()
+
+   These can be used to call a C function which doesn't have a C++ class
+interface.  For example to set `a' to the GCD of `b' and `c',
+
+     mpz_class a, b, c;
+     ...
+     mpz_gcd (a.get_mpz_t(), b.get_mpz_t(), c.get_mpz_t());
+
+   In the other direction, a class can be initialized from the
+corresponding GMP C type, or assigned to if an explicit constructor is
+used.  In both cases this makes a copy of the value, it doesn't create
+any sort of association.  For example,
+
+     mpz_t z;
+     // ... init and calculate z ...
+     mpz_class x(z);
+     mpz_class y;
+     y = mpz_class (z);
+
+   There are no namespace setups in `gmpxx.h', all types and functions
+are simply put into the global namespace.  This is what `gmp.h' has
+done in the past, and continues to do for compatibility.  The extras
+provided by `gmpxx.h' follow GMP naming conventions and are unlikely to
+clash with anything.
 
 
 File: gmp.info,  Node: C++ Interface Integers,  Next: C++ Interface Rationals,  Prev: C++ Interface General,  Up: C++ Class Interface
@@ -604,6 +695,9 @@ C++
         * LiDIA `http://www.informatik.tu-darmstadt.de/TI/LiDIA'
           A C++ library for computational number theory.
 
+        * Linbox `http://www.linalg.org'
+          Sparse vectors and matrices.
+
         * NTL `http://www.shoup.net/ntl'
           A C++ number theory library.
 
@@ -630,7 +724,7 @@ M4
           Optionally provides an arbitrary precision `mpeval'.
 
 ML
-        * MLton compiler `http://www.sourcelight.com/MLton'
+        * MLton compiler `http://www.mlton.org'
 
 Oz
         * Mozart `http://www.mozart-oz.org'
@@ -1048,169 +1142,4 @@ elements with values much greater than in fact arise in the
 interpolation steps.  The diagram shown for the 3-way is attractive,
 but again doesn't have to be implemented that way and for example with
 a bit of rearrangement just one division by 6 can be done.
-
-
-File: gmp.info,  Node: FFT Multiplication,  Next: Other Multiplication,  Prev: Toom-Cook 3-Way Multiplication,  Up: Multiplication Algorithms
-
-FFT Multiplication
-------------------
-
-   At large to very large sizes a Fermat style FFT multiplication is
-used, following Scho"nhage and Strassen (*note References::).
-Descriptions of FFTs in various forms can be found in many textbooks,
-for instance Knuth section 4.3.3 part C or Lipson chapter IX.  A brief
-description of the form used in GMP is given here.
-
-   The multiplication done is x*y mod 2^N+1, for a given N.  A full
-product x*y is obtained by choosing N>=bits(x)+bits(y) and padding x
-and y with high zero limbs.  The modular product is the native form for
-the algorithm, so padding to get a full product is unavoidable.
-
-   The algorithm follows a split, evaluate, pointwise multiply,
-interpolate and combine similar to that described above for Karatsuba
-and Toom-3.  A k parameter controls the split, with an FFT-k splitting
-into 2^k pieces of M=N/2^k bits each.  N must be a multiple of
-(2^k)*mp_bits_per_limb so the split falls on limb boundaries, avoiding
-bit shifts in the split and combine stages.
-
-   The evaluations, pointwise multiplications, and interpolation, are
-all done modulo 2^N'+1 where N' is 2M+k+3 rounded up to a multiple of
-2^k and of `mp_bits_per_limb'.  The results of interpolation will be
-the following negacyclic convolution of the input pieces, and the
-choice of N' ensures these sums aren't truncated.
-
-                ---
-                \         b
-     w[n] =     /     (-1) * x[i] * y[j]
-                ---
-            i+j==b*2^k+n
-               b=0,1
-
-   The points used for the evaluation are g^i for i=0 to 2^k-1 where
-g=2^(2N'/2^k).  g is a 2^k'th root of unity mod 2^N'+1, which produces
-necessary cancellations at the interpolation stage, and it's also a
-power of 2 so the fast fourier transforms used for the evaluation and
-interpolation do only shifts, adds and negations.
-
-   The pointwise multiplications are done modulo 2^N'+1 and either
-recurse into a further FFT or use a plain multiplication (Toom-3,
-Karatsuba or basecase), whichever is optimal at the size N'.  The
-interpolation is an inverse fast fourier transform.  The resulting set
-of sums of x[i]*y[j] are added at appropriate offsets to give the final
-result.
-
-   Squaring is the same, but x is the only input so it's one transform
-at the evaluate stage and the pointwise multiplies are squares.  The
-interpolation is the same.
-
-   For a mod 2^N+1 product, an FFT-k is an O(N^(k/(k-1))) algorithm,
-the exponent representing 2^k recursed modular multiplies each
-1/2^(k-1) the size of the original.  Each successive k is an asymptotic
-improvement, but overheads mean each is only faster at bigger and
-bigger sizes.  In the code, `MUL_FFT_TABLE' and `SQR_FFT_TABLE' are the
-thresholds where each k is used.  Each new k effectively swaps some
-multiplying for some shifts, adds and overheads.
-
-   A mod 2^N+1 product can be formed with a normal NxN->2N bit multiply
-plus a subtraction, so an FFT and Toom-3 etc can be compared directly.
-A k=4 FFT at O(N^1.333) can be expected to be the first faster than
-Toom-3 at O(N^1.465).  In practice this is what's found, with
-`MUL_FFT_MODF_THRESHOLD' and `SQR_FFT_MODF_THRESHOLD' being between 300
-and 1000 limbs, depending on the CPU.  So far it's been found that only
-very large FFTs recurse into pointwise multiplies above these sizes.
-
-   When an FFT is to give a full product, the change of N to 2N doesn't
-alter the theoretical complexity for a given k, but for the purposes of
-considering where an FFT might be first used it can be assumed that the
-FFT is recursing into a normal multiply and that on that basis it's
-doing 2^k recursed multiplies each 1/2^(k-2) the size of the inputs,
-making it O(N^(k/(k-2))).  This would mean k=7 at O(N^1.4) would be the
-first FFT faster than Toom-3.  In practice `MUL_FFT_THRESHOLD' and
-`SQR_FFT_THRESHOLD' have been found to be in the k=8 range, somewhere
-between 3000 and 10000 limbs.
-
-   The way N is split into 2^k pieces and then 2M+k+3 is rounded up to
-a multiple of 2^k and `mp_bits_per_limb' means that when
-2^k>=mp_bits_per_limb the effective N is a multiple of 2^(2k-1) bits.
-The +k+3 means some values of N just under such a multiple will be
-rounded to the next.  The complexity calculations above assume that a
-favourable size is used, meaning one which isn't padded through
-rounding, and it's also assumed that the extra +k+3 bits are negligible
-at typical FFT sizes.
-
-   The practical effect of the 2^(2k-1) constraint is to introduce a
-step-effect into measured speeds.  For example k=8 will round N up to a
-multiple of 32768 bits, so for a 32-bit limb there'll be 512 limb
-groups of sizes for which `mpn_mul_n' runs at the same speed.  Or for
-k=9 groups of 2048 limbs, k=10 groups of 8192 limbs, etc.  In practice
-it's been found each k is used at quite small multiples of its size
-constraint and so the step effect is quite noticeable in a time versus
-size graph.
-
-   The threshold determinations currently measure at the mid-points of
-size steps, but this is sub-optimal since at the start of a new step it
-can happen that it's better to go back to the previous k for a while.
-Something more sophisticated for `MUL_FFT_TABLE' and `SQR_FFT_TABLE'
-will be needed.
-
-
-File: gmp.info,  Node: Other Multiplication,  Prev: FFT Multiplication,  Up: Multiplication Algorithms
-
-Other Multiplication
---------------------
-
-   The 3-way Toom-Cook algorithm described above (*note Toom-Cook 3-Way
-Multiplication::) generalizes to split into an arbitrary number of
-pieces, as per Knuth section 4.3.3 algorithm C.  This is not currently
-used, though it's possible a Toom-4 might fit in between Toom-3 and the
-FFTs.  The notes here are merely for interest.
-
-   In general a split into r+1 pieces is made, and evaluations and
-pointwise multiplications done at 2*r+1 points.  A 4-way split does 7
-pointwise multiplies, 5-way does 9, etc.  Asymptotically an (r+1)-way
-algorithm is O(N^(log(2*r+1)/log(r+1))).  Only the pointwise
-multiplications count towards big-O complexity, but the time spent in
-the evaluate and interpolate stages grows with r and has a significant
-practical impact, with the asymptotic advantage of each r realized only
-at bigger and bigger sizes.  The overheads grow as O(N*r), whereas in
-an r=2^k FFT they grow only as O(N*log(r)).
-
-   Knuth algorithm C evaluates at points 0,1,2,...,2*r, but exercise 4
-uses -r,...,0,...,r and the latter saves some small multiplies in the
-evaluate stage (or rather trades them for additions), and has a further
-saving of nearly half the interpolate steps.  The idea is to separate
-odd and even final coefficients and then perform algorithm C steps C7
-and C8 on them separately.  The divisors at step C7 become j^2 and the
-multipliers at C8 become 2*t*j-j^2.
-
-   Splitting odd and even parts through positive and negative points
-can be thought of as using -1 as a square root of unity.  If a 4th root
-of unity was available then a further split and speedup would be
-possible, but no such root exists for plain integers.  Going to complex
-integers with i=sqrt(-1) doesn't help, essentially because in cartesian
-form it takes three real multiplies to do a complex multiply.  The
-existence of 2^k'th roots of unity in a suitable ring or field lets the
-fast fourier transform keep splitting and get to O(N*log(r)).
-
-   Floating point FFTs use complex numbers approximating Nth roots of
-unity.  Some processors have special support for such FFTs.  But these
-are not used in GMP since it's very difficult to guarantee an exact
-result (to some number of bits).  An occasional difference of 1 in the
-last bit might not matter to a typical signal processing algorithm, but
-is of course of vital importance to GMP.
-
-
-File: gmp.info,  Node: Division Algorithms,  Next: Greatest Common Divisor Algorithms,  Prev: Multiplication Algorithms,  Up: Algorithms
-
-Division Algorithms
-===================
-
-* Menu:
-
-* Single Limb Division::
-* Basecase Division::
-* Divide and Conquer Division::
-* Exact Division::
-* Exact Remainder::
-* Small Quotient Division::
 

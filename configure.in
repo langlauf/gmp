@@ -25,7 +25,7 @@ MA 02111-1307, USA.
 ])
 
 
-AC_REVISION($Revision: 1.425 $)
+AC_REVISION($Revision: 1.425.2.15 $)
 AC_PREREQ(2.52)
 AC_INIT(gmp-impl.h)
 m4_pattern_forbid([^[ \t]*GMP_])
@@ -313,7 +313,7 @@ case $host in
 
   alpha*-*-*)
     case $host_cpu in
-      alphaev5 | alphapca5*) path="alpha/ev5 alpha" ;;
+      alphaev5* | alphapca5*) path="alpha/ev5 alpha" ;;
       alphaev6*)             path="alpha/ev6 alpha/ev5 alpha" ;;
       *)                     path="alpha" ;;
     esac
@@ -344,8 +344,8 @@ case $host in
     # since the options ordering seems to make our setting override
     # that passed by gcc.
     #
-    # gas 2.10.0 doesn't accept -mev67, but -mev6 is enough for ctlz
-    # and cttz, as used by longlong.h on ev67.
+    # gas prior to 2.14 doesn't accept -mev67, but -mev6 seems enough for
+    # ctlz and cttz (in 2.10.0 at least).
     #
     # OSF `as' accepts ev68 but stupidly treats it as ev4.  -arch only seems
     # to affect insns like ldbu which are expanded as macros when necessary.
@@ -419,8 +419,10 @@ case $host in
   *-cray-unicos*)
     gmp_asm_syntax_testing=no
     cclist="cc"
-    # The -hscalar0 is a workaround for miscompilation of mpz/import.c.
-    cc_cflags="-O3 -hscalar0 -htask0 -Wa,-B"
+    # We used to have -hscalar0 here as a workaround for miscompilation of
+    # mpz/import.c, but let's hope Cray fixes their bugs instead, since
+    # -hscalar0 causes disastrously poor code to be generated.
+    cc_cflags="-O3 -hnofastmd -htask0 -Wa,-B"
     path="cray"
     ;;
 
@@ -728,23 +730,11 @@ case $host in
 
     case $host in
       POWERPC64_PATTERN)
-        # CPU type powerpc64 forces to a 64-bit limb
-        case $host in
-          powerpc64-*-*) abilist="32L" ;;
-          *)             abilist="32L 32" ;;
-        esac
-        cclist_32L="gcc"
-        gcc_32L_cflags="-g -O2 -mpowerpc64"
-        gcc_32L_cflags_optlist="cpu"
-        limb_32L=longlong
-        path_32L="powerpc64"
-        extra_functions_32L="umul"
-
         # On AIX a true 64-bit ABI is available.
         case $host in
           *-*-aix*)
             # Need -Wc to pass object type flags through to the linker.
-            abilist="aix64 $abilist"
+            abilist="aix64 32"
             cclist_aix64="gcc xlc"
             gcc_aix64_cflags="-g -O2 -maix64 -mpowerpc64"
             gcc_aix64_cflags_optlist="cpu"
@@ -819,6 +809,7 @@ case $host in
     gcc_cflags_cpu=
     acc_cflags="-O2"
     cc_cflags="-O2"
+    GMP_INCLUDE_MPN(sparc32/sparc-defs.m4)
 
     # FIXME: This should be selected according to the CPU
     if test x${floating_point} = xno
@@ -868,12 +859,21 @@ case $host in
             path_64="sparc64"
             cclist_64="gcc cc"
             gcc_64_cflags="-g -O2 -m64 -mptr64 -Wa,-xarch=v9 -mcpu=v9"
+            gcc_64_ldflags="-Wc,-m64"
 	    # -fast enables different optimizations depending compiler version
 	    # -fns=no and -fsimple=1 disables some transformations that
 	    # conflict with IEEE 754, which some compiler versions perform.
             cc_64_cflags="-fast -fns=no -fsimple=1 -xarch=v9"
             SPEED_CYCLECOUNTER_OBJ_64=sparcv9.lo
             cyclecounter_size_64=2
+            ;;
+          *-*-*bsd*)
+            # NetBSD and OpenBSD sparc64
+            abilist="64"
+            extra_functions=
+            path="sparc64"
+            gcc_cflags="-g -O2"
+            cyclecounter_size=2
             ;;
         esac
       ;;
@@ -1215,10 +1215,6 @@ if test $found_compiler = yes; then
         flag=`echo "$flag" | tr '~' ' '`
 
         case $flag in
-          -march=pentiumpro)
-            # tickles stack slot bugs on some gcc, exclude as necessary
-            GMP_GCC_MARCH_PENTIUMPRO($cc,,continue)
-            ;;
           -O*)
             # ease back to just -O on m68k gcc 2.95.x
             GMP_GCC_M68K_OPTIMIZE($ccbase,$cc,flag)
@@ -1229,6 +1225,13 @@ if test $found_compiler = yes; then
                                    [cflags="$cflags $flag"
                                    break],
                                    [continue])
+            ;;
+          -Wa,-m*)
+            case $host in
+              alpha*-*-*)
+                GMP_GCC_WA_MCPU($cc $cflags, $flag, , [continue])
+              ;;
+            esac
             ;;
         esac
 
@@ -1531,6 +1534,20 @@ case $host in
 esac
 
 
+# Ensure that $CONFIG_SHELL is available for AC_LIBTOOL_SYS_MAX_CMD_LEN.
+# It's often set already by _LT_AC_PROG_ECHO_BACKSLASH or
+# _AS_LINENO_PREPARE, but not always.
+#
+# The symptom of CONFIG_SHELL unset is some "expr" errors during the test,
+# and an empty result.  This only happens when invoked as "sh configure",
+# ie. no path, and can be seen for instance on ia64-*-hpux*.
+#
+# FIXME: Newer libtool should have it's own fix for this.
+#
+if test -z "$CONFIG_SHELL"; then
+  CONFIG_SHELL=$SHELL
+fi
+
 # Enable CXX in libtool only if we want it, and never enable GCJ, nor RC on
 # mingw and cygwin.  Under --disable-cxx this avoids some error messages
 # from libtool arising from the fact we didn't actually run AC_PROG_CXX.
@@ -1612,12 +1629,12 @@ AC_TYPE_SIGNAL
 AC_CHECK_TYPES([intmax_t, long double, long long, ptrdiff_t, quad_t])
 
 AC_C_STRINGIZE
+AC_C_VOLATILE
 GMP_C_STDARG
 GMP_C_ATTRIBUTE_CONST
 GMP_C_ATTRIBUTE_MALLOC
 GMP_C_ATTRIBUTE_MODE
 GMP_C_ATTRIBUTE_NORETURN
-GMP_C_RESTRICT
 
 GMP_C_INLINE
 GMP_H_EXTERN_INLINE
@@ -1926,9 +1943,9 @@ if test "$gmp_asm_syntax_testing" != no; then
       GMP_INCLUDE_MPN(powerpc32/powerpc-defs.m4)
       case $host in
         powerpc*-*-aix*)
-          case $host in
-            POWERPC64_PATTERN) GMP_INCLUDE_MPN(powerpc64/aix.m4) ;;
-            *)                 GMP_INCLUDE_MPN(powerpc32/aix.m4) ;;
+	  case $ABI in
+	    64 | aix64) GMP_INCLUDE_MPN(powerpc64/aix.m4) ;;
+            *)          GMP_INCLUDE_MPN(powerpc32/aix.m4) ;;
           esac
           ;;
       esac
@@ -1936,12 +1953,24 @@ if test "$gmp_asm_syntax_testing" != no; then
     power*-*-aix*)
       GMP_INCLUDE_MPN(powerpc32/aix.m4)
       ;;
+    sparcv9*-*-* | ultrasparc*-*-* | sparc64-*-*)
+      case $ABI in
+        64)
+          GMP_ASM_SPARC_REGISTER
+          ;;
+      esac
+      ;;
     X86_PATTERN)
       GMP_ASM_ALIGN_FILL_0x90
       GMP_ASM_X86_SHLDL_CL
       if test "$enable_profiling" != no; then
         GMP_ASM_X86_MCOUNT
       fi
+      case $host in
+        *-*-openbsd*)
+          GMP_DEFINE(_GLOBAL_OFFSET_TABLE_,__GLOBAL_OFFSET_TABLE_)
+          ;;
+      esac
       ;;
   esac
 fi
@@ -2014,6 +2043,7 @@ AC_SUBST(gmp_srclinks)
 if test $enable_mpfr = yes; then
   gmp_CFLAGS=$CFLAGS
   gmp_LIBS=$LIBS
+  LIBS="$LIBS $LIBM"
 
   MPFR_CONFIGS
 

@@ -1,7 +1,7 @@
 This is gmp.info, produced by makeinfo version 4.2 from gmp.texi.
 
 This manual describes how to install and use the GNU multiple precision
-arithmetic library, version 4.1.
+arithmetic library, version 4.1.1.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
 2001, 2002 Free Software Foundation, Inc.
@@ -17,6 +17,50 @@ INFO-DIR-SECTION GNU libraries
 START-INFO-DIR-ENTRY
 * gmp: (gmp).                   GNU Multiple Precision Arithmetic Library.
 END-INFO-DIR-ENTRY
+
+
+File: gmp.info,  Node: Miscellaneous Float Functions,  Prev: I/O of Floats,  Up: Floating-point Functions
+
+Miscellaneous Functions
+=======================
+
+ - Function: void mpf_ceil (mpf_t ROP, mpf_t OP)
+ - Function: void mpf_floor (mpf_t ROP, mpf_t OP)
+ - Function: void mpf_trunc (mpf_t ROP, mpf_t OP)
+     Set ROP to OP rounded to an integer.  `mpf_ceil' rounds to the
+     next higher integer, `mpf_floor' to the next lower, and `mpf_trunc'
+     to the integer towards zero.
+
+ - Function: int mpf_integer_p (mpf_t OP)
+     Return non-zero if OP is an integer.
+
+ - Function: int mpf_fits_ulong_p (mpf_t OP)
+ - Function: int mpf_fits_slong_p (mpf_t OP)
+ - Function: int mpf_fits_uint_p (mpf_t OP)
+ - Function: int mpf_fits_sint_p (mpf_t OP)
+ - Function: int mpf_fits_ushort_p (mpf_t OP)
+ - Function: int mpf_fits_sshort_p (mpf_t OP)
+     Return non-zero if OP would fit in the respective C data type, when
+     truncated to an integer.
+
+ - Function: void mpf_urandomb (mpf_t ROP, gmp_randstate_t STATE,
+          unsigned long int NBITS)
+     Generate a uniformly distributed random float in ROP, such that 0
+     <= ROP < 1, with NBITS significant bits in the mantissa.
+
+     The variable STATE must be initialized by calling one of the
+     `gmp_randinit' functions (*Note Random State Initialization::)
+     before invoking this function.
+
+ - Function: void mpf_random2 (mpf_t ROP, mp_size_t MAX_SIZE, mp_exp_t
+          EXP)
+     Generate a random float of at most MAX_SIZE limbs, with long
+     strings of zeros and ones in the binary representation.  The
+     exponent of the number is in the interval -EXP to EXP.  This
+     function is useful for testing functions and algorithms, since
+     this kind of random numbers have proven to be more likely to
+     trigger corner-case bugs.  Negative random numbers are generated
+     when MAX_SIZE is negative.
 
 
 File: gmp.info,  Node: Low-level Functions,  Next: Random Number Functions,  Prev: Floating-point Functions,  Up: Top
@@ -356,7 +400,7 @@ For example, {S1P, S1N}.
      BASE, and return the number of characters produced.  There may be
      leading zeros in the string.  The string is not in ASCII; to
      convert it to printable format, add the ASCII codes for `0' or
-     `A', depending on the base and range.
+     `A', depending on the base and range.  BASE can vary from 2 to 256.
 
      The most significant limb of the input {S1P, S1N} must be
      non-zero.  The input {S1P, S1N} is clobbered, except when BASE is
@@ -365,8 +409,8 @@ For example, {S1P, S1N}.
      The area at STR has to have space for the largest possible number
      represented by a S1N long limb array, plus one extra character.
 
- - Function: mp_size_t mpn_set_str (mp_limb_t *RP, const char *STR,
-          size_t STRSIZE, int BASE)
+ - Function: mp_size_t mpn_set_str (mp_limb_t *RP, const unsigned char
+          *STR, size_t STRSIZE, int BASE)
      Convert bytes {STR,STRSIZE} in the given BASE to limbs at RP.
 
      STR[0] is the most significant byte and STR[STRSIZE-1] is the
@@ -545,7 +589,7 @@ Random State Initialization
      Initialize STATE for a linear congruential algorithm as per
      `gmp_randinit_lc_2exp'.  A, C and M2EXP are selected from a table,
      chosen so that SIZE bits (or more) of each X will be used, ie.
-     M2EXP >= SIZE/2.
+     M2EXP/2 >= SIZE.
 
      If successful the return value is non-zero.  If SIZE is bigger
      than the table data provides then the return value is zero.  The
@@ -965,7 +1009,7 @@ support from the C library, the rest are standard.
      d         decimal integer
      e E f g G float
      i         integer with base indicator
-     n         characters written so far
+     n         characters read so far
      o         octal integer
      p         pointer
      s         string of non-whitespace characters
@@ -1124,90 +1168,4 @@ difficulty reveals itself.*
 * C++ Interface MPFR::
 * C++ Interface Random Numbers::
 * C++ Interface Limitations::
-
-
-File: gmp.info,  Node: C++ Interface General,  Next: C++ Interface Integers,  Prev: C++ Class Interface,  Up: C++ Class Interface
-
-C++ Interface General
-=====================
-
-All the C++ classes and functions are available with
-
-     #include <gmpxx.h>
-
-The classes defined are
-
- - Class: mpz_class
- - Class: mpq_class
- - Class: mpf_class
-
-   The standard operators and various standard functions are overloaded
-to allow arithmetic with these classes.  For example,
-
-     int
-     main (void)
-     {
-       mpz_class a, b, c;
-     
-       a = 1234;
-       b = "-5678";
-       c = a+b;
-       cout << "sum is " << c << "\n";
-       cout << "absolute value is " << abs(c) << "\n";
-     
-       return 0;
-     }
-
-   An important feature of the implementation is that an expression like
-`a=b+c' results in a single call to the corresponding `mpz_add',
-without using a temporary for the `b+c' part.  Expressions which by
-their nature imply intermediate values, like `a=b*c+d*e', still use
-temporaries though.
-
-   The classes can be freely intermixed in expressions, as can the
-classes and the standard types `long', `unsigned long' and `double'.
-Smaller types like `int' or `float' can also be intermixed, since C++
-will promote them.
-
-   Note that `bool' is not accepted directly, but must be explicitly
-cast to an `int' first.  This is because C++ will automatically convert
-any pointer to a `bool', so if GMP accepted `bool' it would make all
-sorts of invalid class and pointer combinations compile but almost
-certainly not do anything sensible.
-
-   Conversions back from the classes to standard C++ types aren't done
-automatically, instead member functions like `get_si' are provided (see
-the following sections for details).
-
-   Also there are no automatic conversions from the classes to the
-corresponding GMP C types, instead a reference to the underlying C
-object can be obtained with the following functions,
-
- - Function: mpz_t mpz_class::get_mpz_t ()
- - Function: mpq_t mpq_class::get_mpq_t ()
- - Function: mpf_t mpf_class::get_mpf_t ()
-
-   These can be used to call a C function which doesn't have a C++ class
-interface.  For example to set `a' to the GCD of `b' and `c',
-
-     mpz_class a, b, c;
-     ...
-     mpz_gcd (a.get_mpz_t(), b.get_mpz_t(), c.get_mpz_t());
-
-   In the other direction, a class can be initialized from the
-corresponding GMP C type, or assigned to if an explicit constructor is
-used.  In both cases this makes a copy of the value, it doesn't create
-any sort of association.  For example,
-
-     mpz_t z;
-     // ... init and calculate z ...
-     mpz_class x(z);
-     mpz_class y;
-     y = mpz_class (z);
-
-   There are no namespace setups in `gmpxx.h', all types and functions
-are simply put into the global namespace.  This is what `gmp.h' has
-done in the past, and continues to do for compatibility.  The extras
-provided by `gmpxx.h' follow GMP naming conventions and are unlikely to
-clash with anything.
 

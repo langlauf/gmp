@@ -982,7 +982,7 @@ struct __gmp_binary_equal
     mpq_t temp;
     mpq_init(temp);
     mpq_set_d(temp, d);
-    b = (mpq_equal(q, temp) == 0);
+    b = (mpq_equal(q, temp) != 0);
     mpq_clear(temp);
     return b;
   }
@@ -992,7 +992,7 @@ struct __gmp_binary_equal
     mpq_t temp;
     mpq_init(temp);
     mpq_set_d(temp, d);
-    b = (mpq_equal(temp, q) == 0);
+    b = (mpq_equal(temp, q) != 0);
     mpq_clear(temp);
     return b;
   }
@@ -1127,7 +1127,7 @@ struct __gmp_binary_not_equal
     mpq_t temp;
     mpq_init(temp);
     mpq_set_d(temp, d);
-    b = (mpq_equal(q, temp) != 0);
+    b = (mpq_equal(q, temp) == 0);
     mpq_clear(temp);
     return b;
   }
@@ -1137,7 +1137,7 @@ struct __gmp_binary_not_equal
     mpq_t temp;
     mpq_init(temp);
     mpq_set_d(temp, d);
-    b = (mpq_equal(temp, q) != 0);
+    b = (mpq_equal(temp, q) == 0);
     mpq_clear(temp);
     return b;
   }
@@ -2633,10 +2633,18 @@ public:
   }
 
   // conversion functions
-  const mpz_classref get_num() const { return mpz_classref(mpq_numref(mp)); }
-  mpz_classref get_num() { return mpz_classref(mpq_numref(mp)); }
-  const mpz_classref get_den() const { return mpz_classref(mpq_denref(mp)); }
-  mpz_classref get_den() { return mpz_classref(mpq_denref(mp)); }
+
+  // casting a reference to an mpz_t to mpz_class & is a dirty hack,
+  // but works because the internal representation of mpz_class is
+  // exactly an mpz_t
+  const mpz_class & get_num() const
+  { return reinterpret_cast<const mpz_class &>(*mpq_numref(mp)); }
+  mpz_class & get_num()
+  { return reinterpret_cast<mpz_class &>(*mpq_numref(mp)); }
+  const mpz_class & get_den() const
+  { return reinterpret_cast<const mpz_class &>(*mpq_denref(mp)); }
+  mpz_class & get_den()
+  { return reinterpret_cast<mpz_class &>(*mpq_denref(mp)); }
 
   mpq_srcptr get_mpq_t() const { return mp; }
   mpq_ptr get_mpq_t() { return mp; }
@@ -4968,6 +4976,12 @@ public:
   }
 };
 
+extern "C" {
+  typedef void __gmp_randinit_default_t (gmp_randstate_t);
+  typedef void __gmp_randinit_lc_2exp_t (gmp_randstate_t, mpz_srcptr, unsigned long int, unsigned long int);
+  typedef int __gmp_randinit_lc_2exp_size_t (gmp_randstate_t, unsigned long int);
+}
+
 class gmp_randclass
 {
 private:
@@ -4988,17 +5002,16 @@ public:
   }
 
   // gmp_randinit_default
-  gmp_randclass(void (*f)(gmp_randstate_t))
+  gmp_randclass(__gmp_randinit_default_t* f)
   { f(state); }
 
   // gmp_randinit_lc_2exp
-  gmp_randclass(void (*f)(gmp_randstate_t, mpz_srcptr,
-			  unsigned long int, unsigned long int),
+  gmp_randclass(__gmp_randinit_lc_2exp_t* f,
 		mpz_class z, unsigned long int l1, unsigned long int l2)
   { f(state, z.get_mpz_t(), l1, l2); }
 
   // gmp_randinit_lc_2exp_size
-  gmp_randclass(int (*f)(gmp_randstate_t, unsigned long int),
+  gmp_randclass(__gmp_randinit_lc_2exp_size_t* f,
 		unsigned long int size)
   { f(state, size); }
 

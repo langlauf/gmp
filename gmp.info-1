@@ -1,7 +1,7 @@
 This is gmp.info, produced by makeinfo version 4.2 from gmp.texi.
 
 This manual describes how to install and use the GNU multiple precision
-arithmetic library, version 4.1.
+arithmetic library, version 4.1.1.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
 2001, 2002 Free Software Foundation, Inc.
@@ -25,7 +25,7 @@ GNU MP
 ******
 
 This manual describes how to install and use the GNU multiple precision
-arithmetic library, version 4.1.
+arithmetic library, version 4.1.1.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
 2001, 2002 Free Software Foundation, Inc.
@@ -136,9 +136,14 @@ generic SPARCv8, UltraSPARC, DEC VAX, and Zilog Z8000.  Some
 optimizations also for Cray vector systems, Clipper, IBM ROMP (RT), and
 Pyramid AP/XP.
 
-   There is a mailing list for GMP users.  To join it, send a mail to
-<gmp-request@swox.com> with the word `subscribe' in the message *body*
-(not in the subject line).
+   There are two public mailing lists of interest.  One for general
+questions and discussions about usage of the GMP library and one for
+discussions about development of GMP.  There's more information about
+the mailing lists at `http://swox.com/mailman/listinfo/'.  These lists
+are *not* for bug reports.
+
+   The proper place for bug reports is <bug-gmp@gnu.org>.  See *Note
+Reporting Bugs:: for info about reporting bugs.
 
    For up-to-date information on GMP, please see the GMP web pages at
 
@@ -226,7 +231,7 @@ Build Directory
      directory.  For example
 
           cd /my/build/dir
-          /my/sources/gmp-4.1/configure
+          /my/sources/gmp-4.1.1/configure
 
      Not all `make' programs have the necessary features (`VPATH') to
      support this.  In particular, SunOS and Slowaris `make' have bugs
@@ -524,14 +529,6 @@ Execution Profiling, `--enable-profiling=prof/gprof'
      special requirements can specify a different path.  Normally this
      is completely unnecessary.
 
-Demonstration Programs
-     The `demos' subdirectory has some sample programs using GMP.  These
-     aren't built or installed, but there's a `Makefile' with rules for
-     them.  For instance,
-
-          make pexpr
-          ./pexpr 68^975+10
-
 Documentation
      The document you're now reading is `gmp.texi'.  The usual automake
      targets are available to make PostScript `gmp.ps' and/or DVI
@@ -640,21 +637,15 @@ MIPS under IRIX 6 (`mips*-*-irix[6789]')
      and the MIPS 2 code.
 
 
-PowerPC 64 (`powerpc64*')
+PowerPC 64 (`powerpc64', `powerpc620', `powerpc630')
 
     `ABI=aix64'
           The AIX 64 ABI uses 64-bit limbs and pointers and is
-          available on systems `powerpc64*-*-aix*'.  Applications must
-          be compiled (and linked) with
+          available on systems `*-*-aix*'.  Applications must be
+          compiled (and linked) with
 
                gcc  -maix64
                xlc  -q64
-
-    `ABI=32L'
-          This uses the 32-bit ABI but a 64-bit limb using GCC `long
-          long' in 64-bit registers.  Applications must be compiled with
-
-               gcc  -mpowerpc64
 
     `ABI=32'
           This is the basic 32-bit PowerPC ABI.  No special compiler
@@ -775,10 +766,21 @@ Microsoft Windows
      used when building a DLL, since libtool doesn't currently support
      C++ DLLs.  This might change in the future.
 
-     GCC is recommended for compiling GMP, but the resulting DLL can be
-     used with any compiler.  On mingw only the standard Windows
-     libraries will be needed, on Cygwin the usual cygwin runtime will
-     be required.
+Microsoft C
+     A MINGW DLL build of GMP can be used with Microsoft C.  Libtool
+     doesn't install `.lib' and `.exp' files, but they can be created
+     with the following commands, where `/my/inst/dir' is the install
+     directory (with a `lib' subdirectory).
+
+          lib /machine:IX86 /def:_libs/libgmp-3.dll-def
+          cp libgmp-3.lib /my/inst/dir/lib
+          cp _libs/libgmp-3.dll-exp /my/inst/dir/lib/libgmp-3.exp
+
+     MINGW uses `msvcrt.dll' for I/O, so applications wanting to use
+     the GMP I/O routines must be compiled with `cl /MD' to do the
+     same.  If one of the other I/O choices provided by MS C is desired
+     then the suggestion is to use the GMP string functions and confine
+     I/O to the application.
 
 Motorola 68k CPU Types
      `m68k' is taken to mean 68000.  `m68020' or higher will give a
@@ -843,11 +845,6 @@ x86 MMX and SSE2 Code
      MMX code.  Install a recent `gas' if MMX code is wanted on these
      systems.
 
-x86 GCC `-march=pentiumpro'
-     GCC 2.95.2 and 2.95.3 miscompiled some versions of `mpz/powm.c'
-     when `-march=pentiumpro' was used, so for relevant CPUs that
-     option is only in the default `CFLAGS' for GCC 2.95.4 and up.
-
 
 File: gmp.info,  Node: Known Build Problems,  Prev: Notes for Particular Systems,  Up: Installing GMP
 
@@ -867,11 +864,11 @@ DJGPP
      into the various subdirectories uses up memory.
 
 `DESTDIR' and shared `libgmpxx'
-     `make install DESTDIR=/my/staging/area' or the same with a `prefix'
-     override to install to a temporary directory is not fully
-     supported by current versions of libtool when building a shared
-     version of a library which depends on another being built at the
-     same time, like `libgmpxx' and `libgmp'.
+     `make install DESTDIR=/my/staging/area', or the same with a
+     `prefix' override, to install to a temporary directory is not
+     fully supported by current versions of libtool when building a
+     shared version of a library which depends on another being built
+     at the same time, like `libgmpxx' and `libgmp'.
 
      The problem is that `libgmpxx' is relinked at the install stage to
      ensure that if the system puts a hard-coded path to `libgmp' within
@@ -880,32 +877,23 @@ DJGPP
      so if `libgmp' is not already in that final location then the link
      will fail.
 
-     On systems which don't hard-code library paths, for instance SVR4
-     style systems such as GNU/Linux, a workaround is to insert a
-     suitable `-L' in the `relink_command' of `libgmpxx.la' after
-     building but before installing.  This can be automated with
-     something like
+     A workaround for this on SVR4 style systems, such as GNU/Linux,
+     where paths are not hard-coded, is to include the staging area in
+     the linker's search using `LD_LIBRARY_PATH'.  For example with
+     `--prefix=/usr' but installing under `/my/staging/area',
 
-          sed '/^relink_command/s:libgmp.la:-L /my/staging/area libgmp.la:' \
-              <libgmpxx.la >libgmpxx.new
-          mv libgmpxx.new libgmpxx.la
+          LD_LIBRARY_PATH=/my/staging/area/usr/lib \
+            make install DESTDIR=/my/staging/area
 
-GNU binutils `strip'
-     GNU binutils `strip' should not be used on the static libraries
-     `libgmp.a' and `libmp.a', neither directly nor via `make
-     install-strip'.  It can be used on the shared libraries
-     `libgmp.so' and `libmp.so' though.
+GNU binutils `strip' prior to 2.12
+     `strip' from GNU binutils 2.11 and earlier should not be used on
+     the static libraries `libgmp.a' and `libmp.a' since it will
+     discard all but the last of multiple archive members with the same
+     name, like the three versions of `init.o' in `libgmp.a'.  Binutils
+     2.12 or higher can be used successfully.
 
-     Currently (binutils 2.10.0), `strip' unpacks an archive then
-     operates on the files, but GMP contains multiple object files of
-     the same name (eg. three versions of `init.o'), and they overwrite
-     each other, leaving only the one that happens to be last.
-
-     If stripped static libraries are wanted, the suggested workaround
-     is to build normally, strip the separate object files, and do
-     another `make all' to rebuild.  Alternately `CFLAGS' with `-g'
-     omitted can always be used if it's just debugging which is
-     unwanted.
+     The shared libraries `libgmp.so' and `libmp.so' are not affected by
+     this and any version of `strip' can be used on them.
 
 `make' syntax error
      On certain versions of SCO OpenServer 5 and IRIX 6.5 the native
@@ -919,6 +907,16 @@ GNU binutils `strip'
      `$(libgmp_la_DEPENDENCIES)' from that line (which will make the
      initial build work, but if any recompiling is done `libgmp.la'
      might not be rebuilt).
+
+MacOS X and GCC
+     Libtool currently only knows how to create shared libraries on
+     MacOS X using the native `cc' (which is a modified GCC), not a
+     plain GCC.  A static-only build should work though
+     (`--disable-shared').
+
+     Also, libtool currently cannot build C++ shared libraries on MacOS
+     X, so if `--enable-cxx' is desired then `--disable-shared' must be
+     used.  Hopefully this will be fixed in the future.
 
 NeXT prior to 3.3
      The system compiler on old versions of NeXT was a massacred and
@@ -976,10 +974,12 @@ guaranteed to be incompatible with future versions of GMP.*
 * Reentrancy::
 * Useful Macros and Constants::
 * Compatibility with older versions::
+* Demonstration Programs::
 * Efficiency::
 * Debugging::
 * Profiling::
 * Autoconf::
+* Emacs::
 
 
 File: gmp.info,  Node: Headers and Libraries,  Next: Nomenclature and Types,  Prev: GMP Basics,  Up: GMP Basics

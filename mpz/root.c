@@ -64,7 +64,7 @@ mpz_root (mpz_ptr r, mpz_srcptr u, unsigned long int nth)
 
   count_leading_zeros (cnt, up[un - 1]);
   unb = un * GMP_NUMB_BITS - cnt + GMP_NAIL_BITS;
-  rootnb = (unb + nth - 1) / nth;
+  rootnb = (unb - 1) / nth + 1;
   rootn = (rootnb + GMP_NUMB_BITS - 1) / GMP_NUMB_BITS;
 
   if (r != NULL)

@@ -22,37 +22,29 @@ the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 
 
 
-The IA-64 ISA is strange and the Itanium pipeline is bizarre!  How
-come everybody else is moving from static to dynamic OOO pipelines,
-and Intel moves in the opposite direction?  Compiler writers failed to
-generate reasonable code for the static RISC pipelines of the mid
-1990'ies, and they sure won't do any better with the IA-64 ISA and its
-Itanium implementation!
-
 The IA-64 ISA keeps instructions three and three in 128 bit bundles.
-Programmers/compilers need to put explicit breaks `;;' between WAW or
-RAW dependencies.  Such breaks can be anywhere in a bundle, or between
-bundles.
+Programmers/compilers need to put explicit breaks `;;' when there are
+WAW or RAW dependencies.  Such breaks can typically just be at the end
+of a bundle, with some exceptions.
 
-The Itanium implementation can under ideal conditions execute two
-bundles per cycle.  But to reach that rate for integer code, one needs
-to sprinkle the code with `nop.f' instructions, one per bundle.  With
-good scheduling, one can thus reach a peak execution rate of 4
-instructions/cycle.
+The Itanium and Itanium 2 implementations can under ideal conditions
+execute two bundles per cycle.  The Itanium 2 allows 4 of these
+instructions to do integer operations, while the Itanium 2 allows all
+6 to be integer operations.
 
 Taken cloop branches seem to insert a bubble into the pipeline most of
 the time.
 
 Loads to the fp registers bypass the L1 cache and thus get extremely
-long latencies, 9 cycles.
+long latencies, 9 cycles on the Itanium and 7 cycles on the Itanium 2.
 
 The software pipeline stuff using br.ctop instruction causes delays,
 since many issue slots are taken up by instructions with zero
-predicates, and since about 15 extra instructions are needed to set
+predicates, and since about many extra instructions are needed to set
 things up.  These features are designed for code density, not maximum
 speed.
 
-Misc pipeline limitations:
+Misc pipeline limitations (Itanium):
 * The getf.sig instruction can only execute in M0.
 * At most four integer instructions/cycle.
 * Nops take up resources like any plain instructions.

@@ -1,7 +1,7 @@
 This is gmp.info, produced by makeinfo version 4.2 from gmp.texi.
 
 This manual describes how to install and use the GNU multiple precision
-arithmetic library, version 4.1.
+arithmetic library, version 4.1.1.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
 2001, 2002 Free Software Foundation, Inc.
@@ -17,6 +17,198 @@ INFO-DIR-SECTION GNU libraries
 START-INFO-DIR-ENTRY
 * gmp: (gmp).                   GNU Multiple Precision Arithmetic Library.
 END-INFO-DIR-ENTRY
+
+
+File: gmp.info,  Node: Assembler Cache Handling,  Next: Assembler Floating Point,  Prev: Assembler Carry Propagation,  Up: Assembler Coding
+
+Cache Handling
+--------------
+
+   GMP aims to perform well both on operands that fit entirely in L1
+cache and those which don't.
+
+   Basic routines like `mpn_add_n' or `mpn_lshift' are often used on
+large operands, so L2 and main memory performance is important for them.
+`mpn_mul_1' and `mpn_addmul_1' are mostly used for multiply and square
+basecases, so L1 performance matters most for them, unless assembler
+versions of `mpn_mul_basecase' and `mpn_sqr_basecase' exist, in which
+case the remaining uses are mostly for larger operands.
+
+   For L2 or main memory operands, memory access times will almost
+certainly be more than the calculation time.  The aim therefore is to
+maximize memory throughput, by starting a load of the next cache line
+which processing the contents of the previous one.  Clearly this is
+only possible if the chip has a lock-up free cache or some sort of
+prefetch instruction.  Most current chips have both these features.
+
+   Prefetching sources combines well with loop unrolling, since a
+prefetch can be initiated once per unrolled loop (or more than once if
+the loop covers more than one cache line).
+
+   On CPUs without write-allocate caches, prefetching destinations will
+ensure individual stores don't go further down the cache hierarchy,
+limiting bandwidth.  Of course for calculations which are slow anyway,
+like `mpn_divrem_1', write-throughs might be fine.
+
+   The distance ahead to prefetch will be determined by memory latency
+versus throughput.  The aim of course is to have data arriving
+continuously, at peak throughput.  Some CPUs have limits on the number
+of fetches or prefetches in progress.
+
+   If a special prefetch instruction doesn't exist then a plain load
+can be used, but in that case care must be taken not to attempt to read
+past the end of an operand, since that might produce a segmentation
+violation.
+
+   Some CPUs or systems have hardware that detects sequential memory
+accesses and initiates suitable cache movements automatically, making
+life easy.
+
+
+File: gmp.info,  Node: Assembler Floating Point,  Next: Assembler SIMD Instructions,  Prev: Assembler Cache Handling,  Up: Assembler Coding
+
+Floating Point
+--------------
+
+   Floating point arithmetic is used in GMP for multiplications on CPUs
+with poor integer multipliers.  It's mostly useful for `mpn_mul_1',
+`mpn_addmul_1' and `mpn_submul_1' on 64-bit machines, and
+`mpn_mul_basecase' on both 32-bit and 64-bit machines.
+
+   With IEEE 53-bit double precision floats, integer multiplications
+producing up to 53 bits will give exact results.  Breaking a 64x64
+multiplication into eight 16x32->48 bit pieces is convenient.  With
+some care though six 21x32->53 bit products can be used, if one of the
+lower two 21-bit pieces also uses the sign bit.
+
+   For the `mpn_mul_1' family of functions on a 64-bit machine, the
+invariant single limb is split at the start, into 3 or 4 pieces.
+Inside the loop, the bignum operand is split into 32-bit pieces.  Fast
+conversion of these unsigned 32-bit pieces to floating point is highly
+machine-dependent.  In some cases, reading the data into the integer
+unit, zero-extending to 64-bits, then transferring to the floating
+point unit back via memory is the only option.
+
+   Converting partial products back to 64-bit limbs is usually best
+done as a signed conversion.  Since all values are smaller than 2^53,
+signed and unsigned are the same, but most processors lack unsigned
+conversions.
+
+
+
+   Here is a diagram showing 16x32 bit products for an `mpn_mul_1' or
+`mpn_addmul_1' with a 64-bit limb.  The single limb operand V is split
+into four 16-bit parts.  The multi-limb operand U is split in the loop
+into two 32-bit parts.
+
+                     +---+---+---+---+
+                     |v48|v32|v16|v00|    V operand
+                     +---+---+---+---+
+     
+                     +-------+---+---+
+                 x   |  u32  |  u00  |    U operand (one limb)
+                     +---------------+
+     
+     ---------------------------------
+     
+                         +-----------+
+                         | u00 x v00 |    p00    48-bit products
+                         +-----------+
+                     +-----------+
+                     | u00 x v16 |        p16
+                     +-----------+
+                 +-----------+
+                 | u00 x v32 |            p32
+                 +-----------+
+             +-----------+
+             | u00 x v48 |                p48
+             +-----------+
+                 +-----------+
+                 | u32 x v00 |            r32
+                 +-----------+
+             +-----------+
+             | u32 x v16 |                r48
+             +-----------+
+         +-----------+
+         | u32 x v32 |                    r64
+         +-----------+
+     +-----------+
+     | u32 x v48 |                        r80
+     +-----------+
+
+   p32 and r32 can be summed using floating-point addition, and
+likewise p48 and r48.  p00 and p16 can be summed with r64 and r80 from
+the previous iteration.
+
+   For each loop then, four 49-bit quantities are transfered to the
+integer unit, aligned as follows,
+
+     |-----64bits----|-----64bits----|
+                        +------------+
+                        | p00 + r64' |    i00
+                        +------------+
+                    +------------+
+                    | p16 + r80' |        i16
+                    +------------+
+                +------------+
+                | p32 + r32  |            i32
+                +------------+
+            +------------+
+            | p48 + r48  |                i48
+            +------------+
+
+   The challenge then is to sum these efficiently and add in a carry
+limb, generating a low 64-bit result limb and a high 33-bit carry limb
+(i48 extends 33 bits into the high half).
+
+
+File: gmp.info,  Node: Assembler SIMD Instructions,  Next: Assembler Software Pipelining,  Prev: Assembler Floating Point,  Up: Assembler Coding
+
+SIMD Instructions
+-----------------
+
+   The single-instruction multiple-data support in current
+microprocessors is aimed at signal processing algorithms where each
+data point can be treated more or less independently.  There's
+generally not much support for propagating the sort of carries that
+arise in GMP.
+
+   SIMD multiplications of say four 16x16 bit multiplies only do as much
+work as one 32x32 from GMP's point of view, and need some shifts and
+adds besides.  But of course if say the SIMD form is fully pipelined
+and uses less instruction decoding then it may still be worthwhile.
+
+   On the 80x86 chips, MMX has so far found a use in `mpn_rshift' and
+`mpn_lshift' since it allows 64-bit operations, and is used in a special
+case for 16-bit multipliers in the P55 `mpn_mul_1'.  3DNow and SSE
+haven't found a use so far.
+
+
+File: gmp.info,  Node: Assembler Software Pipelining,  Next: Assembler Loop Unrolling,  Prev: Assembler SIMD Instructions,  Up: Assembler Coding
+
+Software Pipelining
+-------------------
+
+   Software pipelining consists of scheduling instructions around the
+branch point in a loop.  For example a loop taking a checksum of an
+array of limbs might have a load and an add, but the load wouldn't be
+for that add, rather for the one next time around the loop.  Each load
+then is effectively scheduled back in the previous iteration, allowing
+latency to be hidden.
+
+   Naturally this is wanted only when doing things like loads or
+multiplies that take a few cycles to complete, and only where a CPU has
+multiple functional units so that other work can be done while waiting.
+
+   A pipeline with several stages will have a data value in progress at
+each stage and each loop iteration moves them along one stage.  This is
+like juggling.
+
+   Within the loop some moves between registers may be necessary to
+have the right values in the right places for each iteration.  Loop
+unrolling can help this, with each unrolled block able to use different
+registers for different values, even if some shuffling is still needed
+just before going back to the top of the loop.
 
 
 File: gmp.info,  Node: Assembler Loop Unrolling,  Prev: Assembler Software Pipelining,  Up: Assembler Coding
@@ -639,389 +831,4 @@ Papers
      Reprinted as "More on Multiplying and Squaring Large Integers",
      IEEE Transactions on Computers, volume 43, number 8, August 1994,
      pp. 899-908.
-
-
-File: gmp.info,  Node: GNU Free Documentation License,  Next: Concept Index,  Prev: References,  Up: Top
-
-GNU Free Documentation License
-******************************
-
-                        Version 1.1, March 2000
-     Copyright (C) 2000 Free Software Foundation, Inc.
-     59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
-     
-     Everyone is permitted to copy and distribute verbatim copies
-     of this license document, but changing it is not allowed.
-
-  0. PREAMBLE
-
-     The purpose of this License is to make a manual, textbook, or other
-     written document "free" in the sense of freedom: to assure everyone
-     the effective freedom to copy and redistribute it, with or without
-     modifying it, either commercially or noncommercially.  Secondarily,
-     this License preserves for the author and publisher a way to get
-     credit for their work, while not being considered responsible for
-     modifications made by others.
-
-     This License is a kind of "copyleft", which means that derivative
-     works of the document must themselves be free in the same sense.
-     It complements the GNU General Public License, which is a copyleft
-     license designed for free software.
-
-     We have designed this License in order to use it for manuals for
-     free software, because free software needs free documentation: a
-     free program should come with manuals providing the same freedoms
-     that the software does.  But this License is not limited to
-     software manuals; it can be used for any textual work, regardless
-     of subject matter or whether it is published as a printed book.
-     We recommend this License principally for works whose purpose is
-     instruction or reference.
-
-  1. APPLICABILITY AND DEFINITIONS
-
-     This License applies to any manual or other work that contains a
-     notice placed by the copyright holder saying it can be distributed
-     under the terms of this License.  The "Document", below, refers to
-     any such manual or work.  Any member of the public is a licensee,
-     and is addressed as "you".
-
-     A "Modified Version" of the Document means any work containing the
-     Document or a portion of it, either copied verbatim, or with
-     modifications and/or translated into another language.
-
-     A "Secondary Section" is a named appendix or a front-matter
-     section of the Document that deals exclusively with the
-     relationship of the publishers or authors of the Document to the
-     Document's overall subject (or to related matters) and contains
-     nothing that could fall directly within that overall subject.
-     (For example, if the Document is in part a textbook of
-     mathematics, a Secondary Section may not explain any mathematics.)
-     The relationship could be a matter of historical connection with
-     the subject or with related matters, or of legal, commercial,
-     philosophical, ethical or political position regarding them.
-
-     The "Invariant Sections" are certain Secondary Sections whose
-     titles are designated, as being those of Invariant Sections, in
-     the notice that says that the Document is released under this
-     License.
-
-     The "Cover Texts" are certain short passages of text that are
-     listed, as Front-Cover Texts or Back-Cover Texts, in the notice
-     that says that the Document is released under this License.
-
-     A "Transparent" copy of the Document means a machine-readable copy,
-     represented in a format whose specification is available to the
-     general public, whose contents can be viewed and edited directly
-     and straightforwardly with generic text editors or (for images
-     composed of pixels) generic paint programs or (for drawings) some
-     widely available drawing editor, and that is suitable for input to
-     text formatters or for automatic translation to a variety of
-     formats suitable for input to text formatters.  A copy made in an
-     otherwise Transparent file format whose markup has been designed
-     to thwart or discourage subsequent modification by readers is not
-     Transparent.  A copy that is not "Transparent" is called "Opaque".
-
-     Examples of suitable formats for Transparent copies include plain
-     ASCII without markup, Texinfo input format, LaTeX input format,
-     SGML or XML using a publicly available DTD, and
-     standard-conforming simple HTML designed for human modification.
-     Opaque formats include PostScript, PDF, proprietary formats that
-     can be read and edited only by proprietary word processors, SGML
-     or XML for which the DTD and/or processing tools are not generally
-     available, and the machine-generated HTML produced by some word
-     processors for output purposes only.
-
-     The "Title Page" means, for a printed book, the title page itself,
-     plus such following pages as are needed to hold, legibly, the
-     material this License requires to appear in the title page.  For
-     works in formats which do not have any title page as such, "Title
-     Page" means the text near the most prominent appearance of the
-     work's title, preceding the beginning of the body of the text.
-
-  2. VERBATIM COPYING
-
-     You may copy and distribute the Document in any medium, either
-     commercially or noncommercially, provided that this License, the
-     copyright notices, and the license notice saying this License
-     applies to the Document are reproduced in all copies, and that you
-     add no other conditions whatsoever to those of this License.  You
-     may not use technical measures to obstruct or control the reading
-     or further copying of the copies you make or distribute.  However,
-     you may accept compensation in exchange for copies.  If you
-     distribute a large enough number of copies you must also follow
-     the conditions in section 3.
-
-     You may also lend copies, under the same conditions stated above,
-     and you may publicly display copies.
-
-  3. COPYING IN QUANTITY
-
-     If you publish printed copies of the Document numbering more than
-     100, and the Document's license notice requires Cover Texts, you
-     must enclose the copies in covers that carry, clearly and legibly,
-     all these Cover Texts: Front-Cover Texts on the front cover, and
-     Back-Cover Texts on the back cover.  Both covers must also clearly
-     and legibly identify you as the publisher of these copies.  The
-     front cover must present the full title with all words of the
-     title equally prominent and visible.  You may add other material
-     on the covers in addition.  Copying with changes limited to the
-     covers, as long as they preserve the title of the Document and
-     satisfy these conditions, can be treated as verbatim copying in
-     other respects.
-
-     If the required texts for either cover are too voluminous to fit
-     legibly, you should put the first ones listed (as many as fit
-     reasonably) on the actual cover, and continue the rest onto
-     adjacent pages.
-
-     If you publish or distribute Opaque copies of the Document
-     numbering more than 100, you must either include a
-     machine-readable Transparent copy along with each Opaque copy, or
-     state in or with each Opaque copy a publicly-accessible
-     computer-network location containing a complete Transparent copy
-     of the Document, free of added material, which the general
-     network-using public has access to download anonymously at no
-     charge using public-standard network protocols.  If you use the
-     latter option, you must take reasonably prudent steps, when you
-     begin distribution of Opaque copies in quantity, to ensure that
-     this Transparent copy will remain thus accessible at the stated
-     location until at least one year after the last time you
-     distribute an Opaque copy (directly or through your agents or
-     retailers) of that edition to the public.
-
-     It is requested, but not required, that you contact the authors of
-     the Document well before redistributing any large number of
-     copies, to give them a chance to provide you with an updated
-     version of the Document.
-
-  4. MODIFICATIONS
-
-     You may copy and distribute a Modified Version of the Document
-     under the conditions of sections 2 and 3 above, provided that you
-     release the Modified Version under precisely this License, with
-     the Modified Version filling the role of the Document, thus
-     licensing distribution and modification of the Modified Version to
-     whoever possesses a copy of it.  In addition, you must do these
-     things in the Modified Version:
-
-       A. Use in the Title Page (and on the covers, if any) a title
-          distinct from that of the Document, and from those of
-          previous versions (which should, if there were any, be listed
-          in the History section of the Document).  You may use the
-          same title as a previous version if the original publisher of
-          that version gives permission.
-
-       B. List on the Title Page, as authors, one or more persons or
-          entities responsible for authorship of the modifications in
-          the Modified Version, together with at least five of the
-          principal authors of the Document (all of its principal
-          authors, if it has less than five).
-
-       C. State on the Title page the name of the publisher of the
-          Modified Version, as the publisher.
-
-       D. Preserve all the copyright notices of the Document.
-
-       E. Add an appropriate copyright notice for your modifications
-          adjacent to the other copyright notices.
-
-       F. Include, immediately after the copyright notices, a license
-          notice giving the public permission to use the Modified
-          Version under the terms of this License, in the form shown in
-          the Addendum below.
-
-       G. Preserve in that license notice the full lists of Invariant
-          Sections and required Cover Texts given in the Document's
-          license notice.
-
-       H. Include an unaltered copy of this License.
-
-       I. Preserve the section entitled "History", and its title, and
-          add to it an item stating at least the title, year, new
-          authors, and publisher of the Modified Version as given on
-          the Title Page.  If there is no section entitled "History" in
-          the Document, create one stating the title, year, authors,
-          and publisher of the Document as given on its Title Page,
-          then add an item describing the Modified Version as stated in
-          the previous sentence.
-
-       J. Preserve the network location, if any, given in the Document
-          for public access to a Transparent copy of the Document, and
-          likewise the network locations given in the Document for
-          previous versions it was based on.  These may be placed in
-          the "History" section.  You may omit a network location for a
-          work that was published at least four years before the
-          Document itself, or if the original publisher of the version
-          it refers to gives permission.
-
-       K. In any section entitled "Acknowledgments" or "Dedications",
-          preserve the section's title, and preserve in the section all
-          the substance and tone of each of the contributor
-          acknowledgments and/or dedications given therein.
-
-       L. Preserve all the Invariant Sections of the Document,
-          unaltered in their text and in their titles.  Section numbers
-          or the equivalent are not considered part of the section
-          titles.
-
-       M. Delete any section entitled "Endorsements".  Such a section
-          may not be included in the Modified Version.
-
-       N. Do not retitle any existing section as "Endorsements" or to
-          conflict in title with any Invariant Section.
-
-     If the Modified Version includes new front-matter sections or
-     appendices that qualify as Secondary Sections and contain no
-     material copied from the Document, you may at your option
-     designate some or all of these sections as invariant.  To do this,
-     add their titles to the list of Invariant Sections in the Modified
-     Version's license notice.  These titles must be distinct from any
-     other section titles.
-
-     You may add a section entitled "Endorsements", provided it contains
-     nothing but endorsements of your Modified Version by various
-     parties--for example, statements of peer review or that the text
-     has been approved by an organization as the authoritative
-     definition of a standard.
-
-     You may add a passage of up to five words as a Front-Cover Text,
-     and a passage of up to 25 words as a Back-Cover Text, to the end
-     of the list of Cover Texts in the Modified Version.  Only one
-     passage of Front-Cover Text and one of Back-Cover Text may be
-     added by (or through arrangements made by) any one entity.  If the
-     Document already includes a cover text for the same cover,
-     previously added by you or by arrangement made by the same entity
-     you are acting on behalf of, you may not add another; but you may
-     replace the old one, on explicit permission from the previous
-     publisher that added the old one.
-
-     The author(s) and publisher(s) of the Document do not by this
-     License give permission to use their names for publicity for or to
-     assert or imply endorsement of any Modified Version.
-
-  5. COMBINING DOCUMENTS
-
-     You may combine the Document with other documents released under
-     this License, under the terms defined in section 4 above for
-     modified versions, provided that you include in the combination
-     all of the Invariant Sections of all of the original documents,
-     unmodified, and list them all as Invariant Sections of your
-     combined work in its license notice.
-
-     The combined work need only contain one copy of this License, and
-     multiple identical Invariant Sections may be replaced with a single
-     copy.  If there are multiple Invariant Sections with the same name
-     but different contents, make the title of each such section unique
-     by adding at the end of it, in parentheses, the name of the
-     original author or publisher of that section if known, or else a
-     unique number.  Make the same adjustment to the section titles in
-     the list of Invariant Sections in the license notice of the
-     combined work.
-
-     In the combination, you must combine any sections entitled
-     "History" in the various original documents, forming one section
-     entitled "History"; likewise combine any sections entitled
-     "Acknowledgments", and any sections entitled "Dedications".  You
-     must delete all sections entitled "Endorsements."
-
-  6. COLLECTIONS OF DOCUMENTS
-
-     You may make a collection consisting of the Document and other
-     documents released under this License, and replace the individual
-     copies of this License in the various documents with a single copy
-     that is included in the collection, provided that you follow the
-     rules of this License for verbatim copying of each of the
-     documents in all other respects.
-
-     You may extract a single document from such a collection, and
-     distribute it individually under this License, provided you insert
-     a copy of this License into the extracted document, and follow
-     this License in all other respects regarding verbatim copying of
-     that document.
-
-  7. AGGREGATION WITH INDEPENDENT WORKS
-
-     A compilation of the Document or its derivatives with other
-     separate and independent documents or works, in or on a volume of
-     a storage or distribution medium, does not as a whole count as a
-     Modified Version of the Document, provided no compilation
-     copyright is claimed for the compilation.  Such a compilation is
-     called an "aggregate", and this License does not apply to the
-     other self-contained works thus compiled with the Document, on
-     account of their being thus compiled, if they are not themselves
-     derivative works of the Document.
-
-     If the Cover Text requirement of section 3 is applicable to these
-     copies of the Document, then if the Document is less than one
-     quarter of the entire aggregate, the Document's Cover Texts may be
-     placed on covers that surround only the Document within the
-     aggregate.  Otherwise they must appear on covers around the whole
-     aggregate.
-
-  8. TRANSLATION
-
-     Translation is considered a kind of modification, so you may
-     distribute translations of the Document under the terms of section
-     4.  Replacing Invariant Sections with translations requires special
-     permission from their copyright holders, but you may include
-     translations of some or all Invariant Sections in addition to the
-     original versions of these Invariant Sections.  You may include a
-     translation of this License provided that you also include the
-     original English version of this License.  In case of a
-     disagreement between the translation and the original English
-     version of this License, the original English version will prevail.
-
-  9. TERMINATION
-
-     You may not copy, modify, sublicense, or distribute the Document
-     except as expressly provided for under this License.  Any other
-     attempt to copy, modify, sublicense or distribute the Document is
-     void, and will automatically terminate your rights under this
-     License.  However, parties who have received copies, or rights,
-     from you under this License will not have their licenses
-     terminated so long as such parties remain in full compliance.
-
- 10. FUTURE REVISIONS OF THIS LICENSE
-
-     The Free Software Foundation may publish new, revised versions of
-     the GNU Free Documentation License from time to time.  Such new
-     versions will be similar in spirit to the present version, but may
-     differ in detail to address new problems or concerns.  See
-     `http://www.gnu.org/copyleft/'.
-
-     Each version of the License is given a distinguishing version
-     number.  If the Document specifies that a particular numbered
-     version of this License "or any later version" applies to it, you
-     have the option of following the terms and conditions either of
-     that specified version or of any later version that has been
-     published (not as a draft) by the Free Software Foundation.  If
-     the Document does not specify a version number of this License,
-     you may choose any version ever published (not as a draft) by the
-     Free Software Foundation.
-
-ADDENDUM: How to use this License for your documents
-====================================================
-
-   To use this License in a document you have written, include a copy of
-the License in the document and put the following copyright and license
-notices just after the title page:
-
-       Copyright (C)  YEAR  YOUR NAME.
-       Permission is granted to copy, distribute and/or modify this document
-       under the terms of the GNU Free Documentation License, Version 1.1
-       or any later version published by the Free Software Foundation;
-       with the Invariant Sections being LIST THEIR TITLES, with the
-       Front-Cover Texts being LIST, and with the Back-Cover Texts being LIST.
-       A copy of the license is included in the section entitled ``GNU
-       Free Documentation License''.
-
-   If you have no Invariant Sections, write "with no Invariant Sections"
-instead of saying which ones are invariant.  If you have no Front-Cover
-Texts, write "no Front-Cover Texts" instead of "Front-Cover Texts being
-LIST"; likewise for Back-Cover Texts.
-
-   If your document contains nontrivial examples of program code, we
-recommend releasing these examples in parallel under your choice of
-free software license, such as the GNU General Public License, to
-permit their use in free software.
 

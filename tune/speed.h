@@ -1919,6 +1919,7 @@ int speed_routine_count_zeros_setup _PROTO ((struct speed_params *s,
     while (--i != 0);                                           \
     t = speed_endtime ();                                       \
                                                                 \
+    noop_1 (dummy); /* don't let the calls go dead */           \
     TMP_FREE (marker);                                          \
                                                                 \
     s->time_divisor = SPEED_BLOCK_SIZE;                         \

@@ -70,7 +70,7 @@ mpn_rootrem (mp_ptr rootp, mp_ptr remp,
   count_leading_zeros (cnt, up[un - 1]);
   unb = un * GMP_NUMB_BITS - cnt + GMP_NAIL_BITS;
 
-  xnb = (unb + nth - 1) / nth;
+  xnb = (unb - 1) / nth + 1;
   if (xnb == 1)
     {
       if (remp == NULL)

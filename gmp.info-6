@@ -1,7 +1,7 @@
 This is gmp.info, produced by makeinfo version 4.2 from gmp.texi.
 
 This manual describes how to install and use the GNU multiple precision
-arithmetic library, version 4.1.
+arithmetic library, version 4.1.1.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
 2001, 2002 Free Software Foundation, Inc.
@@ -17,6 +17,171 @@ INFO-DIR-SECTION GNU libraries
 START-INFO-DIR-ENTRY
 * gmp: (gmp).                   GNU Multiple Precision Arithmetic Library.
 END-INFO-DIR-ENTRY
+
+
+File: gmp.info,  Node: FFT Multiplication,  Next: Other Multiplication,  Prev: Toom-Cook 3-Way Multiplication,  Up: Multiplication Algorithms
+
+FFT Multiplication
+------------------
+
+   At large to very large sizes a Fermat style FFT multiplication is
+used, following Scho"nhage and Strassen (*note References::).
+Descriptions of FFTs in various forms can be found in many textbooks,
+for instance Knuth section 4.3.3 part C or Lipson chapter IX.  A brief
+description of the form used in GMP is given here.
+
+   The multiplication done is x*y mod 2^N+1, for a given N.  A full
+product x*y is obtained by choosing N>=bits(x)+bits(y) and padding x
+and y with high zero limbs.  The modular product is the native form for
+the algorithm, so padding to get a full product is unavoidable.
+
+   The algorithm follows a split, evaluate, pointwise multiply,
+interpolate and combine similar to that described above for Karatsuba
+and Toom-3.  A k parameter controls the split, with an FFT-k splitting
+into 2^k pieces of M=N/2^k bits each.  N must be a multiple of
+(2^k)*mp_bits_per_limb so the split falls on limb boundaries, avoiding
+bit shifts in the split and combine stages.
+
+   The evaluations, pointwise multiplications, and interpolation, are
+all done modulo 2^N'+1 where N' is 2M+k+3 rounded up to a multiple of
+2^k and of `mp_bits_per_limb'.  The results of interpolation will be
+the following negacyclic convolution of the input pieces, and the
+choice of N' ensures these sums aren't truncated.
+
+                ---
+                \         b
+     w[n] =     /     (-1) * x[i] * y[j]
+                ---
+            i+j==b*2^k+n
+               b=0,1
+
+   The points used for the evaluation are g^i for i=0 to 2^k-1 where
+g=2^(2N'/2^k).  g is a 2^k'th root of unity mod 2^N'+1, which produces
+necessary cancellations at the interpolation stage, and it's also a
+power of 2 so the fast fourier transforms used for the evaluation and
+interpolation do only shifts, adds and negations.
+
+   The pointwise multiplications are done modulo 2^N'+1 and either
+recurse into a further FFT or use a plain multiplication (Toom-3,
+Karatsuba or basecase), whichever is optimal at the size N'.  The
+interpolation is an inverse fast fourier transform.  The resulting set
+of sums of x[i]*y[j] are added at appropriate offsets to give the final
+result.
+
+   Squaring is the same, but x is the only input so it's one transform
+at the evaluate stage and the pointwise multiplies are squares.  The
+interpolation is the same.
+
+   For a mod 2^N+1 product, an FFT-k is an O(N^(k/(k-1))) algorithm,
+the exponent representing 2^k recursed modular multiplies each
+1/2^(k-1) the size of the original.  Each successive k is an asymptotic
+improvement, but overheads mean each is only faster at bigger and
+bigger sizes.  In the code, `MUL_FFT_TABLE' and `SQR_FFT_TABLE' are the
+thresholds where each k is used.  Each new k effectively swaps some
+multiplying for some shifts, adds and overheads.
+
+   A mod 2^N+1 product can be formed with a normal NxN->2N bit multiply
+plus a subtraction, so an FFT and Toom-3 etc can be compared directly.
+A k=4 FFT at O(N^1.333) can be expected to be the first faster than
+Toom-3 at O(N^1.465).  In practice this is what's found, with
+`MUL_FFT_MODF_THRESHOLD' and `SQR_FFT_MODF_THRESHOLD' being between 300
+and 1000 limbs, depending on the CPU.  So far it's been found that only
+very large FFTs recurse into pointwise multiplies above these sizes.
+
+   When an FFT is to give a full product, the change of N to 2N doesn't
+alter the theoretical complexity for a given k, but for the purposes of
+considering where an FFT might be first used it can be assumed that the
+FFT is recursing into a normal multiply and that on that basis it's
+doing 2^k recursed multiplies each 1/2^(k-2) the size of the inputs,
+making it O(N^(k/(k-2))).  This would mean k=7 at O(N^1.4) would be the
+first FFT faster than Toom-3.  In practice `MUL_FFT_THRESHOLD' and
+`SQR_FFT_THRESHOLD' have been found to be in the k=8 range, somewhere
+between 3000 and 10000 limbs.
+
+   The way N is split into 2^k pieces and then 2M+k+3 is rounded up to
+a multiple of 2^k and `mp_bits_per_limb' means that when
+2^k>=mp_bits_per_limb the effective N is a multiple of 2^(2k-1) bits.
+The +k+3 means some values of N just under such a multiple will be
+rounded to the next.  The complexity calculations above assume that a
+favourable size is used, meaning one which isn't padded through
+rounding, and it's also assumed that the extra +k+3 bits are negligible
+at typical FFT sizes.
+
+   The practical effect of the 2^(2k-1) constraint is to introduce a
+step-effect into measured speeds.  For example k=8 will round N up to a
+multiple of 32768 bits, so for a 32-bit limb there'll be 512 limb
+groups of sizes for which `mpn_mul_n' runs at the same speed.  Or for
+k=9 groups of 2048 limbs, k=10 groups of 8192 limbs, etc.  In practice
+it's been found each k is used at quite small multiples of its size
+constraint and so the step effect is quite noticeable in a time versus
+size graph.
+
+   The threshold determinations currently measure at the mid-points of
+size steps, but this is sub-optimal since at the start of a new step it
+can happen that it's better to go back to the previous k for a while.
+Something more sophisticated for `MUL_FFT_TABLE' and `SQR_FFT_TABLE'
+will be needed.
+
+
+File: gmp.info,  Node: Other Multiplication,  Prev: FFT Multiplication,  Up: Multiplication Algorithms
+
+Other Multiplication
+--------------------
+
+   The 3-way Toom-Cook algorithm described above (*note Toom-Cook 3-Way
+Multiplication::) generalizes to split into an arbitrary number of
+pieces, as per Knuth section 4.3.3 algorithm C.  This is not currently
+used, though it's possible a Toom-4 might fit in between Toom-3 and the
+FFTs.  The notes here are merely for interest.
+
+   In general a split into r+1 pieces is made, and evaluations and
+pointwise multiplications done at 2*r+1 points.  A 4-way split does 7
+pointwise multiplies, 5-way does 9, etc.  Asymptotically an (r+1)-way
+algorithm is O(N^(log(2*r+1)/log(r+1))).  Only the pointwise
+multiplications count towards big-O complexity, but the time spent in
+the evaluate and interpolate stages grows with r and has a significant
+practical impact, with the asymptotic advantage of each r realized only
+at bigger and bigger sizes.  The overheads grow as O(N*r), whereas in
+an r=2^k FFT they grow only as O(N*log(r)).
+
+   Knuth algorithm C evaluates at points 0,1,2,...,2*r, but exercise 4
+uses -r,...,0,...,r and the latter saves some small multiplies in the
+evaluate stage (or rather trades them for additions), and has a further
+saving of nearly half the interpolate steps.  The idea is to separate
+odd and even final coefficients and then perform algorithm C steps C7
+and C8 on them separately.  The divisors at step C7 become j^2 and the
+multipliers at C8 become 2*t*j-j^2.
+
+   Splitting odd and even parts through positive and negative points
+can be thought of as using -1 as a square root of unity.  If a 4th root
+of unity was available then a further split and speedup would be
+possible, but no such root exists for plain integers.  Going to complex
+integers with i=sqrt(-1) doesn't help, essentially because in cartesian
+form it takes three real multiplies to do a complex multiply.  The
+existence of 2^k'th roots of unity in a suitable ring or field lets the
+fast fourier transform keep splitting and get to O(N*log(r)).
+
+   Floating point FFTs use complex numbers approximating Nth roots of
+unity.  Some processors have special support for such FFTs.  But these
+are not used in GMP since it's very difficult to guarantee an exact
+result (to some number of bits).  An occasional difference of 1 in the
+last bit might not matter to a typical signal processing algorithm, but
+is of course of vital importance to GMP.
+
+
+File: gmp.info,  Node: Division Algorithms,  Next: Greatest Common Divisor Algorithms,  Prev: Multiplication Algorithms,  Up: Algorithms
+
+Division Algorithms
+===================
+
+* Menu:
+
+* Single Limb Division::
+* Basecase Division::
+* Divide and Conquer Division::
+* Exact Division::
+* Exact Remainder::
+* Small Quotient Division::
 
 
 File: gmp.info,  Node: Single Limb Division,  Next: Basecase Division,  Prev: Division Algorithms,  Up: Division Algorithms
@@ -943,196 +1108,4 @@ handle carry bits in C.  Often conditional jumps are generated where
 `adc' or `sbb' forms would be better.  And so unfortunately almost any
 loop involving carry bits needs to be coded in assembler for best
 results.
-
-
-File: gmp.info,  Node: Assembler Cache Handling,  Next: Assembler Floating Point,  Prev: Assembler Carry Propagation,  Up: Assembler Coding
-
-Cache Handling
---------------
-
-   GMP aims to perform well both on operands that fit entirely in L1
-cache and those which don't.
-
-   Basic routines like `mpn_add_n' or `mpn_lshift' are often used on
-large operands, so L2 and main memory performance is important for them.
-`mpn_mul_1' and `mpn_addmul_1' are mostly used for multiply and square
-basecases, so L1 performance matters most for them, unless assembler
-versions of `mpn_mul_basecase' and `mpn_sqr_basecase' exist, in which
-case the remaining uses are mostly for larger operands.
-
-   For L2 or main memory operands, memory access times will almost
-certainly be more than the calculation time.  The aim therefore is to
-maximize memory throughput, by starting a load of the next cache line
-which processing the contents of the previous one.  Clearly this is
-only possible if the chip has a lock-up free cache or some sort of
-prefetch instruction.  Most current chips have both these features.
-
-   Prefetching sources combines well with loop unrolling, since a
-prefetch can be initiated once per unrolled loop (or more than once if
-the loop covers more than one cache line).
-
-   On CPUs without write-allocate caches, prefetching destinations will
-ensure individual stores don't go further down the cache hierarchy,
-limiting bandwidth.  Of course for calculations which are slow anyway,
-like `mpn_divrem_1', write-throughs might be fine.
-
-   The distance ahead to prefetch will be determined by memory latency
-versus throughput.  The aim of course is to have data arriving
-continuously, at peak throughput.  Some CPUs have limits on the number
-of fetches or prefetches in progress.
-
-   If a special prefetch instruction doesn't exist then a plain load
-can be used, but in that case care must be taken not to attempt to read
-past the end of an operand, since that might produce a segmentation
-violation.
-
-   Some CPUs or systems have hardware that detects sequential memory
-accesses and initiates suitable cache movements automatically, making
-life easy.
-
-
-File: gmp.info,  Node: Assembler Floating Point,  Next: Assembler SIMD Instructions,  Prev: Assembler Cache Handling,  Up: Assembler Coding
-
-Floating Point
---------------
-
-   Floating point arithmetic is used in GMP for multiplications on CPUs
-with poor integer multipliers.  It's mostly useful for `mpn_mul_1',
-`mpn_addmul_1' and `mpn_submul_1' on 64-bit machines, and
-`mpn_mul_basecase' on both 32-bit and 64-bit machines.
-
-   With IEEE 53-bit double precision floats, integer multiplications
-producing up to 53 bits will give exact results.  Breaking a 64x64
-multiplication into eight 16x32->48 bit pieces is convenient.  With
-some care though six 21x32->53 bit products can be used, if one of the
-lower two 21-bit pieces also uses the sign bit.
-
-   For the `mpn_mul_1' family of functions on a 64-bit machine, the
-invariant single limb is split at the start, into 3 or 4 pieces.
-Inside the loop, the bignum operand is split into 32-bit pieces.  Fast
-conversion of these unsigned 32-bit pieces to floating point is highly
-machine-dependent.  In some cases, reading the data into the integer
-unit, zero-extending to 64-bits, then transferring to the floating
-point unit back via memory is the only option.
-
-   Converting partial products back to 64-bit limbs is usually best
-done as a signed conversion.  Since all values are smaller than 2^53,
-signed and unsigned are the same, but most processors lack unsigned
-conversions.
-
-
-
-   Here is a diagram showing 16x32 bit products for an `mpn_mul_1' or
-`mpn_addmul_1' with a 64-bit limb.  The single limb operand V is split
-into four 16-bit parts.  The multi-limb operand U is split in the loop
-into two 32-bit parts.
-
-                     +---+---+---+---+
-                     |v48|v32|v16|v00|    V operand
-                     +---+---+---+---+
-     
-                     +-------+---+---+
-                 x   |  u32  |  u00  |    U operand (one limb)
-                     +---------------+
-     
-     ---------------------------------
-     
-                         +-----------+
-                         | u00 x v00 |    p00    48-bit products
-                         +-----------+
-                     +-----------+
-                     | u00 x v16 |        p16
-                     +-----------+
-                 +-----------+
-                 | u00 x v32 |            p32
-                 +-----------+
-             +-----------+
-             | u00 x v48 |                p48
-             +-----------+
-                 +-----------+
-                 | u32 x v00 |            r32
-                 +-----------+
-             +-----------+
-             | u32 x v16 |                r48
-             +-----------+
-         +-----------+
-         | u32 x v32 |                    r64
-         +-----------+
-     +-----------+
-     | u32 x v48 |                        r80
-     +-----------+
-
-   p32 and r32 can be summed using floating-point addition, and
-likewise p48 and r48.  p00 and p16 can be summed with r64 and r80 from
-the previous iteration.
-
-   For each loop then, four 49-bit quantities are transfered to the
-integer unit, aligned as follows,
-
-     |-----64bits----|-----64bits----|
-                        +------------+
-                        | p00 + r64' |    i00
-                        +------------+
-                    +------------+
-                    | p16 + r80' |        i16
-                    +------------+
-                +------------+
-                | p32 + r32  |            i32
-                +------------+
-            +------------+
-            | p48 + r48  |                i48
-            +------------+
-
-   The challenge then is to sum these efficiently and add in a carry
-limb, generating a low 64-bit result limb and a high 33-bit carry limb
-(i48 extends 33 bits into the high half).
-
-
-File: gmp.info,  Node: Assembler SIMD Instructions,  Next: Assembler Software Pipelining,  Prev: Assembler Floating Point,  Up: Assembler Coding
-
-SIMD Instructions
------------------
-
-   The single-instruction multiple-data support in current
-microprocessors is aimed at signal processing algorithms where each
-data point can be treated more or less independently.  There's
-generally not much support for propagating the sort of carries that
-arise in GMP.
-
-   SIMD multiplications of say four 16x16 bit multiplies only do as much
-work as one 32x32 from GMP's point of view, and need some shifts and
-adds besides.  But of course if say the SIMD form is fully pipelined
-and uses less instruction decoding then it may still be worthwhile.
-
-   On the 80x86 chips, MMX has so far found a use in `mpn_rshift' and
-`mpn_lshift' since it allows 64-bit operations, and is used in a special
-case for 16-bit multipliers in the P55 `mpn_mul_1'.  3DNow and SSE
-haven't found a use so far.
-
-
-File: gmp.info,  Node: Assembler Software Pipelining,  Next: Assembler Loop Unrolling,  Prev: Assembler SIMD Instructions,  Up: Assembler Coding
-
-Software Pipelining
--------------------
-
-   Software pipelining consists of scheduling instructions around the
-branch point in a loop.  For example a loop taking a checksum of an
-array of limbs might have a load and an add, but the load wouldn't be
-for that add, rather for the one next time around the loop.  Each load
-then is effectively scheduled back in the previous iteration, allowing
-latency to be hidden.
-
-   Naturally this is wanted only when doing things like loads or
-multiplies that take a few cycles to complete, and only where a CPU has
-multiple functional units so that other work can be done while waiting.
-
-   A pipeline with several stages will have a data value in progress at
-each stage and each loop iteration moves them along one stage.  This is
-like juggling.
-
-   Within the loop some moves between registers may be necessary to
-have the right values in the right places for each iteration.  Loop
-unrolling can help this, with each unrolled block able to use different
-registers for different values, even if some shuffling is still needed
-just before going back to the top of the loop.
 

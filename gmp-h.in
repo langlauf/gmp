@@ -133,7 +133,11 @@ MA 02111-1307, USA. */
    should have __GMP_DECLSPEC, and certainly constants or variables must
    have it or the wrong address will be resolved.  */
 
-#if defined (__GNUC__) || defined (_MSC_VER) || defined (__BORLANDC__)
+#if defined (__GNUC__)
+#define __GMP_DECLSPEC_EXPORT  __declspec(__dllexport__)
+#define __GMP_DECLSPEC_IMPORT  __declspec(__dllimport__)
+#endif
+#if defined (_MSC_VER) || defined (__BORLANDC__)
 #define __GMP_DECLSPEC_EXPORT  __declspec(dllexport)
 #define __GMP_DECLSPEC_IMPORT  __declspec(dllimport)
 #endif
@@ -399,6 +403,16 @@ typedef __mpq_struct *mpq_ptr;
    problem for everyone, not just GMP.  */
 #if defined (__cplusplus) && ! defined (__GMP_EXTERN_INLINE)
 #define __GMP_EXTERN_INLINE  inline
+#endif
+
+/* Don't do any inlining within a configure run, since if the compiler ends
+   up emitting copies of the code into the object file it can end up
+   demanding the various support routines (like mpn_popcount) for linking,
+   making the "alloca" test and perhaps others fail.  And on hppa ia64 a
+   pre-release gcc 3.2 was seen not respecting the "extern" in "extern
+   __inline__", triggering this problem too.  */
+#if defined (__GMP_WITHIN_CONFIGURE) && ! __GMP_WITHIN_CONFIGURE_INLINE
+#undef __GMP_EXTERN_INLINE
 #endif
 
 /* By default, don't give a prototype when there's going to be an inline
@@ -687,7 +701,7 @@ __GMP_DECLSPEC int mpz_divisible_2exp_p __GMP_PROTO ((mpz_srcptr, unsigned long)
 __GMP_DECLSPEC void mpz_dump __GMP_PROTO ((mpz_srcptr));
 
 #define mpz_export __gmpz_export
-__GMP_DECLSPEC void *mpz_export __GMP_PROTO ((void *, size_t *, int, size_t, int, size_t, mpz_srcptr z));
+__GMP_DECLSPEC void *mpz_export __GMP_PROTO ((void *, size_t *, int, size_t, int, size_t, mpz_srcptr));
 
 #define mpz_fac_ui __gmpz_fac_ui
 __GMP_DECLSPEC void mpz_fac_ui __GMP_PROTO ((mpz_ptr, unsigned long int));
@@ -2102,7 +2116,7 @@ enum
 /* Major version number is the value of __GNU_MP__ too, above and in mp.h. */
 #define __GNU_MP_VERSION 4
 #define __GNU_MP_VERSION_MINOR 1
-#define __GNU_MP_VERSION_PATCHLEVEL 0
+#define __GNU_MP_VERSION_PATCHLEVEL 1
 
 #define __GMP_H__
 #endif /* __GMP_H__ */

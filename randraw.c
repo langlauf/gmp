@@ -115,8 +115,6 @@ lc (mp_ptr rp, gmp_randstate_t rstate)
        with C smaller than M*/
       *rp = c;
 
-      ASSERT_ALWAYS (((mp_limb_t) 1 << m2exp) > c);
-
       *seedp = c;
       SIZ (rstate->_mp_seed) = 1;
       return m2exp;

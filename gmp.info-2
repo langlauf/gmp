@@ -1,7 +1,7 @@
 This is gmp.info, produced by makeinfo version 4.2 from gmp.texi.
 
 This manual describes how to install and use the GNU multiple precision
-arithmetic library, version 4.1.
+arithmetic library, version 4.1.1.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
 2001, 2002 Free Software Foundation, Inc.
@@ -79,10 +79,10 @@ Useful Macros and Constants
 
  - Global Constant: const char * const gmp_version
      The GMP version number, as a null-terminated string, in the form
-     "i.j" or "i.j.k".  This release is "4.1".
+     "i.j" or "i.j.k".  This release is "4.1.1".
 
 
-File: gmp.info,  Node: Compatibility with older versions,  Next: Efficiency,  Prev: Useful Macros and Constants,  Up: GMP Basics
+File: gmp.info,  Node: Compatibility with older versions,  Next: Demonstration Programs,  Prev: Useful Macros and Constants,  Up: GMP Basics
 
 Compatibility with older versions
 =================================
@@ -105,7 +105,46 @@ that of course also apply when porting applications from GMP 1 to GMP
 Functions::) is source and binary compatible with the standard `libmp'.
 
 
-File: gmp.info,  Node: Efficiency,  Next: Debugging,  Prev: Compatibility with older versions,  Up: GMP Basics
+File: gmp.info,  Node: Demonstration Programs,  Next: Efficiency,  Prev: Compatibility with older versions,  Up: GMP Basics
+
+Demonstration programs
+======================
+
+   The `demos' subdirectory has some sample programs using GMP.  These
+aren't built or installed, but there's a `Makefile' with rules for them.
+For instance,
+
+     make pexpr
+     ./pexpr 68^975+10
+
+The following programs are provided
+
+   * `pexpr' is an expression evaluator, the program used on the GMP
+     web page.
+
+   * The `calc' subdirectory has a similar but simpler evaluator using
+     `lex' and `yacc'.
+
+   * The `expr' subdirectory is yet another expression evaluator, a
+     library designed for ease of use within a C program.  See
+     `demos/expr/README' for more information.
+
+   * `factorize' is a Pollard-Rho factorization program.
+
+   * `isprime' is a command-line interface to the `mpz_probab_prime_p'
+     function.
+
+   * `primes' counts or lists primes in an interval, using a sieve.
+
+   * `qcn' is an example use of `mpz_kronecker_ui' to estimate quadratic
+     class numbers.
+
+   * The `perl' subdirectory is a comprehensive perl interface to GMP.
+     See `demos/perl/INSTALL' for more information.  Documentation is
+     in POD format in `demos/perl/GMP.pm'.
+
+
+File: gmp.info,  Node: Efficiency,  Next: Debugging,  Prev: Demonstration Programs,  Up: GMP Basics
 
 Efficiency
 ==========
@@ -330,7 +369,7 @@ Source File Paths
      absolute path to the source directory.
 
           cd /my/build/dir
-          /my/source/dir/gmp-4.1/configure
+          /my/source/dir/gmp-4.1.1/configure
 
      This works via `VPATH', and might require GNU `make'.  Alternately
      it might be possible to change the `.c.lo' rules appropriately.
@@ -429,7 +468,7 @@ profiling is selected instead it should still be possible to use
 expected to be valid, not the `gprof -q' call graph.
 
 
-File: gmp.info,  Node: Autoconf,  Prev: Profiling,  Up: GMP Basics
+File: gmp.info,  Node: Autoconf,  Next: Emacs,  Prev: Profiling,  Up: GMP Basics
 
 Autoconf
 ========
@@ -491,6 +530,27 @@ not guaranteed.
      AC_CHECK_LIB(mpfr, mpfr_add, , [AC_MSG_ERROR(
      [Need MPFR either from GNU MP 4 or separate MPFR package.
      See http://www.mpfr.org or http://swox.com/gmp])
+
+
+File: gmp.info,  Node: Emacs,  Prev: Autoconf,  Up: GMP Basics
+
+Emacs
+=====
+
+   <C-h C-i> (`info-lookup-symbol') is a good way to find documentation
+on C functions while editing (*note Info Documentation Lookup:
+(emacs)Info Lookup.).
+
+   The GMP manual can be included in such lookups by putting the
+following in your `.emacs',
+
+     (eval-after-load "info-look"
+       '(let ((mode-value (assoc 'c-mode (assoc 'symbol info-lookup-alist))))
+          (setcar (nthcdr 3 mode-value)
+                  (cons '("(gmp)Function Index" nil "^ -.* " "\\>")
+                        (nth 3 mode-value)))))
+
+   The same can be done for MPFR, with `(mpfr)' in place of `(gmp)'.
 
 
 File: gmp.info,  Node: Reporting Bugs,  Next: Integer Functions,  Prev: GMP Basics,  Up: Top
@@ -1049,134 +1109,4 @@ Root Extraction Functions
      Return non-zero if OP is a perfect square, i.e., if the square
      root of OP is an integer.  Under this definition both 0 and 1 are
      considered to be perfect squares.
-
-
-File: gmp.info,  Node: Number Theoretic Functions,  Next: Integer Comparisons,  Prev: Integer Roots,  Up: Integer Functions
-
-Number Theoretic Functions
-==========================
-
- - Function: int mpz_probab_prime_p (mpz_t N, int REPS)
-     Determine whether N is prime.  Return 2 if N is definitely prime,
-     return 1 if N is probably prime (without being certain), or return
-     0 if N is definitely composite.
-
-     This function does some trial divisions, then some Miller-Rabin
-     probabilistic primality tests.  REPS controls how many such tests
-     are done, 5 to 10 is a reasonable number, more will reduce the
-     chances of a composite being returned as "probably prime".
-
-     Miller-Rabin and similar tests can be more properly called
-     compositeness tests.  Numbers which fail are known to be composite
-     but those which pass might be prime or might be composite.  Only a
-     few composites pass, hence those which pass are considered
-     probably prime.
-
- - Function: void mpz_nextprime (mpz_t ROP, mpz_t OP)
-     Set ROP to the next prime greater than OP.
-
-     This function uses a probabilistic algorithm to identify primes.
-     For practical purposes it's adequate, the chance of a composite
-     passing will be extremely small.
-
- - Function: void mpz_gcd (mpz_t ROP, mpz_t OP1, mpz_t OP2)
-     Set ROP to the greatest common divisor of OP1 and OP2.  The result
-     is always positive even if one or both input operands are negative.
-
- - Function: unsigned long int mpz_gcd_ui (mpz_t ROP, mpz_t OP1,
-          unsigned long int OP2)
-     Compute the greatest common divisor of OP1 and OP2.  If ROP is not
-     `NULL', store the result there.
-
-     If the result is small enough to fit in an `unsigned long int', it
-     is returned.  If the result does not fit, 0 is returned, and the
-     result is equal to the argument OP1.  Note that the result will
-     always fit if OP2 is non-zero.
-
- - Function: void mpz_gcdext (mpz_t G, mpz_t S, mpz_t T, mpz_t A, mpz_t
-          B)
-     Set G to the greatest common divisor of A and B, and in addition
-     set S and T to coefficients satisfying A*S + B*T = G.  G is always
-     positive, even if one or both of A and B are negative.
-
-     If T is `NULL' then that value is not computed.
-
- - Function: void mpz_lcm (mpz_t ROP, mpz_t OP1, mpz_t OP2)
- - Function: void mpz_lcm_ui (mpz_t ROP, mpz_t OP1, unsigned long OP2)
-     Set ROP to the least common multiple of OP1 and OP2.  ROP is
-     always positive, irrespective of the signs of OP1 and OP2.  ROP
-     will be zero if either OP1 or OP2 is zero.
-
- - Function: int mpz_invert (mpz_t ROP, mpz_t OP1, mpz_t OP2)
-     Compute the inverse of OP1 modulo OP2 and put the result in ROP.
-     If the inverse exists, the return value is non-zero and ROP will
-     satisfy 0 <= ROP < OP2.  If an inverse doesn't exist the return
-     value is zero and ROP is undefined.
-
- - Function: int mpz_jacobi (mpz_t A, mpz_t B)
-     Calculate the Jacobi symbol (A/B).  This is defined only for B odd.
-
- - Function: int mpz_legendre (mpz_t A, mpz_t P)
-     Calculate the Legendre symbol (A/P).  This is defined only for P
-     an odd positive prime, and for such P it's identical to the Jacobi
-     symbol.
-
- - Function: int mpz_kronecker (mpz_t A, mpz_t B)
- - Function: int mpz_kronecker_si (mpz_t A, long B)
- - Function: int mpz_kronecker_ui (mpz_t A, unsigned long B)
- - Function: int mpz_si_kronecker (long A, mpz_t B)
- - Function: int mpz_ui_kronecker (unsigned long A, mpz_t B)
-     Calculate the Jacobi symbol (A/B) with the Kronecker extension
-     (a/2)=(2/a) when a odd, or (a/2)=0 when a even.
-
-     When B is odd the Jacobi symbol and Kronecker symbol are
-     identical, so `mpz_kronecker_ui' etc can be used for mixed
-     precision Jacobi symbols too.
-
-     For more information see Henri Cohen section 1.4.2 (*note
-     References::), or any number theory textbook.  See also the
-     example program `demos/qcn.c' which uses `mpz_kronecker_ui'.
-
- - Function: unsigned long int mpz_remove (mpz_t ROP, mpz_t OP, mpz_t F)
-     Remove all occurrences of the factor F from OP and store the
-     result in ROP.  Return the multiplicity of F in OP.
-
- - Function: void mpz_fac_ui (mpz_t ROP, unsigned long int OP)
-     Set ROP to OP!, the factorial of OP.
-
- - Function: void mpz_bin_ui (mpz_t ROP, mpz_t N, unsigned long int K)
- - Function: void mpz_bin_uiui (mpz_t ROP, unsigned long int N,
-          unsigned long int K)
-     Compute the binomial coefficient N over K and store the result in
-     ROP.  Negative values of N are supported by `mpz_bin_ui', using
-     the identity bin(-n,k) = (-1)^k * bin(n+k-1,k), see Knuth volume 1
-     section 1.2.6 part G.
-
- - Function: void mpz_fib_ui (mpz_t FN, unsigned long int N)
- - Function: void mpz_fib2_ui (mpz_t FN, mpz_t FNSUB1, unsigned long
-          int N)
-     `mpz_fib_ui' sets FN to to F[n], the N'th Fibonacci number.
-     `mpz_fib2_ui' sets FN to F[n], and FNSUB1 to F[n-1].
-
-     These functions are designed for calculating isolated Fibonacci
-     numbers.  When a sequence of values is wanted it's best to start
-     with `mpz_fib2_ui' and iterate the defining F[n+1]=F[n]+F[n-1] or
-     similar.
-
- - Function: void mpz_lucnum_ui (mpz_t LN, unsigned long int N)
- - Function: void mpz_lucnum2_ui (mpz_t LN, mpz_t LNSUB1, unsigned long
-          int N)
-     `mpz_lucnum_ui' sets LN to to L[n], the N'th Lucas number.
-     `mpz_lucnum2_ui' sets LN to L[n], and LNSUB1 to L[n-1].
-
-     These functions are designed for calculating isolated Lucas
-     numbers.  When a sequence of values is wanted it's best to start
-     with `mpz_lucnum2_ui' and iterate the defining L[n+1]=L[n]+L[n-1]
-     or similar.
-
-     The Fibonacci numbers and Lucas numbers are related sequences, so
-     it's never necessary to call both `mpz_fib2_ui' and
-     `mpz_lucnum2_ui'.  The formulas for going from Fibonacci to Lucas
-     can be found in *Note Lucas Numbers Algorithm::, the reverse is
-     straightforward too.
 
