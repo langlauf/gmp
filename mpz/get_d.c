@@ -1,6 +1,6 @@
-/* gmp-mparam.h -- Compiler/machine parameter header file.
+/* double mpz_get_d (mpz_t src) -- Return the double approximation to SRC.
 
-Copyright (C) 1991, 1993, 1994, 1995 Free Software Foundation, Inc.
+Copyright (C) 1996 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -19,11 +19,36 @@ along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA. */
 
-#define BITS_PER_MP_LIMB 32
-#define BYTES_PER_MP_LIMB 4
-#define BITS_PER_LONGINT 32
-#define BITS_PER_INT 32
-#define BITS_PER_SHORTINT 16
-#define BITS_PER_CHAR 8
+#include "gmp.h"
+#include "gmp-impl.h"
 
-#define IEEE_DOUBLE_BIG_ENDIAN 0
+double
+#if __STDC__
+mpz_get_d (mpz_srcptr src)
+#else
+mpz_get_d (src)
+     mpz_srcptr src;
+#endif
+{
+  double res;
+  mp_size_t size, i, n_limbs_to_use;
+  int negative;
+  mp_ptr qp;
+
+  size = SIZ(src);
+  if (size == 0)
+    return 0.0;
+
+  negative = size < 0;
+  size = ABS (size);
+  qp = PTR(src);
+
+  res = qp[size - 1];
+  n_limbs_to_use = MIN (LIMBS_PER_DOUBLE, size);
+  for (i = 2; i <= n_limbs_to_use; i++)
+    res = res * MP_BASE_AS_DOUBLE + qp[size - i];
+
+  res = __gmp_scale2 (res, (size - n_limbs_to_use) * BITS_PER_MP_LIMB);
+
+  return negative ? -res : res;
+}

@@ -1,1029 +1,0 @@
-
-cre-mparam.c,11
-main 3,18
-
-gmp-impl.h,2120
-#define alloca 23,1015
-#define HAVE_ALLOCA24,1047
-#define HAVE_ALLOCA38,1632
-#define HAVE_ALLOCA42,1695
-#define alloca(alloca45,1743
-#define HAVE_ALLOCA46,1773
-#define TMP_DECL(TMP_DECL53,1886
-#define TMP_ALLOC(TMP_ALLOC54,1906
-#define TMP_MARK(TMP_MARK55,1937
-#define TMP_FREE(TMP_FREE56,1957
-#define NULL 60,1998
-#define inline	64,2057
-#define ABS(ABS67,2094
-#define MIN(MIN68,2127
-#define MAX(MAX69,2168
-#define SIZ(SIZ72,2238
-#define ABSIZ(ABSIZ73,2269
-#define PTR(PTR74,2300
-#define EXP(EXP75,2328
-#define PREC(PREC76,2358
-#define ALLOC(ALLOC77,2390
-#define const	97,2899
-#define signed	98,2927
-#define MPN_COPY_INCR(MPN_COPY_INCR114,3263
-#define MPN_COPY_DECR(MPN_COPY_DECR120,3447
-#define MPN_COPY 126,3636
-#define MPN_ZERO(MPN_ZERO129,3703
-#define MPN_NORMALIZE(MPN_NORMALIZE136,3870
-#define MPN_NORMALIZE_NOT_ZERO(MPN_NORMALIZE_NOT_ZERO145,4079
-#define MPZ_TMP_INIT(MPZ_TMP_INIT160,4552
-#define MPN_MUL_N_RECURSE(MPN_MUL_N_RECURSE167,4757
-#define MPN_SQR_N_RECURSE(MPN_SQR_N_RECURSE174,5013
-struct basesbases184,5353
-#define udiv_qrnnd_preinv(udiv_qrnnd_preinv213,6642
-#define udiv_qrnnd_preinv2gen(udiv_qrnnd_preinv2gen241,7528
-#define udiv_qrnnd_preinv2norm(udiv_qrnnd_preinv2norm260,8331
-typedef unsigned int UQItype	__attribute__ __attribute__280,9004
-typedef 	 int SItype	__attribute__ __attribute__281,9062
-typedef unsigned int USItype	__attribute__ __attribute__282,9112
-typedef		 int DItype	__attribute__ __attribute__283,9170
-typedef unsigned int UDItype	__attribute__ __attribute__284,9220
-typedef unsigned char UQItype;UQItype286,9284
-typedef 	 long SItype;SItype287,9315
-typedef unsigned long USItype;USItype288,9338
-typedef mp_limb_t UWtype;UWtype291,9377
-typedef unsigned int UHWtype;UHWtype292,9403
-#define W_TYPE_SIZE 293,9433
-#define impn_mul_n_basecase	296,9496
-#define impn_mul_n	297,9551
-#define impn_sqr_n_basecase	298,9589
-#define impn_sqr_n	299,9644
-#define IEEE_DOUBLE_BIG_ENDIAN 302,9714
-union ieee_double_extractieee_double_extract306,9782
-union ieee_double_extractieee_double_extract318,9964
-
-gmp.h,3687
-#define __GNU_MP__ 24,951
-#define __need_size_t25,972
-#define __gmp_const 30,1084
-#define __gmp_const32,1116
-#define __gmp_inline 36,1167
-#define __gmp_inline38,1205
-#define _EXTERN_INLINE 43,1273
-#define _EXTERN_INLINE 45,1320
-typedef unsigned int		mp_limb_t;mp_limb_t50,1384
-typedef int			mp_limb_signed_t;mp_limb_signed_t51,1417
-typedef unsigned long long int	mp_limb_t;mp_limb_t54,1478
-typedef long long int		mp_limb_signed_t;mp_limb_signed_t55,1520
-typedef unsigned long int	mp_limb_t;mp_limb_t57,1567
-typedef long int		mp_limb_signed_t;mp_limb_signed_t58,1604
-typedef mp_limb_t *		mp_ptr;mp_ptr62,1655
-typedef __gmp_const mp_limb_t *	mp_srcptr;mp_srcptr63,1684
-typedef long int		mp_size_t;mp_size_t64,1727
-typedef long int		mp_exp_t;mp_exp_t65,1756
-} __mpz_struct;__mpz_struct77,2117
-} __mpz_struct;__mpz_struct88,2461
-typedef __mpz_struct MP_INT;MP_INT93,2536
-typedef __mpz_struct mpz_t[mpz_t94,2565
-} __mpq_struct;__mpq_struct116,3377
-typedef __mpq_struct MP_RAT;MP_RAT118,3394
-typedef __mpq_struct mpq_t[mpq_t119,3423
-} __mpf_struct;__mpf_struct134,3947
-typedef __mpf_struct mpf_t[mpf_t137,4001
-typedef __gmp_const __mpz_struct *mpz_srcptr;mpz_srcptr141,4146
-typedef __mpz_struct *mpz_ptr;mpz_ptr142,4192
-typedef __gmp_const __mpf_struct *mpf_srcptr;mpf_srcptr143,4223
-typedef __mpf_struct *mpf_ptr;mpf_ptr144,4269
-typedef __gmp_const __mpq_struct *mpq_srcptr;mpq_srcptr145,4300
-typedef __mpq_struct *mpq_ptr;mpq_ptr146,4346
-#define _PROTO(_PROTO150,4441
-#define _PROTO(_PROTO152,4467
-#define __MPN(__MPN158,4565
-#define __MPN(__MPN160,4598
-#define _GMP_H_HAVE_FILE 165,4730
-#define mpn_add	352,14344
-#define mpn_add_1	353,14373
-#define mpn_add_n	354,14405
-#define mpn_addmul_1	355,14437
-#define mpn_bdivmod	356,14475
-#define mpn_cmp	357,14511
-#define mpn_divmod_1	358,14540
-#define mpn_divrem	359,14578
-#define mpn_divrem_1	360,14612
-#define mpn_dump	361,14650
-#define mpn_gcd	362,14680
-#define mpn_gcd_1	363,14709
-#define mpn_gcdext	364,14741
-#define mpn_get_str	365,14775
-#define mpn_hamdist	366,14811
-#define mpn_lshift	367,14847
-#define mpn_mod_1	368,14881
-#define mpn_mul	369,14913
-#define mpn_mul_1	370,14942
-#define mpn_mul_n	371,14974
-#define mpn_perfect_square_p	372,15006
-#define mpn_popcount	373,15059
-#define mpn_preinv_mod_1	374,15097
-#define mpn_random2	375,15142
-#define mpn_rshift	376,15178
-#define mpn_scan0	377,15212
-#define mpn_scan1	378,15244
-#define mpn_set_str	379,15276
-#define mpn_sqrtrem	380,15312
-#define mpn_sub	381,15348
-#define mpn_sub_1	382,15377
-#define mpn_sub_n	383,15409
-#define mpn_submul_1	384,15441
-#define mpn_udiv_w_sdiv	385,15479
-mpn_add_1 430,18128
-mpn_add 472,18909
-mpn_sub_1 501,19622
-mpn_sub 543,20403
-#define mpz_sgn(mpz_sgn572,21127
-#define mpf_sgn(mpf_sgn573,21191
-#define mpq_sgn(mpq_sgn574,21255
-#define mpq_numref(mpq_numref577,21416
-#define mpq_denref(mpq_denref578,21456
-#define mpz_cmp_ui(mpz_cmp_ui582,21580
-#define mpz_cmp_si(mpz_cmp_si585,21692
-#define mpq_cmp_ui(mpq_cmp_ui589,21869
-#define mpn_divmod(mpn_divmod594,22001
-#define mpn_divmod_1(mpn_divmod_1596,22084
-#define mpz_mdiv	600,22200
-#define mpz_mdivmod	601,22228
-#define mpz_mmod	602,22260
-#define mpz_mdiv_ui	603,22288
-#define mpz_mdivmod_ui(mpz_mdivmod_ui604,22322
-#define mpz_mmod_ui(mpz_mmod_ui606,22420
-#define mpz_div	610,22568
-#define mpz_divmod	611,22596
-#define mpz_div_ui	612,22627
-#define mpz_divmod_ui	613,22660
-#define mpz_mod_ui	614,22697
-#define mpz_div_2exp	615,22730
-#define mpz_mod_2exp	616,22767
-#define __GNU_MP_VERSION 618,22805
-#define __GNU_MP_VERSION_MINOR 619,22832
-#define __GMP_H__620,22865
-
-longlong.h,6133
-#define __BITS4 33,1402
-#define __ll_B 34,1436
-#define __ll_lowpart(__ll_lowpart35,1485
-#define __ll_highpart(__ll_highpart36,1539
-#define __MPN(__MPN41,1734
-#define __CLOBBER_CC99,4357
-#define __AND_CLOBBER_CC100,4378
-#define __CLOBBER_CC 102,4429
-#define __AND_CLOBBER_CC 103,4457
-#define add_ssaaaa(add_ssaaaa107,4582
-#define sub_ddmmss(sub_ddmmss116,4873
-#define umul_ppmm(umul_ppmm125,5163
-#define udiv_qrnnd(udiv_qrnnd137,5531
-#define count_leading_zeros(count_leading_zeros144,5762
-#define COUNT_LEADING_ZEROS_0 148,5900
-#define umul_ppmm(umul_ppmm152,5999
-#define UMUL_TIME 161,6272
-#define udiv_qrnnd(udiv_qrnnd163,6321
-#define UDIV_TIME 169,6510
-#define add_ssaaaa(add_ssaaaa174,6630
-#define sub_ddmmss(sub_ddmmss183,6925
-#define umul_ppmm(umul_ppmm192,7218
-#define UMUL_TIME 211,7732
-#define UDIV_TIME 212,7753
-#define umul_ppmm(umul_ppmm216,7844
-#define smul_ppmm(smul_ppmm225,8145
-#define __umulsidi3(__umulsidi3234,8442
-#define add_ssaaaa(add_ssaaaa244,8710
-#define sub_ddmmss(sub_ddmmss253,8996
-#define umul_ppmm(umul_ppmm262,9280
-#define udiv_qrnnd(udiv_qrnnd268,9478
-#define count_leading_zeros(count_leading_zeros275,9707
-#define add_ssaaaa(add_ssaaaa283,9912
-#define sub_ddmmss(sub_ddmmss292,10206
-#define umul_ppmm(umul_ppmm302,10524
-#define UMUL_TIME 314,10885
-#define UDIV_TIME 315,10905
-#define UMUL_TIME 317,10932
-#define UDIV_TIME 318,10953
-#define udiv_qrnnd(udiv_qrnnd321,11009
-#define count_leading_zeros(count_leading_zeros328,11231
-#define umul_ppmm(umul_ppmm352,12098
-#define smul_ppmm(smul_ppmm367,12604
-#define sdiv_qrnnd(sdiv_qrnnd379,12967
-#define add_ssaaaa(add_ssaaaa393,13404
-#define sub_ddmmss(sub_ddmmss402,13689
-#define umul_ppmm(umul_ppmm411,13972
-#define udiv_qrnnd(udiv_qrnnd417,14162
-#define count_leading_zeros(count_leading_zeros424,14387
-#define count_trailing_zeros(count_trailing_zeros431,14606
-#define UMUL_TIME 434,14727
-#define UDIV_TIME 437,14773
-#define rshift_rhlc(rshift_rhlc442,14865
-#define add_ssaaaa(add_ssaaaa448,15048
-#define sub_ddmmss(sub_ddmmss456,15349
-#define umul_ppmm(umul_ppmm464,15648
-#define __umulsidi3(__umulsidi3473,15951
-#define udiv_qrnnd(udiv_qrnnd480,16151
-#define count_leading_zeros(count_leading_zeros492,16543
-#define COUNT_LEADING_ZEROS_0 500,16779
-#define rshift_rhlc(rshift_rhlc502,16892
-#define add_ssaaaa(add_ssaaaa515,17328
-#define sub_ddmmss(sub_ddmmss524,17618
-#define umul_ppmm(umul_ppmm534,17976
-#define UMUL_TIME 540,18175
-#define udiv_qrnnd(udiv_qrnnd541,18196
-#define UDIV_TIME 548,18430
-#define sdiv_qrnnd(sdiv_qrnnd549,18451
-#define count_leading_zeros(count_leading_zeros556,18685
-#define COUNT_LEADING_ZEROS_0 560,18837
-#define umul_ppmm(umul_ppmm562,18894
-#define UMUL_TIME 590,19465
-#define UDIV_TIME 591,19487
-#define add_ssaaaa(add_ssaaaa596,19602
-#define sub_ddmmss(sub_ddmmss605,19906
-#define count_leading_zeros(count_leading_zeros614,20208
-#define COUNT_LEADING_ZEROS_0 622,20440
-#define umul_ppmm(umul_ppmm624,20508
-#define udiv_qrnnd(udiv_qrnnd636,20867
-#define UMUL_TIME 647,21234
-#define UDIV_TIME 648,21254
-#define UMUL_TIME 650,21281
-#define UDIV_TIME 651,21302
-#define umul_ppmm(umul_ppmm657,21457
-#define umul_ppmm(umul_ppmm664,21654
-#define UMUL_TIME 673,21871
-#define UDIV_TIME 674,21892
-#define umul_ppmm(umul_ppmm679,22036
-#define umul_ppmm(umul_ppmm686,22234
-#define UMUL_TIME 695,22452
-#define UDIV_TIME 696,22473
-#define umul_ppmm(umul_ppmm700,22565
-#define __umulsidi3(__umulsidi3709,22865
-#define udiv_qrnnd(udiv_qrnnd716,23059
-#define count_trailing_zeros(count_trailing_zeros726,23408
-#define add_ssaaaa(add_ssaaaa736,23703
-#define sub_ddmmss(sub_ddmmss761,24690
-#define count_leading_zeros(count_leading_zeros800,26235
-#define COUNT_LEADING_ZEROS_0 804,26377
-#define umul_ppmm(umul_ppmm806,26434
-#define UMUL_TIME 815,26705
-#define smul_ppmm(smul_ppmm816,26726
-#define SMUL_TIME 825,26994
-#define UDIV_TIME 826,27015
-#define umul_ppmm(umul_ppmm828,27043
-#define UMUL_TIME 839,27410
-#define smul_ppmm(smul_ppmm840,27430
-#define SMUL_TIME 846,27604
-#define sdiv_qrnnd(sdiv_qrnnd847,27624
-#define UDIV_TIME 851,27809
-#define add_ssaaaa(add_ssaaaa856,27925
-#define sub_ddmmss(sub_ddmmss865,28211
-#define umul_ppmm(umul_ppmm875,28572
-#define add_ssaaaa(add_ssaaaa888,28970
-#define sub_ddmmss(sub_ddmmss897,29250
-#define umul_ppmm(umul_ppmm906,29528
-#define UMUL_TIME 938,30106
-#define UDIV_TIME 939,30127
-#define count_leading_zeros(count_leading_zeros940,30149
-#define umul_ppmm(umul_ppmm957,30605
-#define UMUL_TIME 967,30869
-#define add_ssaaaa(add_ssaaaa971,30942
-#define sub_ddmmss(sub_ddmmss981,31263
-#define umul_ppmm(umul_ppmm996,31851
-#define UMUL_TIME 1002,32053
-#define udiv_qrnnd(udiv_qrnnd1004,32146
-#define UDIV_TIME 1015,32496
-#define umul_ppmm(umul_ppmm1021,32727
-#define UMUL_TIME 1027,32929
-#define udiv_qrnnd(udiv_qrnnd1028,32949
-#define UDIV_TIME 1074,34014
-#define count_leading_zeros(count_leading_zeros1075,34035
-#define umul_ppmm(umul_ppmm1086,34480
-#define UMUL_TIME 1132,35622
-#define udiv_qrnnd(udiv_qrnnd1136,35720
-#define UDIV_TIME 1142,35909
-#define add_ssaaaa(add_ssaaaa1148,36055
-#define sub_ddmmss(sub_ddmmss1157,36341
-#define umul_ppmm(umul_ppmm1166,36625
-#define sdiv_qrnnd(sdiv_qrnnd1180,37100
-#define add_ssaaaa(add_ssaaaa1193,37485
-#define sub_ddmmss(sub_ddmmss1201,37803
-#define umul_ppmm(umul_ppmm1209,38119
-#define umul_ppmm(umul_ppmm1230,38744
-#define __umulsidi3(__umulsidi31239,38957
-#define add_ssaaaa(add_ssaaaa1248,39200
-#define sub_ddmmss(sub_ddmmss1258,39436
-#define umul_ppmm(umul_ppmm1268,39671
-#define smul_ppmm(smul_ppmm1295,40591
-#define __udiv_qrnnd_c(__udiv_qrnnd_c1306,40954
-#define udiv_qrnnd(udiv_qrnnd1345,42187
-#define UDIV_NEEDS_NORMALIZATION 1355,42469
-#define udiv_qrnnd 1356,42504
-#define count_leading_zeros(count_leading_zeros1365,42644
-#define COUNT_LEADING_ZEROS_0 1386,43316
-#define count_trailing_zeros(count_trailing_zeros1392,43558
-#define UDIV_NEEDS_NORMALIZATION 1402,43837
-
-memory.c,110
-#define static27,946
-_mp_default_allocate 46,1527
-_mp_default_reallocate 66,1783
-_mp_default_free 88,2156
-
-mp.h,919
-#define __GNU_MP__ 24,965
-#define __need_size_t25,986
-#define __gmp_const 30,1098
-#define __gmp_const32,1130
-#define __gmp_inline 36,1181
-#define __gmp_inline38,1219
-#define _EXTERN_INLINE 43,1287
-#define _EXTERN_INLINE 45,1334
-typedef unsigned int		mp_limb_t;mp_limb_t50,1398
-typedef int			mp_limb_signed_t;mp_limb_signed_t51,1431
-typedef unsigned long long int	mp_limb_t;mp_limb_t54,1492
-typedef long long int		mp_limb_signed_t;mp_limb_signed_t55,1534
-typedef unsigned long int	mp_limb_t;mp_limb_t57,1581
-typedef long int		mp_limb_signed_t;mp_limb_signed_t58,1618
-typedef mp_limb_t *		mp_ptr;mp_ptr62,1669
-typedef __gmp_const mp_limb_t *	mp_srcptr;mp_srcptr63,1698
-typedef int			mp_size_t;mp_size_t64,1741
-typedef long int		mp_exp_t;mp_exp_t65,1766
-} __mpz_struct;__mpz_struct77,2139
-} __mpz_struct;__mpz_struct88,2483
-typedef __mpz_struct MINT;MINT93,2558
-#define __MP_H__139,3721
-
-mp_bpl.c,0
-
-mp_clz_tab.c,0
-
-mp_set_fns.c,33
-mp_set_memory_functions 27,1006
-
-stack-alloc.c,114
-typedef struct tmp_stack tmp_stack;tmp_stack24,960
-__tmp_alloc 36,1344
-__tmp_mark 84,2751
-__tmp_free 93,2949
-
-stack-alloc.h,299
-struct tmp_stacktmp_stack22,934
-struct tmp_markertmp_marker29,1017
-typedef struct tmp_marker tmp_marker;tmp_marker35,1095
-#define __TMP_ALIGN 42,1254
-#define TMP_DECL(TMP_DECL45,1284
-#define TMP_ALLOC(TMP_ALLOC46,1327
-#define TMP_MARK(TMP_MARK48,1427
-#define TMP_FREE(TMP_FREE49,1473
-
-urandom.h,172
-urandom 24,1028
-#define __URANDOM28,1064
-urandom 35,1231
-#define __URANDOM39,1288
-urandom 45,1409
-#define __URANDOM50,1510
-urandom 56,1631
-#define __URANDOM61,1753
-
-version.c,0
-
-mpbsd/itom.c,13
-itom 27,971
-
-mpbsd/mdiv.c,47
-mdiv 28,1007
-#define COMPUTE_QUOTIENT37,1188
-
-mpbsd/mfree.c,14
-mfree 27,947
-
-mpbsd/min.c,13
-min 30,1027
-
-mpbsd/mout.c,13
-mout 28,995
-
-mpbsd/move.c,13
-move 27,951
-
-mpbsd/mtox.c,14
-mtox 28,1019
-
-mpbsd/realloc.c,20
-_mp_realloc 27,986
-
-mpbsd/sdiv.c,14
-sdiv 29,1031
-
-mpbsd/xtom.c,42
-digit_value_in_base 27,994
-xtom 49,1304
-
-mpf/abs.c,16
-mpf_abs 26,950
-
-mpf/add.c,16
-mpf_add 26,927
-
-mpf/add_ui.c,19
-mpf_add_ui 26,951
-
-mpf/clear.c,18
-mpf_clear 27,989
-
-mpf/cmp.c,58
-mpf_cmp 26,930
-#define STRICT_MPF_NORMALIZATION 79,1902
-
-mpf/cmp_si.c,61
-mpf_cmp_si 26,952
-#define STRICT_MPF_NORMALIZATION 74,1919
-
-mpf/cmp_ui.c,61
-mpf_cmp_ui 26,955
-#define STRICT_MPF_NORMALIZATION 56,1504
-
-mpf/div.c,16
-mpf_div 27,952
-
-mpf/div_2exp.c,21
-mpf_div_2exp 26,939
-
-mpf/div_ui.c,19
-mpf_div_ui 27,977
-
-mpf/dump.c,17
-mpf_dump 27,955
-
-mpf/eq.c,17
-mpf_cmp2 26,955
-
-mpf/get_prc.c,21
-mpf_get_prec 26,955
-
-mpf/get_str.c,21
-mpf_get_str 58,2571
-
-mpf/init.c,17
-mpf_init 26,965
-
-mpf/init2.c,18
-mpf_init2 26,966
-
-mpf/inp_str.c,21
-mpf_inp_str 29,1061
-
-mpf/iset.c,21
-mpf_init_set 26,969
-
-mpf/iset_d.c,23
-mpf_init_set_d 26,966
-
-mpf/iset_si.c,24
-mpf_init_set_si 26,973
-
-mpf/iset_str.c,25
-mpf_init_set_str 26,955
-
-mpf/iset_ui.c,24
-mpf_init_set_ui 26,976
-
-mpf/mul.c,16
-mpf_mul 26,932
-
-mpf/mul_2exp.c,21
-mpf_mul_2exp 26,941
-
-mpf/mul_ui.c,19
-mpf_mul_ui 26,956
-
-mpf/neg.c,16
-mpf_neg 26,927
-
-mpf/out_str.c,21
-mpf_out_str 29,1092
-
-mpf/random2.c,37
-random 30,1260
-mpf_random2 40,1343
-
-mpf/reldiff.c,20
-mpf_reldiff 26,951
-
-mpf/set.c,16
-mpf_set 26,946
-
-mpf/set_d.c,18
-mpf_set_d 26,948
-
-mpf/set_dfl_prec.c,30
-mpf_set_default_prec 29,1023
-
-mpf/set_prc.c,21
-mpf_set_prec 26,946
-
-mpf/set_prc_raw.c,26
-mpf_set_prec_raw 28,1057
-
-mpf/set_si.c,19
-mpf_set_si 26,950
-
-mpf/set_str.c,50
-digit_value_in_base 32,1203
-mpf_set_str 54,1510
-
-mpf/set_ui.c,19
-mpf_set_ui 26,953
-
-mpf/size.c,17
-mpf_size 27,991
-
-mpf/sqrt.c,18
-mpf_sqrt 30,1118
-
-mpf/sqrt_ui.c,21
-mpf_sqrt_ui 30,1133
-
-mpf/sub.c,16
-mpf_sub 26,938
-
-mpf/sub_ui.c,19
-mpf_sub_ui 26,957
-
-mpf/ui_div.c,19
-mpf_ui_div 27,983
-
-mpf/ui_sub.c,19
-mpf_ui_sub 26,964
-
-mpn/mp_bases.c,0
-
-mpq/add.c,16
-mpq_add 26,943
-
-mpq/canonicalize.c,25
-mpq_canonicalize 27,995
-
-mpq/clear.c,18
-mpq_clear 26,950
-
-mpq/cmp.c,17
-mpq_cmp 28,1026
-
-mpq/cmp_ui.c,20
-mpq_cmp_ui 31,1123
-
-mpq/div.c,16
-mpq_div 26,946
-
-mpq/equal.c,18
-mpq_equal 27,986
-
-mpq/get_d.c,45
-mpq_get_d 54,2284
-#define N_QLIMBS 68,2605
-
-mpq/get_den.c,20
-mpq_get_den 26,967
-
-mpq/get_num.c,20
-mpq_get_num 26,966
-
-mpq/init.c,17
-mpq_init 26,955
-
-mpq/inv.c,17
-mpq_inv 27,1015
-
-mpq/mul.c,16
-mpq_mul 26,947
-
-mpq/neg.c,16
-mpq_neg 26,961
-
-mpq/set.c,16
-mpq_set 26,938
-
-mpq/set_den.c,20
-mpq_set_den 26,969
-
-mpq/set_num.c,20
-mpq_set_num 26,961
-
-mpq/set_si.c,19
-mpq_set_si 27,996
-
-mpq/set_ui.c,19
-mpq_set_ui 27,996
-
-mpq/sub.c,16
-mpq_sub 26,948
-
-mpz/abs.c,16
-mpz_abs 26,968
-
-mpz/add.c,16
-mpz_add 27,955
-
-mpz/add_ui.c,19
-mpz_add_ui 26,967
-
-mpz/and.c,16
-mpz_and 26,930
-
-mpz/array_init.c,23
-mpz_array_init 26,959
-
-mpz/cdiv_q.c,20
-mpz_cdiv_q 27,1025
-
-mpz/cdiv_q_ui.c,23
-mpz_cdiv_q_ui 29,1143
-
-mpz/cdiv_qr.c,21
-mpz_cdiv_qr 27,1026
-
-mpz/cdiv_qr_ui.c,24
-mpz_cdiv_qr_ui 29,1150
-
-mpz/cdiv_r.c,20
-mpz_cdiv_r 27,1025
-
-mpz/cdiv_r_ui.c,23
-mpz_cdiv_r_ui 29,1149
-
-mpz/cdiv_ui.c,21
-mpz_cdiv_ui 29,1147
-
-mpz/clear.c,18
-mpz_clear 27,995
-
-mpz/clrbit.c,19
-mpz_clrbit 26,943
-
-mpz/cmp.c,17
-mpz_cmp 31,1072
-
-mpz/cmp_si.c,20
-mpz_cmp_si 30,1110
-
-mpz/cmp_ui.c,20
-mpz_cmp_ui 30,1099
-
-mpz/com.c,16
-mpz_com 27,995
-
-mpz/divexact.c,22
-mpz_divexact 38,1512
-
-mpz/dmincl.c,88
-  if 57,2012
-  if 77,2481
-  if 111,3357
-  if 128,3884
-  if 180,5182
-  if 192,5364
-
-mpz/fac_ui.c,51
-mpz_fac_ui 31,1009
-#define MP_STACK_SIZE 66,2197
-
-mpz/fdiv_q.c,20
-mpz_fdiv_q 27,1020
-
-mpz/fdiv_q_2exp.c,24
-mpz_fdiv_q_2exp 27,996
-
-mpz/fdiv_q_ui.c,23
-mpz_fdiv_q_ui 27,1036
-
-mpz/fdiv_qr.c,21
-mpz_fdiv_qr 27,1021
-
-mpz/fdiv_qr_ui.c,24
-mpz_fdiv_qr_ui 27,1037
-
-mpz/fdiv_r.c,20
-mpz_fdiv_r 27,1020
-
-mpz/fdiv_r_2exp.c,24
-mpz_fdiv_r_2exp 26,977
-
-mpz/fdiv_r_ui.c,23
-mpz_fdiv_r_ui 27,1036
-
-mpz/fdiv_ui.c,21
-mpz_fdiv_ui 27,1034
-
-mpz/gcd.c,17
-mpz_gcd 30,1040
-
-mpz/gcd_ui.c,19
-mpz_gcd_ui 26,977
-
-mpz/gcdext.c,20
-mpz_gcdext 29,1015
-
-mpz/get_si.c,19
-mpz_get_si 26,989
-
-mpz/get_str.c,21
-mpz_get_str 30,1226
-
-mpz/get_ui.c,19
-mpz_get_ui 26,991
-
-mpz/getlimbn.c,21
-mpz_getlimbn 26,967
-
-mpz/hamdist.c,21
-mpz_hamdist 29,1180
-
-mpz/init.c,17
-mpz_init 26,971
-
-mpz/inp_raw.c,21
-mpz_inp_raw 29,1043
-
-mpz/inp_str.c,50
-digit_value_in_base 28,1074
-mpz_inp_str 50,1384
-
-mpz/invert.c,20
-mpz_invert 27,1047
-
-mpz/ior.c,16
-mpz_ior 26,939
-
-mpz/iset.c,22
-mpz_init_set 27,1014
-
-mpz/iset_d.c,23
-mpz_init_set_d 28,996
-
-mpz/iset_si.c,24
-mpz_init_set_si 27,986
-
-mpz/iset_str.c,26
-mpz_init_set_str 31,1261
-
-mpz/iset_ui.c,24
-mpz_init_set_ui 27,986
-
-mpz/jacobi.c,20
-mpz_jacobi 28,1007
-
-mpz/legendre.c,22
-mpz_legendre 32,1056
-
-mpz/mod.c,16
-mpz_mod 26,954
-
-mpz/mul.c,16
-mpz_mul 27,960
-
-mpz/mul_2exp.c,21
-mpz_mul_2exp 26,950
-
-mpz/mul_ui.c,20
-mpz_mul_ui 27,1019
-
-mpz/neg.c,16
-mpz_neg 26,983
-
-mpz/out_raw.c,21
-mpz_out_raw 29,1006
-
-mpz/out_str.c,21
-mpz_out_str 28,1031
-
-mpz/perfsqr.c,29
-mpz_perfect_square_p 27,997
-
-mpz/popcount.c,22
-mpz_popcount 27,1039
-
-mpz/pow_ui.c,20
-mpz_pow_ui 31,1042
-
-mpz/powm.c,18
-mpz_powm 28,1010
-
-mpz/powm_ui.c,20
-mpz_powm_ui 27,993
-
-mpz/pprime_p.c,52
-possibly_prime 31,1336
-mpz_probab_prime_p 67,1981
-
-mpz/random.c,20
-mpz_random 28,1052
-
-mpz/random2.c,21
-mpz_random2 28,1094
-
-mpz/realloc.c,21
-_mpz_realloc 26,971
-
-mpz/scan0.c,18
-mpz_scan0 26,977
-
-mpz/scan1.c,18
-mpz_scan1 26,977
-
-mpz/set.c,16
-mpz_set 26,983
-
-mpz/set_d.c,53
-#define MP_BASE_AS_DOUBLE 25,955
-mpz_set_d 29,1050
-
-mpz/set_si.c,19
-mpz_set_si 26,973
-
-mpz/set_str.c,50
-digit_value_in_base 31,1248
-mpz_set_str 53,1555
-
-mpz/set_ui.c,19
-mpz_set_ui 26,973
-
-mpz/setbit.c,19
-mpz_setbit 26,941
-
-mpz/size.c,17
-mpz_size 27,994
-
-mpz/sizeinbase.c,24
-mpz_sizeinbase 29,1100
-
-mpz/sqrt.c,18
-mpz_sqrt 30,1126
-
-mpz/sqrtrem.c,21
-mpz_sqrtrem 28,1027
-
-mpz/sub.c,16
-mpz_sub 27,960
-
-mpz/sub_ui.c,19
-mpz_sub_ui 26,974
-
-mpz/tdiv_q.c,19
-mpz_tdiv_q 27,986
-
-mpz/tdiv_q_2exp.c,24
-mpz_tdiv_q_2exp 27,996
-
-mpz/tdiv_q_ui.c,23
-mpz_tdiv_q_ui 27,1018
-
-mpz/tdiv_qr.c,54
-mpz_tdiv_qr 28,1030
-#define COMPUTE_QUOTIENT37,1229
-
-mpz/tdiv_qr_ui.c,24
-mpz_tdiv_qr_ui 28,1039
-
-mpz/tdiv_r.c,19
-mpz_tdiv_r 27,993
-
-mpz/tdiv_r_2exp.c,24
-mpz_tdiv_r_2exp 26,977
-
-mpz/tdiv_r_ui.c,22
-mpz_tdiv_r_ui 27,992
-
-mpz/ui_pow_ui.c,22
-mpz_ui_pow_ui 27,983
-
-mpn/generic/add_n.c,18
-mpn_add_n 26,972
-
-mpn/generic/addmul_1.c,22
-mpn_addmul_1 29,1205
-
-mpn/generic/bdivmod.c,21
-mpn_bdivmod 55,2193
-
-mpn/generic/cmp.c,17
-mpn_cmp 31,1163
-
-mpn/generic/divmod_1.c,76
-#define UMUL_TIME 32,1262
-#define UDIV_TIME 36,1308
-mpn_divmod_1 44,1467
-
-mpn/generic/divrem.c,20
-mpn_divrem 44,1747
-
-mpn/generic/divrem_1.c,22
-mpn_divrem_1 33,1256
-
-mpn/generic/dump.c,15
-mpn_dump 6,64
-
-mpn/generic/gcd.c,249
-#define ACCEL_THRESHOLD 53,2088
-#define SIGN_BIT 64,2393
-#define SWAP_LIMB(SWAP_LIMB67,2437
-#define SWAP_PTR(SWAP_PTR68,2514
-#define SWAP_SZ(SWAP_SZ69,2587
-#define SWAP_MPN(SWAP_MPN70,2662
-gcd_2 76,2893
-find_a 133,4568
-mpn_gcd 178,5802
-
-mpn/generic/gcd_1.c,19
-mpn_gcd_1 29,1080
-
-mpn/generic/gcdext.c,68
-#define EXTEND 26,955
-#define SGN(SGN33,1024
-mpn_gcdext 48,1627
-
-mpn/generic/get_str.c,21
-mpn_get_str 41,1612
-
-mpn/generic/hamdist.c,76
-#define popc_limb(popc_limb26,963
-popc_limb 41,1273
-mpn_hamdist 71,2144
-
-mpn/generic/inlines.c,56
-#define _FORCE_INLINES1,0
-#define _EXTERN_INLINE 2,23
-
-mpn/generic/lshift.c,20
-mpn_lshift 35,1287
-
-mpn/generic/mod_1.c,73
-#define UMUL_TIME 29,1130
-#define UDIV_TIME 33,1176
-mpn_mod_1 41,1335
-
-mpn/generic/mul.c,54
-#define KARATSUBA_THRESHOLD 41,1642
-mpn_mul 46,1704
-
-mpn/generic/mul_1.c,19
-mpn_mul_1 27,1031
-
-mpn/generic/mul_n.c,196
-#define KARATSUBA_THRESHOLD 35,1447
-#define KARATSUBA_THRESHOLD 41,1606
-impn_mul_n_basecase 53,1965
-impn_mul_n 104,3056
-impn_sqr_n_basecase 223,6781
-impn_sqr_n 273,7835
-mpn_mul_n 362,10768
-
-mpn/generic/perfsqr.c,182
-#define UMUL_TIME 27,1022
-#define UDIV_TIME 31,1068
-#define PP 35,1131
-#define PP_INVERTED 36,1192
-#define PP 40,1259
-#define PP_INVERTED 41,1327
-mpn_perfect_square_p 60,2077
-
-mpn/generic/popcount.c,77
-#define popc_limb(popc_limb26,959
-popc_limb 41,1269
-mpn_popcount 71,2140
-
-mpn/generic/pre_mod_1.c,80
-#define UMUL_TIME 31,1228
-#define UDIV_TIME 35,1274
-mpn_preinv_mod_1 40,1333
-
-mpn/generic/random2.c,37
-random 29,1202
-mpn_random2 43,1524
-
-mpn/generic/rshift.c,20
-mpn_rshift 35,1299
-
-mpn/generic/scan0.c,19
-mpn_scan0 35,1194
-
-mpn/generic/scan1.c,19
-mpn_scan1 35,1192
-
-mpn/generic/set_str.c,21
-mpn_set_str 28,1131
-
-mpn/generic/sqrtrem.c,130
-#define SQRT(SQRT62,2554
-#define SQRT(SQRT71,2743
-#define SQRT(SQRT80,2924
-#define SQRT(SQRT89,3113
-mpn_sqrtrem 192,7547
-
-mpn/generic/sub_n.c,18
-mpn_sub_n 26,977
-
-mpn/generic/submul_1.c,22
-mpn_submul_1 29,1215
-
-mpn/generic/udiv_w_sdiv.c,25
-mpn_udiv_w_sdiv 29,1036

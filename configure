@@ -80,7 +80,7 @@ subdirs=
 target_alias=NOTARGET
 target_makefile_frag=
 undefs=NOUNDEFS
-version="$Revision: 1.218 $"
+version="$Revision: 1.218 (modified for gmp) $"
 x11=default
 
 ### we might need to use some other shell than /bin/sh for running subshells

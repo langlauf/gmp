@@ -162,14 +162,16 @@ typedef __mpq_struct *mpq_ptr;
 #endif
 #endif
 
-#if defined (FILE) || defined (_STDIO_H_) || defined (__STDIO_H__) || defined (H_STDIO)
+#if defined (FILE) || defined (H_STDIO) || defined (_H_STDIO) \
+ || defined (_STDIO_H) || defined (_STDIO_H_) || defined (__STDIO_H__) \
+ || defined (_STDIO_INCLUDED)
 #define _GMP_H_HAVE_FILE 1
 #endif
 
 void mp_set_memory_functions _PROTO ((void *(*) (size_t),
 				      void *(*) (void *, size_t, size_t),
 				      void (*) (void *, size_t)));
-extern const int mp_bits_per_limb;
+extern __gmp_const int mp_bits_per_limb;
 
 /**************** Integer (i.e. Z) routines.  ****************/
 
@@ -210,6 +212,7 @@ unsigned long int mpz_fdiv_ui _PROTO ((mpz_srcptr, unsigned long int));
 void mpz_gcd _PROTO ((mpz_ptr, mpz_srcptr, mpz_srcptr));
 unsigned long int mpz_gcd_ui _PROTO ((mpz_ptr, mpz_srcptr, unsigned long int));
 void mpz_gcdext _PROTO ((mpz_ptr, mpz_ptr, mpz_ptr, mpz_srcptr, mpz_srcptr));
+double mpz_get_d _PROTO ((mpz_srcptr));
 /* signed */ long int mpz_get_si _PROTO ((mpz_srcptr));
 char *mpz_get_str _PROTO ((char *, int, mpz_srcptr));
 unsigned long int mpz_get_ui _PROTO ((mpz_srcptr));
@@ -252,6 +255,8 @@ unsigned long int mpz_scan0 _PROTO ((mpz_srcptr, unsigned long int));
 unsigned long int mpz_scan1 _PROTO ((mpz_srcptr, unsigned long int));
 void mpz_set _PROTO ((mpz_ptr, mpz_srcptr));
 void mpz_set_d _PROTO ((mpz_ptr, double));
+void mpz_set_f _PROTO ((mpz_ptr, mpf_srcptr));
+void mpz_set_q _PROTO ((mpz_ptr, mpq_srcptr));
 void mpz_set_si _PROTO ((mpz_ptr, signed long int));
 int mpz_set_str _PROTO ((mpz_ptr, const char *, int));
 void mpz_set_ui _PROTO ((mpz_ptr, unsigned long int));
@@ -279,6 +284,7 @@ void mpq_clear _PROTO ((mpq_ptr));
 void mpq_set _PROTO ((mpq_ptr, mpq_srcptr));
 void mpq_set_ui _PROTO ((mpq_ptr, unsigned long int, unsigned long int));
 void mpq_set_si _PROTO ((mpq_ptr, signed long int, unsigned long int));
+void mpq_set_z _PROTO ((mpq_ptr, mpz_srcptr));
 void mpq_add _PROTO ((mpq_ptr, mpq_srcptr, mpq_srcptr));
 void mpq_sub _PROTO ((mpq_ptr, mpq_srcptr, mpq_srcptr));
 void mpq_mul _PROTO ((mpq_ptr, mpq_srcptr, mpq_srcptr));
@@ -286,6 +292,7 @@ void mpq_div _PROTO ((mpq_ptr, mpq_srcptr, mpq_srcptr));
 void mpq_neg _PROTO ((mpq_ptr, mpq_srcptr));
 int mpq_cmp _PROTO ((mpq_srcptr, mpq_srcptr));
 int mpq_cmp_ui _PROTO ((mpq_srcptr, unsigned long int, unsigned long int));
+int mpq_equal _PROTO ((mpq_srcptr, mpq_srcptr));
 void mpq_inv _PROTO ((mpq_ptr, mpq_srcptr));
 void mpq_set_num _PROTO ((mpq_ptr, mpz_srcptr));
 void mpq_set_den _PROTO ((mpq_ptr, mpz_srcptr));
@@ -308,6 +315,7 @@ void mpf_div_2exp _PROTO ((mpf_ptr, mpf_srcptr, unsigned long int));
 void mpf_div_ui _PROTO ((mpf_ptr, mpf_srcptr, unsigned long int));
 void mpf_dump _PROTO ((mpf_srcptr));
 int mpf_eq _PROTO ((mpf_srcptr, mpf_srcptr, unsigned long int));
+double mpf_get_d _PROTO ((mpf_srcptr));
 unsigned long int mpf_get_prec _PROTO ((mpf_srcptr));
 char *mpf_get_str _PROTO ((char *, mp_exp_t *, int, size_t, mpf_srcptr));
 void mpf_init _PROTO ((mpf_ptr));
@@ -318,7 +326,7 @@ size_t mpf_inp_str _PROTO ((mpf_ptr, FILE *, int));
 void mpf_init_set _PROTO ((mpf_ptr, mpf_srcptr));
 void mpf_init_set_d _PROTO ((mpf_ptr, double));
 void mpf_init_set_si _PROTO ((mpf_ptr, signed long int));
-int mpf_init_set_str _PROTO ((mpf_ptr, char *, int));
+int mpf_init_set_str _PROTO ((mpf_ptr, const char *, int));
 void mpf_init_set_ui _PROTO ((mpf_ptr, unsigned long int));
 void mpf_mul _PROTO ((mpf_ptr, mpf_srcptr, mpf_srcptr));
 void mpf_mul_2exp _PROTO ((mpf_ptr, mpf_srcptr, unsigned long int));
@@ -334,9 +342,11 @@ void mpf_set_d _PROTO ((mpf_ptr, double));
 void mpf_set_default_prec _PROTO ((unsigned long int));
 void mpf_set_prec _PROTO ((mpf_ptr, unsigned long int));
 void mpf_set_prec_raw _PROTO ((mpf_ptr, unsigned long int));
+void mpf_set_q _PROTO ((mpf_ptr, mpq_srcptr));
 void mpf_set_si _PROTO ((mpf_ptr, signed long int));
 int mpf_set_str _PROTO ((mpf_ptr, const char *, int));
 void mpf_set_ui _PROTO ((mpf_ptr, unsigned long int));
+void mpf_set_z _PROTO ((mpf_ptr, mpz_srcptr));
 size_t mpf_size _PROTO ((mpf_srcptr));
 void mpf_sqrt _PROTO ((mpf_ptr, mpf_srcptr));
 void mpf_sqrt_ui _PROTO ((mpf_ptr, unsigned long int));

@@ -46,11 +46,30 @@ int arr[BITS_PER_MP_LIMB];
 
 mp_size_t
 #if EXTEND
+#if __STDC__
 mpn_gcdext (mp_ptr gp, mp_ptr s0p,
 	    mp_ptr up, mp_size_t size, mp_ptr vp, mp_size_t vsize)
 #else
+mpn_gcdext (gp, s0p, up, size, vp, vsize)
+     mp_ptr gp;
+     mp_ptr s0p;
+     mp_ptr up;
+     mp_size_t size;
+     mp_ptr vp;
+     mp_size_t vsize;
+#endif
+#else
+#if __STDC__
 mpn_gcd (mp_ptr gp,
 	 mp_ptr up, mp_size_t size, mp_ptr vp, mp_size_t vsize)
+#else
+mpn_gcd (gp, up, size, vp, vsize)
+     mp_ptr gp;
+     mp_ptr up;
+     mp_size_t size;
+     mp_ptr vp;
+     mp_size_t vsize;
+#endif
 #endif
 {
   mp_limb_t uh, vh;
@@ -389,7 +408,7 @@ mpn_gcd (mp_ptr gp,
 	  mp_limb_t q, cy;
 	  q = ul / vl;
 	  t = ul - q*vl;
-	  
+
 	  MPN_COPY (tp, s0p, ssize);
 	  cy = mpn_addmul_1 (tp, s1p, ssize, q);
 	  if (cy != 0)

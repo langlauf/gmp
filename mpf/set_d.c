@@ -1,6 +1,6 @@
 /* mpf_set_d -- Assign a float from a IEEE double.
 
-Copyright (C) 1993, 1994, 1995 Free Software Foundation, Inc.
+Copyright (C) 1993, 1994, 1995, 1996 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -31,67 +31,17 @@ mpf_set_d (r, d)
      double d;
 #endif
 {
-  mp_ptr rp;
-  mp_size_t size;
-  mp_exp_t exp;
-  mp_limb_t manh, manl;
-  mp_limb_t man2, man1, man0;
-  union ieee_double_extract x;
-  unsigned sc;
-
-  /* ??? This needs more work since it assumes that limbs are 32 bits.
-     See mpz/set_d for ideas on how to handle 64-bit machines.  */
+  int negative;
 
   if (d == 0)
     {
-      r->_mp_exp = 0;
-      r->_mp_size = 0;
+      SIZ(r) = 0;
+      EXP(r) = 0;
       return;
     }
+  negative = d < 0;
+  d = ABS (d);
 
-  rp = r->_mp_d;
-  x.d = d;
-
-  exp = x.s.exp;
-  sc = (unsigned) (exp + 2) % BITS_PER_MP_LIMB;
-
-  manh = 0x80000000 | (x.s.manh << 11) | (x.s.manl >> 21);
-  manl = x.s.manl << 11;
-  if (sc != 0)
-    {
-      man2 = manh >> (BITS_PER_MP_LIMB - sc);
-      man1 = (manl >> (BITS_PER_MP_LIMB - sc)) | (manh << sc);
-      man0 = manl << sc;
-    }
-  else
-    {
-      man2 = manh;
-      man1 = manl;
-      man0 = 0;
-    }
-
-  if (man0 == 0)
-    {
-      if (man1 == 0)
-	{
-	  size = 1;
-	  rp[0] = man2;
-	}
-      else
-	{
-	  size = 2;
-	  rp[1] = man2;
-	  rp[0] = man1;
-	}
-    }
-  else
-    {
-      size = 3;
-      rp[2] = man2;
-      rp[1] = man1;
-      rp[0] = man0;
-    }
-
-  r->_mp_exp = (exp + 1) / BITS_PER_MP_LIMB - 1024 / BITS_PER_MP_LIMB + 1;
-  r->_mp_size = x.s.sig == 0 ? size : -size;
+  EXP(r) = __gmp_extract_double (PTR(r), d);
+  SIZ(r) = negative ? -LIMBS_PER_DOUBLE : LIMBS_PER_DOUBLE;
 }

@@ -1,6 +1,6 @@
-/* gmp-mparam.h -- Compiler/machine parameter header file.
+/* __gmp_insert_double -- convert from array of mp_limb_t to double.
 
-Copyright (C) 1991, 1993, 1994, 1995 Free Software Foundation, Inc.
+Copyright (C) 1996 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -19,11 +19,52 @@ along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA. */
 
-#define BITS_PER_MP_LIMB 32
-#define BYTES_PER_MP_LIMB 4
-#define BITS_PER_LONGINT 32
-#define BITS_PER_INT 32
-#define BITS_PER_SHORTINT 16
-#define BITS_PER_CHAR 8
+#include "gmp.h"
+#include "gmp-impl.h"
 
-#define IEEE_DOUBLE_BIG_ENDIAN 0
+#ifdef XDEBUG
+#undef _GMP_IEEE_FLOATS
+#endif
+
+#ifndef _GMP_IEEE_FLOATS
+#define _GMP_IEEE_FLOATS 0
+#endif
+
+double
+#if __STDC__
+__gmp_scale2 (double d, int exp)
+#else
+__gmp_scale2 (d, exp)
+     double d;
+     int exp;
+#endif
+{
+#if _GMP_IEEE_FLOATS
+  {
+    union ieee_double_extract x;
+    x.d = d;
+    x.s.exp += exp;
+    return x.d;
+  }
+#else
+  {
+    double factor, r;
+
+    factor = 2.0;
+    if (exp < 0)
+      {
+	factor = 0.5;
+	exp = -exp;
+      }
+    r = d;
+    while (exp != 0)
+      {
+	if ((exp & 1) != 0)
+	  r *= factor;
+	factor *= factor;
+	exp >>= 1;
+      }
+    return r;
+  }
+#endif
+}

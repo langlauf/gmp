@@ -63,7 +63,7 @@ mpf_add_ui (sum, u, v)
     sum_is_u:
       if (u != sum)
 	{
-	  sumsize = MIN (usize, prec);
+	  sumsize = MIN (usize, prec + 1);
 	  MPN_COPY (sum->_mp_d, up + usize - sumsize, sumsize);
 	  sum->_mp_size = sumsize;
 	  sum->_mp_exp = u->_mp_exp;
@@ -126,17 +126,26 @@ mpf_add_ui (sum, u, v)
       /* U < 1, so V > U for sure.  */
       /* v.         */
       /*  .0000uuuu */
-      if (usize + (-uexp) + 1 > prec)
+      if ((-uexp) >= prec)
 	{
-	  /* Ignore excess limbs in U.  */
-	  up += usize + (-uexp) + 1 - prec;
-	  usize -= usize + (-uexp) + 1 - prec;
+	  sump[0] = v;
+	  sum->_mp_size = 1;
+	  sum->_mp_exp = 1;
 	}
-      if (sump != up)
-	MPN_COPY (sump, up, usize);
-      MPN_ZERO (sump + usize, -uexp);
-      sump[usize + (-uexp)] = v;
-      sum->_mp_size = usize + (-uexp) + 1;
-      sum->_mp_exp = 1;
+      else
+	{
+	  if (usize + (-uexp) + 1 > prec)
+	    {
+	      /* Ignore excess limbs in U.  */
+	      up += usize + (-uexp) + 1 - prec;
+	      usize -= usize + (-uexp) + 1 - prec;
+	    }
+	  if (sump != up)
+	    MPN_COPY (sump, up, usize);
+	  MPN_ZERO (sump + usize, -uexp);
+	  sump[usize + (-uexp)] = v;
+	  sum->_mp_size = usize + (-uexp) + 1;
+	  sum->_mp_exp = 1;
+	}
     }
 }
