@@ -1,9 +1,164 @@
-This is gmp.info, produced by makeinfo version 4.0 from gmp.texi.
+This is gmp.info, produced by makeinfo version 4.2 from gmp.texi.
 
+This manual describes how to install and use the GNU multiple precision
+arithmetic library, version 4.1.
+
+   Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
+2001, 2002 Free Software Foundation, Inc.
+
+   Permission is granted to copy, distribute and/or modify this
+document under the terms of the GNU Free Documentation License, Version
+1.1 or any later version published by the Free Software Foundation;
+with no Invariant Sections, with the Front-Cover Texts being "A GNU
+Manual", and with the Back-Cover Texts being "You have freedom to copy
+and modify this GNU Manual, like GNU software".  A copy of the license
+is included in *Note GNU Free Documentation License::.
 INFO-DIR-SECTION GNU libraries
 START-INFO-DIR-ENTRY
 * gmp: (gmp).                   GNU Multiple Precision Arithmetic Library.
 END-INFO-DIR-ENTRY
+
+
+File: gmp.info,  Node: Assembler Loop Unrolling,  Prev: Assembler Software Pipelining,  Up: Assembler Coding
+
+Loop Unrolling
+--------------
+
+   Loop unrolling consists of replicating code so that several limbs are
+processed in each loop.  At a minimum this reduces loop overheads by a
+corresponding factor, but it can also allow better register usage, for
+example alternately using one register combination and then another.
+Judicious use of `m4' macros can help avoid lots of duplication in the
+source code.
+
+   Unrolling is commonly done to a power of 2 multiple so the number of
+unrolled loops and the number of remaining limbs can be calculated with
+a shift and mask.  But other multiples can be used too, just by
+subtracting each N limbs processed from a counter and waiting for less
+than N remaining (or offsetting the counter by N so it goes negative
+when there's less than N remaining).
+
+   The limbs not a multiple of the unrolling can be handled in various
+ways, for example
+
+   * A simple loop at the end (or the start) to process the excess.
+     Care will be wanted that it isn't too much slower than the
+     unrolled part.
+
+   * A set of binary tests, for example after an 8-limb unrolling, test
+     for 4 more limbs to process, then a further 2 more or not, and
+     finally 1 more or not.  This will probably take more code space
+     than a simple loop.
+
+   * A `switch' statement, providing separate code for each possible
+     excess, for example an 8-limb unrolling would have separate code
+     for 0 remaining, 1 remaining, etc, up to 7 remaining.  This might
+     take a lot of code, but may be the best way to optimize all cases
+     in combination with a deep pipelined loop.
+
+   * A computed jump into the middle of the loop, thus making the first
+     iteration handle the excess.  This should make times smoothly
+     increase with size, which is attractive, but setups for the jump
+     and adjustments for pointers can be tricky and could become quite
+     difficult in combination with deep pipelining.
+
+   One way to write the setups and finishups for a pipelined unrolled
+loop is simply to duplicate the loop at the start and the end, then
+delete instructions at the start which have no valid antecedents, and
+delete instructions at the end whose results are unwanted.  Sizes not a
+multiple of the unrolling can then be handled as desired.
+
+
+File: gmp.info,  Node: Internals,  Next: Contributors,  Prev: Algorithms,  Up: Top
+
+Internals
+*********
+
+   *This chapter is provided only for informational purposes and the
+various internals described here may change in future GMP releases.
+Applications expecting to be compatible with future releases should use
+only the documented interfaces described in previous chapters.*
+
+* Menu:
+
+* Integer Internals::
+* Rational Internals::
+* Float Internals::
+* Raw Output Internals::
+* C++ Interface Internals::
+
+
+File: gmp.info,  Node: Integer Internals,  Next: Rational Internals,  Prev: Internals,  Up: Internals
+
+Integer Internals
+=================
+
+   `mpz_t' variables represent integers using sign and magnitude, in
+space dynamically allocated and reallocated.  The fields are as follows.
+
+`_mp_size'
+     The number of limbs, or the negative of that when representing a
+     negative integer.  Zero is represented by `_mp_size' set to zero,
+     in which case the `_mp_d' data is unused.
+
+`_mp_d'
+     A pointer to an array of limbs which is the magnitude.  These are
+     stored "little endian" as per the `mpn' functions, so `_mp_d[0]'
+     is the least significant limb and `_mp_d[ABS(_mp_size)-1]' is the
+     most significant.  Whenever `_mp_size' is non-zero, the most
+     significant limb is non-zero.
+
+     Currently there's always at least one limb allocated, so for
+     instance `mpz_set_ui' never needs to reallocate, and `mpz_get_ui'
+     can fetch `_mp_d[0]' unconditionally (though its value is then
+     only wanted if `_mp_size' is non-zero).
+
+`_mp_alloc'
+     `_mp_alloc' is the number of limbs currently allocated at `_mp_d',
+     and naturally `_mp_alloc >= ABS(_mp_size)'.  When an `mpz' routine
+     is about to (or might be about to) increase `_mp_size', it checks
+     `_mp_alloc' to see whether there's enough space, and reallocates
+     if not.  `MPZ_REALLOC' is generally used for this.
+
+   The various bitwise logical functions like `mpz_and' behave as if
+negative values were twos complement.  But sign and magnitude is always
+used internally, and necessary adjustments are made during the
+calculations.  Sometimes this isn't pretty, but sign and magnitude are
+best for other routines.
+
+   Some internal temporary variables are setup with `MPZ_TMP_INIT' and
+these have `_mp_d' space obtained from `TMP_ALLOC' rather than the
+memory allocation functions.  Care is taken to ensure that these are
+big enough that no reallocation is necessary (since it would have
+unpredictable consequences).
+
+
+File: gmp.info,  Node: Rational Internals,  Next: Float Internals,  Prev: Integer Internals,  Up: Internals
+
+Rational Internals
+==================
+
+   `mpq_t' variables represent rationals using an `mpz_t' numerator and
+denominator (*note Integer Internals::).
+
+   The canonical form adopted is denominator positive (and non-zero),
+no common factors between numerator and denominator, and zero uniquely
+represented as 0/1.
+
+   It's believed that casting out common factors at each stage of a
+calculation is best in general.  A GCD is an O(N^2) operation so it's
+better to do a few small ones immediately than to delay and have to do
+a big one later.  Knowing the numerator and denominator have no common
+factors can be used for example in `mpq_mul' to make only two cross
+GCDs necessary, not four.
+
+   This general approach to common factors is badly sub-optimal in the
+presence of simple factorizations or little prospect for cancellation,
+but GMP has no way to know when this will occur.  As per *Note
+Efficiency::, that's left to applications.  The `mpq_t' framework might
+still suit, with `mpq_numref' and `mpq_denref' for direct access to the
+numerator and denominator, or of course `mpz_t' variables can be used
+directly.
 
 
 File: gmp.info,  Node: Float Internals,  Next: Raw Output Internals,  Prev: Rational Internals,  Up: Internals
@@ -29,7 +184,6 @@ and magnitude.
                         . <------------ radix point
      
        <-------- _mp_size --------->
-
 
 The fields are as follows.
 
@@ -363,21 +517,24 @@ macros, parameter tuning, speed measuring, the configure system,
 function inlining, divisibility tests, bit scanning, Jacobi symbols,
 Fibonacci and Lucas number functions, printf and scanf functions, perl
 interface, demo expression parser, the algorithms chapter in the
-manual, gmpasm-mode.el, and various miscellaneous improvements
+manual, `gmpasm-mode.el', and various miscellaneous improvements
 elsewhere.
 
    Steve Root helped write the optimized alpha 21264 assembly code.
 
    Gerardo Ballabio wrote the `gmpxx.h' C++ class interface and the C++
-istream input routines.
+`istream' input routines.
 
-   GNU MP 4.0.1 was finished and released by Torbjorn Granlund and
-Kevin Ryde.  Torbjorn's work was partially funded by the IDA Center for
+   GNU MP 4.0 was finished and released by Torbjorn Granlund and Kevin
+Ryde.  Torbjorn's work was partially funded by the IDA Center for
 Computing Sciences, USA.
 
    (This list is chronological, not ordered after significance.  If you
 have contributed to GMP but are not listed above, please tell
 <tege@swox.com> about the omission!)
+
+   Thanks goes to Hans Thorsen for donating an SGI system for the GMP
+test system environment.
 
 
 File: gmp.info,  Node: References,  Next: GNU Free Documentation License,  Prev: Contributors,  Up: Top
@@ -387,6 +544,10 @@ References
 
 Books
 =====
+
+   * Jonathan M. Borwein and Peter B. Borwein, "Pi and the AGM: A Study
+     in Analytic Number Theory and Computational Complexity", Wiley,
+     John & Sons, 1998.
 
    * Henri Cohen, "A Course in Computational Algebraic Number Theory",
      Graduate Texts in Mathematics number 138, Springer-Verlag, 1993.
@@ -413,7 +574,8 @@ Papers
 
    * Christoph Burnikel and Joachim Ziegler, "Fast Recursive Division",
      Max-Planck-Institut fuer Informatik Research Report
-     MPI-I-98-1-022,  `http://www.mpi-sb.mpg.de/~ziegler/TechRep.ps.gz'
+     MPI-I-98-1-022,
+     `http://data.mpi-sb.mpg.de/internet/reports.nsf/NumberView/1998-1-022'
 
    * Torbjorn Granlund and Peter L. Montgomery, "Division by Invariant
      Integers using Multiplication", in Proceedings of the SIGPLAN
@@ -485,7 +647,6 @@ GNU Free Documentation License
 ******************************
 
                         Version 1.1, March 2000
-
      Copyright (C) 2000 Free Software Foundation, Inc.
      59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
      

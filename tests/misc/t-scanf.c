@@ -1,6 +1,6 @@
 /* Test gmp_scanf and related functions.
 
-Copyright 2001 Free Software Foundation, Inc.
+Copyright 2001, 2002 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -39,9 +39,18 @@ MA 02111-1307, USA. */
 #include <varargs.h>
 #endif
 
+#include <stddef.h>    /* for ptrdiff_t */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#if HAVE_INTTYPES_H
+# include <inttypes.h> /* for intmax_t */
+#else
+# if HAVE_STDINT_H
+#  include <stdint.h>
+# endif
+#endif
 
 #if HAVE_UNISTD_H
 #include <unistd.h>  /* for unlink */
@@ -111,7 +120,8 @@ fromstring_gmp_fscanf (va_alist)
   fmt = va_arg (ap, const char *);
 #endif
 
-  ASSERT_ALWAYS ((fp = fopen (TEMPFILE, "w+")) != NULL);
+  fp = fopen (TEMPFILE, "w+");
+  ASSERT_ALWAYS (fp != NULL);
   ASSERT_ALWAYS (fputs (input, fp) != EOF);
   ASSERT_ALWAYS (fflush (fp) == 0);
   rewind (fp);
@@ -132,7 +142,8 @@ fromstring_fscanf1 (const char *input, const char *fmt, void *a1)
   FILE  *fp;
   int   ret;
 
-  ASSERT_ALWAYS ((fp = fopen (TEMPFILE, "w+")) != NULL);
+  fp = fopen (TEMPFILE, "w+");
+  ASSERT_ALWAYS (fp != NULL);
   ASSERT_ALWAYS (fputs (input, fp) != EOF);
   ASSERT_ALWAYS (fflush (fp) == 0);
   rewind (fp);
@@ -153,7 +164,8 @@ fromstring_fscanf2 (const char *input, const char *fmt, void *a1, void *a2)
   FILE  *fp;
   int   ret;
 
-  ASSERT_ALWAYS ((fp = fopen (TEMPFILE, "w+")) != NULL);
+  fp = fopen (TEMPFILE, "w+");
+  ASSERT_ALWAYS (fp != NULL);
   ASSERT_ALWAYS (fputs (input, fp) != EOF);
   ASSERT_ALWAYS (fflush (fp) == 0);
   rewind (fp);
@@ -1219,89 +1231,9 @@ check_f (void)
 
 
 void
-check_misc (void)
+check_n (void)
 {
-  {
-    int  a=9, b=8, c=7, n=66;
-    mpz_t  z;
-    mpz_init (z);
-    ASSERT_ALWAYS (gmp_sscanf ("1 2 3 4", "%d %d %d %Zd%n",
-                               &a, &b, &c, z, &n) == 4);
-    ASSERT_ALWAYS (a == 1);
-    ASSERT_ALWAYS (b == 2);
-    ASSERT_ALWAYS (c == 3);
-    ASSERT_ALWAYS (n == 7);
-    ASSERT_ALWAYS (mpz_cmp_ui (z, 4L) == 0);
-    mpz_clear (z);
-  }
-  {
-    int  a=9, b=8, c=7, n=66;
-    mpz_t  z;
-    mpz_init (z);
-    ASSERT_ALWAYS (fromstring_gmp_fscanf ("1 2 3 4", "%d %d %d %Zd%n",
-                                          &a, &b, &c, z, &n) == 4);
-    ASSERT_ALWAYS (a == 1);
-    ASSERT_ALWAYS (b == 2);
-    ASSERT_ALWAYS (c == 3);
-    ASSERT_ALWAYS (mpz_cmp_ui (z, 4L) == 0);
-    ASSERT_ALWAYS (n == 7);
-    ASSERT_ALWAYS (got_ftell == 7);
-    mpz_clear (z);
-  }
-
-  {
-    int  a=9, n=8;
-    mpz_t  z;
-    mpz_init (z);
-    ASSERT_ALWAYS (gmp_sscanf ("1 2 3 4", "%d %*d %*d %Zd%n", &a, z, &n) == 2);
-    ASSERT_ALWAYS (a == 1);
-    ASSERT_ALWAYS (mpz_cmp_ui (z, 4L) == 0);
-    ASSERT_ALWAYS (n == 7);
-    mpz_clear (z);
-  }
-  {
-    int  a=9, n=8;
-    mpz_t  z;
-    mpz_init (z);
-    ASSERT_ALWAYS (fromstring_gmp_fscanf ("1 2 3 4", "%d %*d %*d %Zd%n",
-                                          &a, z, &n) == 2);
-    ASSERT_ALWAYS (a == 1);
-    ASSERT_ALWAYS (mpz_cmp_ui (z, 4L) == 0);
-    ASSERT_ALWAYS (n == 7);
-    ASSERT_ALWAYS (got_ftell == 7);
-    mpz_clear (z);
-  }
-
-  /* -1 for no matching */
-  {
-    char buf[128];
-    ASSERT_ALWAYS (gmp_sscanf ("   ", "%s", buf) == -1);
-    ASSERT_ALWAYS (fromstring_gmp_fscanf ("   ", "%s", buf) == -1);
-    if (option_libc_scanf)
-      {
-        ASSERT_ALWAYS (sscanf ("   ", "%s", buf) == -1);
-        ASSERT_ALWAYS (fromstring_fscanf1 ("   ", "%s", buf) == -1);
-      }
-  }
-
-  /* suppressed field, then eof */
-  {
-    int  x;
-    ASSERT_ALWAYS (gmp_sscanf ("123", "%*d%d", &x) == -1);
-    ASSERT_ALWAYS (fromstring_gmp_fscanf ("123", "%*d%d", &x) == -1);
-    if (option_libc_scanf)
-      {
-        ASSERT_ALWAYS (sscanf ("123", "%*d%d", &x) == -1);
-        ASSERT_ALWAYS (fromstring_fscanf1 ("123", "%*d%d", &x) == -1);
-      }
-  }
-  {
-    mpz_t  x;
-    mpz_init (x);
-    ASSERT_ALWAYS (gmp_sscanf ("123", "%*Zd%Zd", x) == -1);
-    ASSERT_ALWAYS (fromstring_gmp_fscanf ("123", "%*Zd%Zd", x) == -1);
-    mpz_clear (x);
-  }
+  int    ret;
 
   /* %n suppressed */
   {
@@ -1315,20 +1247,213 @@ check_misc (void)
     ASSERT_ALWAYS (n == 123);
   }
 
+
+#define CHECK_N(type, string)                           \
+  do {                                                  \
+    type  x[2];                                         \
+    char  fmt[128];                                     \
+    int   ret;                                          \
+                                                        \
+    x[0] = ~ (type) 0;                                  \
+    x[1] = ~ (type) 0;                                  \
+    sprintf (fmt, "abc%%%sn", string);                  \
+    ret = gmp_sscanf ("abc", fmt, &x[0]);               \
+                                                        \
+    ASSERT_ALWAYS (ret == 0);                           \
+                                                        \
+    /* should write whole of x[0] and none of x[1] */   \
+    ASSERT_ALWAYS (x[0] == 3);                          \
+    ASSERT_ALWAYS (x[1] == (type) ~ (type) 0);		\
+                                                        \
+  } while (0)
+
+  CHECK_N (char,      "hh");
+  CHECK_N (long,      "l");
+#if HAVE_LONG_LONG
+  CHECK_N (long long, "L");
+#endif
+#if HAVE_INTMAX_T
+  CHECK_N (intmax_t,  "j");
+#endif
+#if HAVE_PTRDIFF_T
+  CHECK_N (ptrdiff_t, "t");
+#endif
+  CHECK_N (short,     "h");
+  CHECK_N (size_t,    "z");
+
   /* %Zn */
   {
+    mpz_t  x[2];
+    mpz_init_set_si (x[0], -987L);
+    mpz_init_set_si (x[1],  654L);
+    ret = gmp_sscanf ("xyz   ", "xyz%Zn", x[0]);
+    MPZ_CHECK_FORMAT (x[0]);
+    MPZ_CHECK_FORMAT (x[1]);
+    ASSERT_ALWAYS (ret == 0);
+    ASSERT_ALWAYS (mpz_cmp_ui (x[0], 3L) == 0);
+    ASSERT_ALWAYS (mpz_cmp_ui (x[1], 654L) == 0);
+    mpz_clear (x[0]);
+    mpz_clear (x[1]);
+  }
+  {
+    mpz_t  x;
+    mpz_init (x);
+    ret = fromstring_gmp_fscanf ("xyz   ", "xyz%Zn", x);
+    ASSERT_ALWAYS (ret == 0);
+    ASSERT_ALWAYS (mpz_cmp_ui (x, 3L) == 0);
+    mpz_clear (x);
+  }
+
+  /* %Qn */
+  {
+    mpq_t  x[2];
+    mpq_init (x[0]);
+    mpq_init (x[1]);
+    mpq_set_ui (x[0], -987L, 654L);
+    mpq_set_ui (x[1], 4115L, 226L);
+    ret = gmp_sscanf ("xyz   ", "xyz%Qn", x[0]);
+    MPQ_CHECK_FORMAT (x[0]);
+    MPQ_CHECK_FORMAT (x[1]);
+    ASSERT_ALWAYS (ret == 0);
+    ASSERT_ALWAYS (mpq_cmp_ui (x[0], 3L, 1L) == 0);
+    ASSERT_ALWAYS (mpq_cmp_ui (x[1], 4115L, 226L) == 0);
+    mpq_clear (x[0]);
+    mpq_clear (x[1]);
+  }
+  {
+    mpq_t  x;
+    mpq_init (x);
+    ret = fromstring_gmp_fscanf ("xyz   ", "xyz%Qn", x);
+    ASSERT_ALWAYS (ret == 0);
+    ASSERT_ALWAYS (mpq_cmp_ui (x, 3L, 1L) == 0);
+    mpq_clear (x);
+  }
+
+  /* %Fn */
+  {
+    mpf_t  x[2];
+    mpf_init (x[0]);
+    mpf_init (x[1]);
+    mpf_set_ui (x[0], -987L);
+    mpf_set_ui (x[1],  654L);
+    ret = gmp_sscanf ("xyz   ", "xyz%Fn", x[0]);
+    MPF_CHECK_FORMAT (x[0]);
+    MPF_CHECK_FORMAT (x[1]);
+    ASSERT_ALWAYS (ret == 0);
+    ASSERT_ALWAYS (mpf_cmp_ui (x[0], 3L) == 0);
+    ASSERT_ALWAYS (mpf_cmp_ui (x[1], 654L) == 0);
+    mpf_clear (x[0]);
+    mpf_clear (x[1]);
+  }
+  {
+    mpf_t  x;
+    mpf_init (x);
+    ret = fromstring_gmp_fscanf ("xyz   ", "xyz%Fn", x);
+    ASSERT_ALWAYS (ret == 0);
+    ASSERT_ALWAYS (mpf_cmp_ui (x, 3L) == 0);
+    mpf_clear (x);
+  }
+}
+
+
+void
+check_misc (void)
+{
+  int  ret, cmp;
+  {
+    int  a=9, b=8, c=7, n=66;
     mpz_t  z;
     mpz_init (z);
-    ASSERT_ALWAYS (gmp_sscanf ("xyz   ", "xyz%Zn", z) == 0);
-    ASSERT_ALWAYS (mpz_cmp_ui (z, 3L) == 0);
+    ret = gmp_sscanf ("1 2 3 4", "%d %d %d %Zd%n",
+                      &a, &b, &c, z, &n);
+    ASSERT_ALWAYS (ret == 4);
+    ASSERT_ALWAYS (a == 1);
+    ASSERT_ALWAYS (b == 2);
+    ASSERT_ALWAYS (c == 3);
+    ASSERT_ALWAYS (n == 7);
+    ASSERT_ALWAYS (mpz_cmp_ui (z, 4L) == 0);
     mpz_clear (z);
   }
   {
+    int  a=9, b=8, c=7, n=66;
     mpz_t  z;
     mpz_init (z);
-    ASSERT_ALWAYS (fromstring_gmp_fscanf ("xyz   ", "xyz%Zn", z) == 0);
-    ASSERT_ALWAYS (mpz_cmp_ui (z, 3L) == 0);
+    ret = fromstring_gmp_fscanf ("1 2 3 4", "%d %d %d %Zd%n",
+                                 &a, &b, &c, z, &n);
+    ASSERT_ALWAYS (ret == 4);
+    ASSERT_ALWAYS (a == 1);
+    ASSERT_ALWAYS (b == 2);
+    ASSERT_ALWAYS (c == 3);
+    ASSERT_ALWAYS (mpz_cmp_ui (z, 4L) == 0);
+    ASSERT_ALWAYS (n == 7);
+    ASSERT_ALWAYS (got_ftell == 7);
     mpz_clear (z);
+  }
+
+  {
+    int  a=9, n=8;
+    mpz_t  z;
+    mpz_init (z);
+    ret = gmp_sscanf ("1 2 3 4", "%d %*d %*d %Zd%n", &a, z, &n);
+    ASSERT_ALWAYS (ret == 2);
+    ASSERT_ALWAYS (a == 1);
+    ASSERT_ALWAYS (mpz_cmp_ui (z, 4L) == 0);
+    ASSERT_ALWAYS (n == 7);
+    mpz_clear (z);
+  }
+  {
+    int  a=9, n=8;
+    mpz_t  z;
+    mpz_init (z);
+    ret = fromstring_gmp_fscanf ("1 2 3 4", "%d %*d %*d %Zd%n",
+                                 &a, z, &n);
+    ASSERT_ALWAYS (ret == 2);
+    ASSERT_ALWAYS (a == 1);
+    ASSERT_ALWAYS (mpz_cmp_ui (z, 4L) == 0);
+    ASSERT_ALWAYS (n == 7);
+    ASSERT_ALWAYS (got_ftell == 7);
+    mpz_clear (z);
+  }
+
+  /* -1 for no matching */
+  {
+    char buf[128];
+    ret = gmp_sscanf ("   ", "%s", buf);
+    ASSERT_ALWAYS (ret == -1);
+    ret = fromstring_gmp_fscanf ("   ", "%s", buf);
+    ASSERT_ALWAYS (ret == -1);
+    if (option_libc_scanf)
+      {
+        ret = sscanf ("   ", "%s", buf);
+        ASSERT_ALWAYS (ret == -1);
+        ret = fromstring_fscanf1 ("   ", "%s", buf);
+        ASSERT_ALWAYS (ret == -1);
+      }
+  }
+
+  /* suppressed field, then eof */
+  {
+    int  x;
+    ret = gmp_sscanf ("123", "%*d%d", &x);
+    ASSERT_ALWAYS (ret == -1);
+    ret = fromstring_gmp_fscanf ("123", "%*d%d", &x);
+    ASSERT_ALWAYS (ret == -1);
+    if (option_libc_scanf)
+      {
+        ret = sscanf ("123", "%*d%d", &x);
+        ASSERT_ALWAYS (ret == -1);
+        ret = fromstring_fscanf1 ("123", "%*d%d", &x);
+        ASSERT_ALWAYS (ret == -1);
+      }
+  }
+  {
+    mpz_t  x;
+    mpz_init (x);
+    ret = gmp_sscanf ("123", "%*Zd%Zd", x);
+    ASSERT_ALWAYS (ret == -1);
+    ret = fromstring_gmp_fscanf ("123", "%*Zd%Zd", x);
+    ASSERT_ALWAYS (ret == -1);
+    mpz_clear (x);
   }
 
   /* %[...], glibc only */
@@ -1337,37 +1462,79 @@ check_misc (void)
     char  buf[128];
     int   n = -1;
     buf[0] = '\0';
-    ASSERT_ALWAYS (gmp_sscanf ("abcdefgh", "%[a-d]ef%n", buf, &n) == 1);
-    ASSERT_ALWAYS (strcmp (buf, "abcd") == 0);
+    ret = gmp_sscanf ("abcdefgh", "%[a-d]ef%n", buf, &n);
+    ASSERT_ALWAYS (ret == 1);
+    cmp = strcmp (buf, "abcd");
+    ASSERT_ALWAYS (cmp == 0);
     ASSERT_ALWAYS (n == 6);
   }
   {
     char  buf[128];
     int   n = -1;
     buf[0] = '\0';
-    ASSERT_ALWAYS (gmp_sscanf ("xyza", "%[^a]a%n", buf, &n) == 1);
-    ASSERT_ALWAYS (strcmp (buf, "xyz") == 0);
+    ret = gmp_sscanf ("xyza", "%[^a]a%n", buf, &n);
+    ASSERT_ALWAYS (ret == 1);
+    cmp = strcmp (buf, "xyz");
+    ASSERT_ALWAYS (cmp == 0);
     ASSERT_ALWAYS (n == 4);
   }
   {
     char  buf[128];
     int   n = -1;
     buf[0] = '\0';
-    ASSERT_ALWAYS (gmp_sscanf ("ab]ab]", "%[]ab]%n", buf, &n) == 1);
-    ASSERT_ALWAYS (strcmp (buf, "ab]ab]") == 0);
+    ret = gmp_sscanf ("ab]ab]", "%[]ab]%n", buf, &n);
+    ASSERT_ALWAYS (ret == 1);
+    cmp = strcmp (buf, "ab]ab]");
+    ASSERT_ALWAYS (cmp == 0);
     ASSERT_ALWAYS (n == 6);
   }
   {
     char  buf[128];
     int   n = -1;
     buf[0] = '\0';
-    ASSERT_ALWAYS (gmp_sscanf ("xyzb", "%[^]ab]b%n", buf, &n) == 1);
-    ASSERT_ALWAYS (strcmp (buf, "xyz") == 0);
+    ret = gmp_sscanf ("xyzb", "%[^]ab]b%n", buf, &n);
+    ASSERT_ALWAYS (ret == 1);
+    cmp = strcmp (buf, "xyz");
+    ASSERT_ALWAYS (cmp == 0);
     ASSERT_ALWAYS (n == 4);
   }
 #endif
-}
 
+  /* %zd etc won't be accepted by sscanf on old systems, and running
+     something to see if they work might be bad, so try it on glibc only */
+#ifdef __GLIBC__
+  {
+    mpz_t   z;
+    size_t  s = -1;
+    mpz_init (z);
+    ret = gmp_sscanf ("456 789", "%zd %Zd", &s, z);
+    ASSERT_ALWAYS (ret == 2);
+    ASSERT_ALWAYS (s == 456);
+    ASSERT_ALWAYS (mpz_cmp_ui (z, 789L) == 0);
+    mpz_clear (z);
+  }
+  {
+    mpz_t      z;
+    ptrdiff_t  d = -1;
+    mpz_init (z);
+    ret = gmp_sscanf ("456 789", "%td %Zd", &d, z);
+    ASSERT_ALWAYS (ret == 2);
+    ASSERT_ALWAYS (d == 456);
+    ASSERT_ALWAYS (mpz_cmp_ui (z, 789L) == 0);
+    mpz_clear (z);
+  }
+  {
+    mpz_t      z;
+    long long  ll = -1;
+    mpz_init (z);
+    ret = gmp_sscanf ("456 789", "%Ld %Zd", &ll, z);
+    ASSERT_ALWAYS (ret == 2);
+    ASSERT_ALWAYS (ll == 456);
+    ASSERT_ALWAYS (mpz_cmp_ui (z, 789L) == 0);
+    mpz_clear (z);
+  }
+#endif
+}
 
 int
 main (int argc, char *argv[])
@@ -1380,6 +1547,7 @@ main (int argc, char *argv[])
   check_z ();
   check_q ();
   check_f ();
+  check_n ();
   check_misc ();
 
   unlink (TEMPFILE);

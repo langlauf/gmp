@@ -1,9 +1,101 @@
-This is gmp.info, produced by makeinfo version 4.0 from gmp.texi.
+This is gmp.info, produced by makeinfo version 4.2 from gmp.texi.
 
+This manual describes how to install and use the GNU multiple precision
+arithmetic library, version 4.1.
+
+   Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
+2001, 2002 Free Software Foundation, Inc.
+
+   Permission is granted to copy, distribute and/or modify this
+document under the terms of the GNU Free Documentation License, Version
+1.1 or any later version published by the Free Software Foundation;
+with no Invariant Sections, with the Front-Cover Texts being "A GNU
+Manual", and with the Back-Cover Texts being "You have freedom to copy
+and modify this GNU Manual, like GNU software".  A copy of the license
+is included in *Note GNU Free Documentation License::.
 INFO-DIR-SECTION GNU libraries
 START-INFO-DIR-ENTRY
 * gmp: (gmp).                   GNU Multiple Precision Arithmetic Library.
 END-INFO-DIR-ENTRY
+
+
+File: gmp.info,  Node: Single Limb Division,  Next: Basecase Division,  Prev: Division Algorithms,  Up: Division Algorithms
+
+Single Limb Division
+--------------------
+
+   Nx1 division is implemented using repeated 2x1 divisions from high
+to low, either with a hardware divide instruction or a multiplication by
+inverse, whichever is best on a given CPU.
+
+   The multiply by inverse follows section 8 of "Division by Invariant
+Integers using Multiplication" by Granlund and Montgomery (*note
+References::) and is implemented as `udiv_qrnnd_preinv' in
+`gmp-impl.h'.  The idea is to have a fixed-point approximation to 1/d
+(see `invert_limb') and then multiply by the high limb (plus one bit)
+of the dividend to get a quotient q.  With d normalized (high bit set),
+q is no more than 1 too small.  Subtracting q*d from the dividend gives
+a remainder, and reveals whether q or q-1 is correct.
+
+   The result is a division done with two multiplications and four or
+five arithmetic operations.  On CPUs with low latency multipliers this
+can be much faster than a hardware divide, though the cost of
+calculating the inverse at the start may mean it's only better on
+inputs bigger than say 4 or 5 limbs.
+
+   When a divisor must be normalized, either for the generic C
+`__udiv_qrnnd_c' or the multiply by inverse, the division performed is
+actually a*2^k by d*2^k where a is the dividend and k is the power
+necessary to have the high bit of d*2^k set.  The bit shifts for the
+dividend are usually accomplished "on the fly" meaning by extracting
+the appropriate bits at each step.  Done this way the quotient limbs
+come out aligned ready to store.  When only the remainder is wanted, an
+alternative is to take the dividend limbs unshifted and calculate r = a
+mod d*2^k followed by an extra final step r*2^k mod d*2^k.  This can
+help on CPUs with poor bit shifts or few registers.
+
+   The multiply by inverse can be done two limbs at a time.  The
+calculation is basically the same, but the inverse is two limbs and the
+divisor treated as if padded with a low zero limb.  This means more
+work, since the inverse will need a 2x2 multiply, but the four 1x1s to
+do that are independent and can therefore be done partly or wholly in
+parallel.  Likewise for a 2x1 calculating q*d.  The net effect is to
+process two limbs with roughly the same two multiplies worth of latency
+that one limb at a time gives.  This extends to 3 or 4 limbs at a time,
+though the extra work to apply the inverse will almost certainly soon
+reach the limits of multiplier throughput.
+
+   A similar approach in reverse can be taken to process just half a
+limb at a time if the divisor is only a half limb.  In this case the
+1x1 multiply for the inverse effectively becomes two (1/2)x1 for each
+limb, which can be a saving on CPUs with a fast half limb multiply, or
+in fact if the only multiply is a half limb, and especially if it's not
+pipelined.
+
+
+File: gmp.info,  Node: Basecase Division,  Next: Divide and Conquer Division,  Prev: Single Limb Division,  Up: Division Algorithms
+
+Basecase Division
+-----------------
+
+   Basecase NxM division is like long division done by hand, but in base
+2^mp_bits_per_limb.  See Knuth section 4.3.1 algorithm D, and
+`mpn/generic/sb_divrem_mn.c'.
+
+   Briefly stated, while the dividend remains larger than the divisor,
+a high quotient limb is formed and the Nx1 product q*d subtracted at
+the top end of the dividend.  With a normalized divisor (most
+significant bit set), each quotient limb can be formed with a 2x1
+division and a 1x1 multiplication plus some subtractions.  The 2x1
+division is by the high limb of the divisor and is done either with a
+hardware divide or a multiply by inverse (the same as in *Note Single
+Limb Division::) whichever is faster.  Such a quotient is sometimes one
+too big, requiring an addback of the divisor, but that happens rarely.
+
+   With Q=N-M being the number of quotient limbs, this is an O(Q*M)
+algorithm and will run at a speed similar to a basecase QxM
+multiplication, differing in fact only in the extra multiply and divide
+for each of the Q quotient limbs.
 
 
 File: gmp.info,  Node: Divide and Conquer Division,  Next: Exact Division,  Prev: Basecase Division,  Up: Division Algorithms
@@ -11,7 +103,7 @@ File: gmp.info,  Node: Divide and Conquer Division,  Next: Exact Division,  Prev
 Divide and Conquer Division
 ---------------------------
 
-   For divisors larger than `DC_THRESHOLD', division is done by
+   For divisors larger than `DIV_DC_THRESHOLD', division is done by
 dividing.  Or to be precise by a recursive divide and conquer algorithm
 based on work by Moenck and Borodin, Jebelean, and Burnikel and Ziegler
 (*note References::).
@@ -28,12 +120,12 @@ by recursive Nx(N/2) divisions.
 then the work is about the same as a basecase division, but with more
 function call overheads and with some subtractions separated from the
 multiplies.  These overheads mean that it's only when N/2 is above
-`KARATSUBA_MUL_THRESHOLD' that divide and conquer is of use.
+`MUL_KARATSUBA_THRESHOLD' that divide and conquer is of use.
 
-   `DC_THRESHOLD' is based on the divisor size N, so it will be
-somewhere above twice `KARATSUBA_MUL_THRESHOLD', but how much above
+   `DIV_DC_THRESHOLD' is based on the divisor size N, so it will be
+somewhere above twice `MUL_KARATSUBA_THRESHOLD', but how much above
 depends on the CPU.  An optimized `mpn_mul_basecase' can lower
-`DC_THRESHOLD' a little by offering a ready-made advantage over
+`DIV_DC_THRESHOLD' a little by offering a ready-made advantage over
 repeated `mpn_submul_1' calls.
 
    Divide and conquer is asymptotically O(M(N)*log(N)) where M(N) is
@@ -119,8 +211,8 @@ Exact Remainder
    If the exact division algorithm is done with a full subtraction at
 each stage and the dividend isn't a multiple of the divisor, then low
 zero limbs are produced but with a remainder in the high limbs.  For
-dividend a, divisor d, quotient q, and b = 2^mp_bits_per_limb, then
-this remainder r is of the form
+dividend a, divisor d, quotient q, and b = 2^mp_bits_per_limb, then this
+remainder r is of the form
 
      a = q*d + r*b^n
 
@@ -494,10 +586,71 @@ Binary to Radix
    Conversions from binary to a power-of-2 radix use a simple and fast
 O(N) bit extraction algorithm.
 
-   Conversions from binary to other radices use repeated divisions,
-first by the biggest power of the radix that fits in a single limb,
-then by the radix on the remainders.  This is an O(N^2) algorithm and
-can be quite time-consuming on large inputs.
+   Conversions from binary to other radices use one of two algorithms.
+Sizes below `GET_STR_PRECOMPUTE_THRESHOLD' use a basic O(N^2) method.
+Repeated divisions by b^n are made, where b is the radix and n is the
+biggest power that fits in a limb.  But instead of simply using the
+remainder r from such divisions, an extra divide step is done to give a
+fractional limb representing r/b^n.  The digits of r can then be
+extracted using multiplications by b rather than divisions.  Special
+case code is provided for decimal, allowing multiplications by 10 to
+optimize to shifts and adds.
+
+   Above `GET_STR_PRECOMPUTE_THRESHOLD' a sub-quadratic algorithm is
+used.  For an input t, powers b^(n*2^i) of the radix are calculated,
+until a power between t and sqrt(t) is reached.  t is then divided by
+that largest power, giving a quotient which is the digits above that
+power, and a remainder which is those below.  These two parts are in
+turn divided by the second highest power, and so on recursively.  When
+a piece has been divided down to less than `GET_STR_DC_THRESHOLD'
+limbs, the basecase algorithm described above is used.
+
+   The advantage of this algorithm is that big divisions can make use
+of the sub-quadratic divide and conquer division (*note Divide and
+Conquer Division::), and big divisions tend to have less overheads than
+lots of separate single limb divisions anyway.  But in any case the
+cost of calculating the powers b^(n*2^i) must first be overcome.
+
+   `GET_STR_PRECOMPUTE_THRESHOLD' and `GET_STR_DC_THRESHOLD' represent
+the same basic thing, the point where it becomes worth doing a big
+division to cut the input in half.  `GET_STR_PRECOMPUTE_THRESHOLD'
+includes the cost of calculating the radix power required, whereas
+`GET_STR_DC_THRESHOLD' assumes that's already available, which is the
+case when recursing.
+
+   Since the base case produces digits from least to most significant
+but they want to be stored from most to least, it's necessary to
+calculate in advance how many digits there will be, or at least be sure
+not to underestimate that.  For GMP the number of input bits is
+multiplied by `chars_per_bit_exactly' from `mp_bases', rounding up.
+The result is either correct or one too big.
+
+   Examining some of the high bits of the input could increase the
+chance of getting the exact number of digits, but an exact result every
+time would not be practical, since in general the difference between
+numbers 100... and 99... is only in the last few bits and the work to
+identify 99...  might well be almost as much as a full conversion.
+
+   `mpf_get_str' doesn't currently use the algorithm described here, it
+multiplies or divides by a power of b to move the radix point to the
+just above the highest non-zero digit (or at worst one above that
+location), then multiplies by b^n to bring out digits.  This is O(N^2)
+and is certainly not optimal.
+
+   The r/b^n scheme described above for using multiplications to bring
+out digits might be useful for more than a single limb.  Some brief
+experiments with it on the base case when recursing didn't give a
+noticable improvement, but perhaps that was only due to the
+implementation.  Something similar would work for the sub-quadratic
+divisions too, though there would be the cost of calculating a bigger
+radix power.
+
+   Another possible improvement for the sub-quadratic part would be to
+arrange for radix powers that balanced the sizes of quotient and
+remainder produced, ie. the highest power would be an b^(n*k)
+approximately equal to sqrt(t), not restricted to a 2^i factor.  That
+ought to smooth out a graph of times against sizes, but may or may not
+be a net speedup.
 
 
 File: gmp.info,  Node: Radix to Binary,  Prev: Binary to Radix,  Up: Radix Conversion Algorithms
@@ -508,10 +661,35 @@ Radix to Binary
    Conversions from a power-of-2 radix into binary use a simple and fast
 O(N) bitwise concatenation algorithm.
 
-   Conversions from other radices use repeated multiplications, first
-accumulating as many digits as fit in a limb, then doing an Nx1
-multi-precision multiplication.  This is O(N^2) and is certainly
-sub-optimal on sizes above the Karatsuba multiply threshold.
+   Conversions from other radices use one of two algorithms.  Sizes
+below `SET_STR_THRESHOLD' use a basic O(N^2) method.  Groups of n
+digits are converted to limbs, where n is the biggest power of the base
+b which will fit in a limb, then those groups are accumulated into the
+result by multiplying by b^n and adding.  This saves multi-precision
+operations, as per Knuth section 4.4 part E (*note References::).  Some
+special case code is provided for decimal, giving the compiler a chance
+to optimize multiplications by 10.
+
+   Above `SET_STR_THRESHOLD' a sub-quadratic algorithm is used.  First
+groups of n digits are converted into limbs.  Then adjacent limbs are
+combined into limb pairs with x*b^n+y, where x and y are the limbs.
+Adjacent limb pairs are combined into quads similarly with x*b^(2n)+y.
+This continues until a single block remains, that being the result.
+
+   The advantage of this method is that the multiplications for each x
+are big blocks, allowing Karatsuba and higher algorithms to be used.
+But the cost of calculating the powers b^(n*2^i) must be overcome.
+`SET_STR_THRESHOLD' usually ends up quite big, around 5000 digits, and
+on some processors much bigger still.
+
+   `SET_STR_THRESHOLD' is based on the input digits (and tuned for
+decimal), though it might be better based on a limb count, so as to be
+independent of the base.  But that sort of count isn't used by the base
+case and so would need some sort of initial calculation or estimate.
+
+   The main reason `SET_STR_THRESHOLD' is so much bigger than the
+corresponding `GET_STR_PRECOMPUTE_THRESHOLD' is that `mpn_mul_1' is
+much faster than `mpn_divrem_1' (often by a factor of 10, or more).
 
 
 File: gmp.info,  Node: Other Algorithms,  Next: Assembler Coding,  Prev: Radix Conversion Algorithms,  Up: Algorithms
@@ -773,30 +951,44 @@ Cache Handling
 --------------
 
    GMP aims to perform well both on operands that fit entirely in L1
-cache and those that don't.  In the assembler subroutines this means
-prefetching, either always or when large enough operands are presented.
+cache and those which don't.
 
-   Pre-fetching sources combines well with loop unrolling, since a
+   Basic routines like `mpn_add_n' or `mpn_lshift' are often used on
+large operands, so L2 and main memory performance is important for them.
+`mpn_mul_1' and `mpn_addmul_1' are mostly used for multiply and square
+basecases, so L1 performance matters most for them, unless assembler
+versions of `mpn_mul_basecase' and `mpn_sqr_basecase' exist, in which
+case the remaining uses are mostly for larger operands.
+
+   For L2 or main memory operands, memory access times will almost
+certainly be more than the calculation time.  The aim therefore is to
+maximize memory throughput, by starting a load of the next cache line
+which processing the contents of the previous one.  Clearly this is
+only possible if the chip has a lock-up free cache or some sort of
+prefetch instruction.  Most current chips have both these features.
+
+   Prefetching sources combines well with loop unrolling, since a
 prefetch can be initiated once per unrolled loop (or more than once if
-the loop processes more than one cache line).
+the loop covers more than one cache line).
 
-   Pre-fetching destinations won't be necessary if the CPU has a big
-enough store queue.  Older processors without a write-allocate L1
-however will want destination prefetching, to avoid repeated
-write-throughs, unless they can keep up with the rate at which
-destination limbs are produced.
+   On CPUs without write-allocate caches, prefetching destinations will
+ensure individual stores don't go further down the cache hierarchy,
+limiting bandwidth.  Of course for calculations which are slow anyway,
+like `mpn_divrem_1', write-throughs might be fine.
 
-   The distance ahead to prefetch will be determined by the rate data is
-processed versus the time it takes to bring a line up to L1.  Naturally
-the net data rate from L2 or RAM will always limit the rate of data
-processing.  Prefetch distance may also be limited by the number of
-prefetches the processor can have in progress at any one time.
+   The distance ahead to prefetch will be determined by memory latency
+versus throughput.  The aim of course is to have data arriving
+continuously, at peak throughput.  Some CPUs have limits on the number
+of fetches or prefetches in progress.
 
    If a special prefetch instruction doesn't exist then a plain load
-can be used, so long as the CPU supports out-of-order loads.  But this
-may mean having a second copy of a loop so that the last few limbs can
-be processed without prefetching, since reading past the end of an
-operand must be avoided.
+can be used, but in that case care must be taken not to attempt to read
+past the end of an operand, since that might produce a segmentation
+violation.
+
+   Some CPUs or systems have hardware that detects sequential memory
+accesses and initiates suitable cache movements automatically, making
+life easy.
 
 
 File: gmp.info,  Node: Assembler Floating Point,  Next: Assembler SIMD Instructions,  Prev: Assembler Cache Handling,  Up: Assembler Coding
@@ -805,24 +997,95 @@ Floating Point
 --------------
 
    Floating point arithmetic is used in GMP for multiplications on CPUs
-with poor integer multipliers.  Floating point generally doesn't suit
-other operations like additions or shifts, due to difficulties
-implementing carry handling.
+with poor integer multipliers.  It's mostly useful for `mpn_mul_1',
+`mpn_addmul_1' and `mpn_submul_1' on 64-bit machines, and
+`mpn_mul_basecase' on both 32-bit and 64-bit machines.
 
    With IEEE 53-bit double precision floats, integer multiplications
-producing up to 53 bits will give exact results.  Breaking a
-multiplication into 16x32->48 bit pieces is convenient.  With some care
-though three 21x32->53 bit products can be used to do a 64x32 multiply,
-if one of those 21x32 parts uses the sign bit.
+producing up to 53 bits will give exact results.  Breaking a 64x64
+multiplication into eight 16x32->48 bit pieces is convenient.  With
+some care though six 21x32->53 bit products can be used, if one of the
+lower two 21-bit pieces also uses the sign bit.
 
-   Generally limbs want to be treated as unsigned, but on some CPUs
-floating point conversions only treat integers as signed.  Copying
-through a zero extended memory region or testing and adjusting for a
-sign bit may be necessary.
+   For the `mpn_mul_1' family of functions on a 64-bit machine, the
+invariant single limb is split at the start, into 3 or 4 pieces.
+Inside the loop, the bignum operand is split into 32-bit pieces.  Fast
+conversion of these unsigned 32-bit pieces to floating point is highly
+machine-dependent.  In some cases, reading the data into the integer
+unit, zero-extending to 64-bits, then transferring to the floating
+point unit back via memory is the only option.
 
-   Currently floating point FFTs aren't used for large multiplications.
-On some processors they probably have a good chance of being
-worthwhile, if great care is taken with precision control.
+   Converting partial products back to 64-bit limbs is usually best
+done as a signed conversion.  Since all values are smaller than 2^53,
+signed and unsigned are the same, but most processors lack unsigned
+conversions.
+
+
+
+   Here is a diagram showing 16x32 bit products for an `mpn_mul_1' or
+`mpn_addmul_1' with a 64-bit limb.  The single limb operand V is split
+into four 16-bit parts.  The multi-limb operand U is split in the loop
+into two 32-bit parts.
+
+                     +---+---+---+---+
+                     |v48|v32|v16|v00|    V operand
+                     +---+---+---+---+
+     
+                     +-------+---+---+
+                 x   |  u32  |  u00  |    U operand (one limb)
+                     +---------------+
+     
+     ---------------------------------
+     
+                         +-----------+
+                         | u00 x v00 |    p00    48-bit products
+                         +-----------+
+                     +-----------+
+                     | u00 x v16 |        p16
+                     +-----------+
+                 +-----------+
+                 | u00 x v32 |            p32
+                 +-----------+
+             +-----------+
+             | u00 x v48 |                p48
+             +-----------+
+                 +-----------+
+                 | u32 x v00 |            r32
+                 +-----------+
+             +-----------+
+             | u32 x v16 |                r48
+             +-----------+
+         +-----------+
+         | u32 x v32 |                    r64
+         +-----------+
+     +-----------+
+     | u32 x v48 |                        r80
+     +-----------+
+
+   p32 and r32 can be summed using floating-point addition, and
+likewise p48 and r48.  p00 and p16 can be summed with r64 and r80 from
+the previous iteration.
+
+   For each loop then, four 49-bit quantities are transfered to the
+integer unit, aligned as follows,
+
+     |-----64bits----|-----64bits----|
+                        +------------+
+                        | p00 + r64' |    i00
+                        +------------+
+                    +------------+
+                    | p16 + r80' |        i16
+                    +------------+
+                +------------+
+                | p32 + r32  |            i32
+                +------------+
+            +------------+
+            | p48 + r48  |                i48
+            +------------+
+
+   The challenge then is to sum these efficiently and add in a carry
+limb, generating a low 64-bit result limb and a high 33-bit carry limb
+(i48 extends 33 bits into the high half).
 
 
 File: gmp.info,  Node: Assembler SIMD Instructions,  Next: Assembler Software Pipelining,  Prev: Assembler Floating Point,  Up: Assembler Coding
@@ -872,146 +1135,4 @@ have the right values in the right places for each iteration.  Loop
 unrolling can help this, with each unrolled block able to use different
 registers for different values, even if some shuffling is still needed
 just before going back to the top of the loop.
-
-
-File: gmp.info,  Node: Assembler Loop Unrolling,  Prev: Assembler Software Pipelining,  Up: Assembler Coding
-
-Loop Unrolling
---------------
-
-   Loop unrolling consists of replicating code so that several limbs are
-processed in each loop.  At a minimum this reduces loop overheads by a
-corresponding factor, but it can also allow better register usage, for
-example alternately using one register combination and then another.
-Judicious use of `m4' macros can help avoid lots of duplication in the
-source code.
-
-   Unrolling is commonly done to a power of 2 multiple so the number of
-unrolled loops and the number of remaining limbs can be calculated with
-a shift and mask.  But other multiples can be used too, just by
-subtracting each N limbs processed from a counter and waiting for less
-than N remaining (or offsetting the counter by N so it goes negative
-when there's less than N remaining).
-
-   The limbs not a multiple of the unrolling can be handled in various
-ways, for example
-
-   * A simple loop at the end (or the start) to process the excess.
-     Care will be wanted that it isn't too much slower than the
-     unrolled part.
-
-   * A set of binary tests, for example after an 8-limb unrolling, test
-     for 4 more limbs to process, then a further 2 more or not, and
-     finally 1 more or not.  This will probably take more code space
-     than a simple loop.
-
-   * A `switch' statement, providing separate code for each possible
-     excess, for example an 8-limb unrolling would have separate code
-     for 0 remaining, 1 remaining, etc, up to 7 remaining.  This might
-     take a lot of code, but may be the best way to optimize all cases
-     in combination with a deep pipelined loop.
-
-   * A computed jump into the middle of the loop, thus making the first
-     iteration handle the excess.  This should make times smoothly
-     increase with size, which is attractive, but setups for the jump
-     and adjustments for pointers can be tricky and could become quite
-     difficult in combination with deep pipelining.
-
-   One way to write the setups and finishups for a pipelined unrolled
-loop is simply to duplicate the loop at the start and the end, then
-delete instructions at the start which have no valid antecedents, and
-delete instructions at the end whose results are unwanted.  Sizes not a
-multiple of the unrolling can then be handled as desired.
-
-
-File: gmp.info,  Node: Internals,  Next: Contributors,  Prev: Algorithms,  Up: Top
-
-Internals
-*********
-
-   *This chapter is provided only for informational purposes and the
-various internals described here may change in future GMP releases.
-Applications expecting to be compatible with future releases should use
-only the documented interfaces described in previous chapters.*
-
-* Menu:
-
-* Integer Internals::
-* Rational Internals::
-* Float Internals::
-* Raw Output Internals::
-* C++ Interface Internals::
-
-
-File: gmp.info,  Node: Integer Internals,  Next: Rational Internals,  Prev: Internals,  Up: Internals
-
-Integer Internals
-=================
-
-   `mpz_t' variables represent integers using sign and magnitude, in
-space dynamically allocated and reallocated.  The fields are as follows.
-
-`_mp_size'
-     The number of limbs, or the negative of that when representing a
-     negative integer.  Zero is represented by `_mp_size' set to zero,
-     in which case the `_mp_d' data is unused.
-
-`_mp_d'
-     A pointer to an array of limbs which is the magnitude.  These are
-     stored "little endian" as per the `mpn' functions, so `_mp_d[0]'
-     is the least significant limb and `_mp_d[ABS(_mp_size)-1]' is the
-     most significant.  Whenever `_mp_size' is non-zero, the most
-     significant limb is non-zero.
-
-     Currently there's always at least one limb allocated, so for
-     instance `mpz_set_ui' never needs to reallocate, and `mpz_get_ui'
-     can fetch `_mp_d[0]' unconditionally (though its value is then
-     only wanted if `_mp_size' is non-zero).
-
-`_mp_alloc'
-     `_mp_alloc' is the number of limbs currently allocated at `_mp_d',
-     and naturally `_mp_alloc >= ABS(_mp_size)'.  When an `mpz' routine
-     is about to (or might be about to) increase `_mp_size', it checks
-     `_mp_alloc' to see whether there's enough space, and reallocates
-     if not.  `MPZ_REALLOC' is generally used for this.
-
-   The various bitwise logical functions like `mpz_and' behave as if
-negative values were twos complement.  But sign and magnitude is always
-used internally, and necessary adjustments are made during the
-calculations.  Sometimes this isn't pretty, but sign and magnitude are
-best for other routines.
-
-   Some internal temporary variables are setup with `MPZ_TMP_INIT' and
-these have `_mp_d' space obtained from `TMP_ALLOC' rather than the
-memory allocation functions.  Care is taken to ensure that these are
-big enough that no reallocation is necessary (since it would have
-unpredictable consequences).
-
-
-File: gmp.info,  Node: Rational Internals,  Next: Float Internals,  Prev: Integer Internals,  Up: Internals
-
-Rational Internals
-==================
-
-   `mpq_t' variables represent rationals using an `mpz_t' numerator and
-denominator (*note Integer Internals::).
-
-   The canonical form adopted is denominator positive (and non-zero),
-no common factors between numerator and denominator, and zero uniquely
-represented as 0/1.
-
-   It's believed that casting out common factors at each stage of a
-calculation is best in general.  A GCD is an O(N^2) operation so it's
-better to do a few small ones immediately than to delay and have to do
-a big one later.  Knowing the numerator and denominator have no common
-factors can be used for example in `mpq_mul' to make only two cross
-GCDs necessary, not four.
-
-   This general approach to common factors is badly sub-optimal in the
-presence of simple factorizations or little prospect for cancellation,
-but GMP has no way to know when this will occur.  As per *Note
-Efficiency::, that's left to applications.  The `mpq_t' framework might
-still suit, with `mpq_numref' and `mpq_denref' for direct access to the
-numerator and denominator, or of course `mpz_t' variables can be used
-directly.
 

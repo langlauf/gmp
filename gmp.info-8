@@ -1,5 +1,18 @@
-This is gmp.info, produced by makeinfo version 4.0 from gmp.texi.
+This is gmp.info, produced by makeinfo version 4.2 from gmp.texi.
 
+This manual describes how to install and use the GNU multiple precision
+arithmetic library, version 4.1.
+
+   Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
+2001, 2002 Free Software Foundation, Inc.
+
+   Permission is granted to copy, distribute and/or modify this
+document under the terms of the GNU Free Documentation License, Version
+1.1 or any later version published by the Free Software Foundation;
+with no Invariant Sections, with the Front-Cover Texts being "A GNU
+Manual", and with the Back-Cover Texts being "You have freedom to copy
+and modify this GNU Manual, like GNU software".  A copy of the license
+is included in *Note GNU Free Documentation License::.
 INFO-DIR-SECTION GNU libraries
 START-INFO-DIR-ENTRY
 * gmp: (gmp).                   GNU Multiple Precision Arithmetic Library.
@@ -23,8 +36,8 @@ Concept Index
 * Arithmetic functions <1>:              Rational Arithmetic.
 * Arithmetic functions <2>:              Integer Arithmetic.
 * Arithmetic functions:                  Float Arithmetic.
-* Assignment functions <1>:              Assigning Floats.
-* Assignment functions:                  Assigning Integers.
+* Assignment functions <1>:              Assigning Integers.
+* Assignment functions:                  Assigning Floats.
 * Autoconf detections:                   Autoconf.
 * Basics:                                GMP Basics.
 * Berkeley MP compatible functions:      BSD Compatible Functions.
@@ -39,12 +52,13 @@ Concept Index
 * Build notes for particular systems:    Notes for Particular Systems.
 * Build options:                         Build Options.
 * Build problems known:                  Known Build Problems.
+* Building GMP:                          Installing GMP.
 * C++ Interface:                         C++ Class Interface.
 * C++ istream input:                     C++ Formatted Input.
 * C++ ostream output:                    C++ Formatted Output.
-* Comparison functions <1>:              Float Comparison.
-* Comparison functions <2>:              Integer Comparisons.
-* Comparison functions:                  Comparing Rationals.
+* Comparison functions <1>:              Comparing Rationals.
+* Comparison functions <2>:              Float Comparison.
+* Comparison functions:                  Integer Comparisons.
 * Compatibility with older versions:     Compatibility with older versions.
 * Conditions for copying GNU MP:         Copying.
 * Configuring GMP:                       Installing GMP.
@@ -52,14 +66,15 @@ Concept Index
 * Contributors:                          Contributors.
 * Conventions for parameters:            Parameter Conventions.
 * Conventions for variables:             Variable Conventions.
-* Conversion functions <1>:              Rational Conversions.
-* Conversion functions <2>:              Converting Floats.
+* Conversion functions <1>:              Converting Floats.
+* Conversion functions <2>:              Rational Conversions.
 * Conversion functions:                  Converting Integers.
 * Copying conditions:                    Copying.
 * CPUs supported:                        Introduction to GMP.
 * Custom allocation:                     Custom Allocation.
 * Debugging:                             Debugging.
 * Demonstration programs:                Build Options.
+* DESTDIR:                               Known Build Problems.
 * Division algorithms:                   Division Algorithms.
 * Division functions <1>:                Integer Division.
 * Division functions <2>:                Float Arithmetic.
@@ -69,6 +84,7 @@ Concept Index
 * Example programs:                      Build Options.
 * Exponentiation functions <1>:          Integer Exponentiation.
 * Exponentiation functions:              Float Arithmetic.
+* Export:                                Integer Import and Export.
 * Extended GCD:                          Number Theoretic Functions.
 * Factorial functions:                   Number Theoretic Functions.
 * FDL, GNU Free Documentation License:   GNU Free Documentation License.
@@ -90,22 +106,25 @@ Concept Index
 * FTP of latest version:                 Introduction to GMP.
 * Function classes:                      Function Classes.
 * GMP version number:                    Useful Macros and Constants.
-* gmp.h:                                 GMP Basics.
+* gmp.h:                                 Headers and Libraries.
+* gmpxx.h:                               C++ Interface General.
 * GNU Free Documentation License:        GNU Free Documentation License.
 * Greatest common divisor algorithms:    Greatest Common Divisor Algorithms.
 * Greatest common divisor functions:     Number Theoretic Functions.
+* Headers:                               Headers and Libraries.
 * Home page:                             Introduction to GMP.
-* I/O functions <1>:                     I/O of Floats.
-* I/O functions <2>:                     I/O of Integers.
-* I/O functions:                         I/O of Rationals.
+* I/O functions <1>:                     I/O of Integers.
+* I/O functions <2>:                     I/O of Rationals.
+* I/O functions:                         I/O of Floats.
+* Import:                                Integer Import and Export.
 * Initialization and assignment functions <1>: Initializing Rationals.
-* Initialization and assignment functions <2>: Simultaneous Float Init & Assign.
-* Initialization and assignment functions: Simultaneous Integer Init & Assign.
-* Initialization functions <1>:          Initializing Integers.
-* Initialization functions:              Initializing Floats.
-* Input functions <1>:                   I/O of Floats.
+* Initialization and assignment functions <2>: Simultaneous Integer Init & Assign.
+* Initialization and assignment functions: Simultaneous Float Init & Assign.
+* Initialization functions <1>:          Initializing Floats.
+* Initialization functions:              Initializing Integers.
+* Input functions <1>:                   I/O of Rationals.
 * Input functions <2>:                   I/O of Integers.
-* Input functions:                       I/O of Rationals.
+* Input functions:                       I/O of Floats.
 * Installing GMP:                        Installing GMP.
 * Instruction Set Architecture:          ABI and ISA.
 * Integer:                               Nomenclature and Types.
@@ -116,7 +135,9 @@ Concept Index
 * Integer conversion functions:          Converting Integers.
 * Integer division functions:            Integer Division.
 * Integer exponentiation functions:      Integer Exponentiation.
+* Integer export:                        Integer Import and Export.
 * Integer functions:                     Integer Functions.
+* Integer import:                        Integer Import and Export.
 * Integer init and assign:               Simultaneous Integer Init & Assign.
 * Integer initialization functions:      Initializing Integers.
 * Integer input and output functions:    I/O of Integers.
@@ -131,10 +152,12 @@ Concept Index
 * Kronecker symbol functions:            Number Theoretic Functions.
 * Latest version of GMP:                 Introduction to GMP.
 * Least common multiple functions:       Number Theoretic Functions.
+* Libraries:                             Headers and Libraries.
 * Libtool versioning:                    Notes for Package Builds.
 * License conditions:                    Copying.
 * Limb:                                  Nomenclature and Types.
 * Limb size:                             Useful Macros and Constants.
+* Linking:                               Headers and Libraries.
 * Logical functions:                     Integer Logic and Bit Fiddling.
 * Low-level functions:                   Low-level Functions.
 * Lucas number functions:                Number Theoretic Functions.
@@ -146,20 +169,23 @@ Concept Index
 * Modular inverse functions:             Number Theoretic Functions.
 * mp.h:                                  BSD Compatible Functions.
 * MPFR:                                  Build Options.
+* mpfrxx.h:                              C++ Interface MPFR.
 * Multi-threading:                       Reentrancy.
 * Multiplication algorithms:             Multiplication Algorithms.
+* Nails:                                 Low-level Functions.
 * Nomenclature:                          Nomenclature and Types.
 * Number theoretic functions:            Number Theoretic Functions.
 * Numerator and denominator:             Applying Integer Functions.
 * ostream output:                        C++ Formatted Output.
-* Output functions <1>:                  I/O of Integers.
+* Output functions <1>:                  I/O of Rationals.
 * Output functions <2>:                  I/O of Floats.
-* Output functions:                      I/O of Rationals.
+* Output functions:                      I/O of Integers.
 * Packaged builds:                       Notes for Package Builds.
 * Parameter conventions:                 Parameter Conventions.
+* Particular systems:                    Notes for Particular Systems.
 * Powering algorithms:                   Powering Algorithms.
-* Powering functions <1>:                Integer Exponentiation.
-* Powering functions:                    Float Arithmetic.
+* Powering functions <1>:                Float Arithmetic.
+* Powering functions:                    Integer Exponentiation.
 * Precision of floats:                   Floating-point Functions.
 * Prime testing functions:               Number Theoretic Functions.
 * printf formatted output:               Formatted Output.
@@ -182,15 +208,16 @@ Concept Index
 * References:                            References.
 * Reporting bugs:                        Reporting Bugs.
 * Root extraction algorithms:            Root Extraction Algorithms.
-* Root extraction functions <1>:         Integer Roots.
-* Root extraction functions:             Float Arithmetic.
+* Root extraction functions <1>:         Float Arithmetic.
+* Root extraction functions:             Integer Roots.
 * scanf formatted input:                 Formatted Input.
 * Shared library versioning:             Notes for Package Builds.
-* Sign tests <1>:                        Comparing Rationals.
-* Sign tests <2>:                        Float Comparison.
+* Sign tests <1>:                        Float Comparison.
+* Sign tests <2>:                        Comparing Rationals.
 * Sign tests:                            Integer Comparisons.
 * Stack overflow segfaults:              Build Options.
 * Stripped libraries:                    Known Build Problems.
+* Systems:                               Notes for Particular Systems.
 * Thread safety:                         Reentrancy.
 * Types:                                 Nomenclature and Types.
 * Upward compatibility:                  Compatibility with older versions.
@@ -208,27 +235,31 @@ Function and Type Index
 
 * Menu:
 
+* *mpz_export:                           Integer Import and Export.
 * __GNU_MP_VERSION:                      Useful Macros and Constants.
 * __GNU_MP_VERSION_MINOR:                Useful Macros and Constants.
 * __GNU_MP_VERSION_PATCHLEVEL:           Useful Macros and Constants.
 * _mpz_realloc:                          Initializing Integers.
-* abs <1>:                               C++ Interface Integers.
-* abs <2>:                               C++ Interface Floats.
-* abs:                                   C++ Interface Rationals.
+* abs <1>:                               C++ Interface Floats.
+* abs <2>:                               C++ Interface Rationals.
+* abs:                                   C++ Interface Integers.
 * allocate_function:                     Custom Allocation.
 * ceil:                                  C++ Interface Floats.
 * cmp <1>:                               C++ Interface Integers.
-* cmp <2>:                               C++ Interface Floats.
-* cmp <3>:                               C++ Interface Rationals.
-* cmp <4>:                               C++ Interface Floats.
-* cmp <5>:                               C++ Interface Rationals.
-* cmp:                                   C++ Interface Integers.
+* cmp <2>:                               C++ Interface Rationals.
+* cmp:                                   C++ Interface Floats.
 * deallocate_function:                   Custom Allocation.
 * floor:                                 C++ Interface Floats.
 * gcd:                                   BSD Compatible Functions.
 * gmp_asprintf:                          Formatted Output Functions.
 * gmp_fprintf:                           Formatted Output Functions.
 * gmp_fscanf:                            Formatted Input Functions.
+* GMP_LIMB_BITS:                         Low-level Functions.
+* GMP_NAIL_BITS:                         Low-level Functions.
+* GMP_NAIL_MASK:                         Low-level Functions.
+* GMP_NUMB_BITS:                         Low-level Functions.
+* GMP_NUMB_MASK:                         Low-level Functions.
+* GMP_NUMB_MAX:                          Low-level Functions.
 * gmp_obstack_printf:                    Formatted Output Functions.
 * gmp_obstack_vprintf:                   Formatted Output Functions.
 * gmp_printf:                            Formatted Output Functions.
@@ -509,6 +540,7 @@ Function and Type Index
 * mpz_get_ui:                            Converting Integers.
 * mpz_getlimbn:                          Converting Integers.
 * mpz_hamdist:                           Integer Logic and Bit Fiddling.
+* mpz_import:                            Integer Import and Export.
 * mpz_init:                              Initializing Integers.
 * mpz_init2:                             Initializing Integers.
 * mpz_init_set:                          Simultaneous Integer Init & Assign.
@@ -587,6 +619,7 @@ Function and Type Index
 * mpz_tstbit:                            Integer Logic and Bit Fiddling.
 * mpz_ui_kronecker:                      Number Theoretic Functions.
 * mpz_ui_pow_ui:                         Integer Exponentiation.
+* mpz_ui_sub:                            Integer Arithmetic.
 * mpz_urandomb:                          Integer Random Numbers.
 * mpz_urandomm:                          Integer Random Numbers.
 * mpz_xor:                               Integer Logic and Bit Fiddling.
@@ -598,16 +631,17 @@ Function and Type Index
 * operator/:                             C++ Interface Integers.
 * operator<<:                            C++ Formatted Output.
 * operator>> <1>:                        C++ Formatted Input.
-* operator>>:                            C++ Interface Rationals.
+* operator>> <2>:                        C++ Interface Rationals.
+* operator>>:                            C++ Formatted Input.
 * pow:                                   BSD Compatible Functions.
 * reallocate_function:                   Custom Allocation.
 * rpow:                                  BSD Compatible Functions.
 * sdiv:                                  BSD Compatible Functions.
-* sgn <1>:                               C++ Interface Integers.
-* sgn <2>:                               C++ Interface Floats.
+* sgn <1>:                               C++ Interface Floats.
+* sgn <2>:                               C++ Interface Integers.
 * sgn:                                   C++ Interface Rationals.
-* sqrt <1>:                              C++ Interface Integers.
-* sqrt:                                  C++ Interface Floats.
+* sqrt <1>:                              C++ Interface Floats.
+* sqrt:                                  C++ Interface Integers.
 * trunc:                                 C++ Interface Floats.
 * xtom:                                  BSD Compatible Functions.
 

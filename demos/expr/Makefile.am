@@ -1,6 +1,6 @@
 ## Process this file with automake to generate Makefile.in
 
-# Copyright 2001 Free Software Foundation, Inc.
+# Copyright 2001, 2002 Free Software Foundation, Inc.
 #
 # This file is part of the GNU MP Library.
 #
@@ -33,13 +33,14 @@ endif
 EXTRA_DIST = exprfr.c exprfra.c
 
 EXTRA_LIBRARIES = libexpr.a
-libexpr_a_SOURCES = expr.h \
+libexpr_a_SOURCES = expr.h expr-impl.h \
   expr.c exprv.c exprz.c exprza.c exprq.c exprqa.c exprf.c exprfa.c \
   $(MPFR_SOURCES_OPTION)
-nodist_libexpr_a_SOURCES = expr-impl.h
 
+# On SunOS 4, HUGE_VAL used by mpfr infinity handling needs -lm.
+#
 EXTRA_PROGRAMS = run-expr t-expr
-LDADD = libexpr.a $(MPFR_LIBADD_OPTION) $(top_builddir)/libgmp.la
+LDADD = libexpr.a $(MPFR_LIBADD_OPTION) $(top_builddir)/libgmp.la $(LIBM)
 t_expr_LDADD = $(top_builddir)/tests/libtests.la $(LDADD)
 
 CLEANFILES = $(EXTRA_PROGRAMS) $(EXTRA_LIBRARIES)

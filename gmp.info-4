@@ -1,5 +1,18 @@
-This is gmp.info, produced by makeinfo version 4.0 from gmp.texi.
+This is gmp.info, produced by makeinfo version 4.2 from gmp.texi.
 
+This manual describes how to install and use the GNU multiple precision
+arithmetic library, version 4.1.
+
+   Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
+2001, 2002 Free Software Foundation, Inc.
+
+   Permission is granted to copy, distribute and/or modify this
+document under the terms of the GNU Free Documentation License, Version
+1.1 or any later version published by the Free Software Foundation;
+with no Invariant Sections, with the Front-Cover Texts being "A GNU
+Manual", and with the Back-Cover Texts being "You have freedom to copy
+and modify this GNU Manual, like GNU software".  A copy of the license
+is included in *Note GNU Free Documentation License::.
 INFO-DIR-SECTION GNU libraries
 START-INFO-DIR-ENTRY
 * gmp: (gmp).                   GNU Multiple Precision Arithmetic Library.
@@ -293,7 +306,8 @@ For example, {S1P, S1N}.
 
      {S1P, S1N} must have at least as many bits as {S2P, S2N}.  {S2P,
      S2N} must be odd.  Both operands must have non-zero most
-     significant limbs.
+     significant limbs.  No overlap is permitted between {S1P, S1N} and
+     {S2P, S2N}.
 
  - Function: mp_limb_t mpn_gcd_1 (const mp_limb_t *S1P, mp_size_t S1N,
           mp_limb_t S2LIMB)
@@ -345,17 +359,30 @@ For example, {S1P, S1N}.
      `A', depending on the base and range.
 
      The most significant limb of the input {S1P, S1N} must be
-     non-zero.  The area {S1P, S1N+1} is clobbered.
+     non-zero.  The input {S1P, S1N} is clobbered, except when BASE is
+     a power of 2, in which case it's unchanged.
 
      The area at STR has to have space for the largest possible number
      represented by a S1N long limb array, plus one extra character.
 
- - Function: mp_size_t mpn_set_str (mp_limb_t *R1P, const char *STR,
+ - Function: mp_size_t mpn_set_str (mp_limb_t *RP, const char *STR,
           size_t STRSIZE, int BASE)
-     Convert the raw unsigned char array at STR of length STRSIZE to a
-     limb array.  The base of STR is BASE.  STRSIZE must be at least 1.
+     Convert bytes {STR,STRSIZE} in the given BASE to limbs at RP.
 
-     Return the number of limbs stored in R1P.
+     STR[0] is the most significant byte and STR[STRSIZE-1] is the
+     least significant.  Each byte should be a value in the range 0 to
+     BASE-1, not an ASCII character.  BASE can vary from 2 to 256.
+
+     The return value is the number of limbs written to RP.  If the most
+     significant input byte is non-zero then the high limb at RP will be
+     non-zero, and only that exact number of limbs will be required
+     there.
+
+     If the most significant input byte is zero then there may be high
+     zero limbs written to RP and included in the return value.
+
+     STRSIZE must be at least 1, and no overlap is permitted between
+     {STR,STRSIZE} and the result at RP.
 
  - Function: unsigned long int mpn_scan0 (const mp_limb_t *S1P,
           unsigned long int BIT)
@@ -394,6 +421,71 @@ For example, {S1P, S1N}.
  - Function: int mpn_perfect_square_p (const mp_limb_t *S1P, mp_size_t
           N)
      Return non-zero iff {S1P, N} is a perfect square.
+
+
+Nails
+=====
+
+   *Everything in this section is highly experimental and may disappear
+or be subject to incompatible changes in a future version of GMP.*
+
+   Nails are an experimental feature whereby a few bits are left unused
+at the top of each `mp_limb_t'.  This can significantly improve carry
+handling on some processors.
+
+   All the `mpn' functions accepting limb data will expect the nail
+bits to be zero on entry, and will return data with the nails similarly
+all zero.  This applies both to limb vectors and to single limb
+arguments.
+
+   Nails can be enabled by configuring with `--enable-nails'.  By
+default the number of bits will be chosen according to what suits the
+host processor, but a particular number can be selected with
+`--enable-nails=N'.
+
+   At the mpn level, a nail build is neither source nor binary
+compatible with a non-nail build, strictly speaking.  But programs
+acting on limbs only through the mpn functions are likely to work
+equally well with either build, and judicious use of the definitions
+below should make any program compatible with either build, at the
+source level.
+
+   For the higher level routines, meaning `mpz' etc, a nail build
+should be fully source and binary compatible with a non-nail build.
+
+ - Macro: GMP_NAIL_BITS
+ - Macro: GMP_NUMB_BITS
+ - Macro: GMP_LIMB_BITS
+     `GMP_NAIL_BITS' is the number of nail bits, or 0 when nails are
+     not in use.  `GMP_NUMB_BITS' is the number of data bits in a limb.
+     `GMP_LIMB_BITS' is the total number of bits in an `mp_limb_t'.  In
+     all cases
+
+          GMP_LIMB_BITS == GMP_NAIL_BITS + GMP_NUMB_BITS
+
+ - Macro: GMP_NAIL_MASK
+ - Macro: GMP_NUMB_MASK
+     Bit masks for the nail and number parts of a limb.
+     `GMP_NAIL_MASK' is 0 when nails are not in use.
+
+     `GMP_NAIL_MASK' is not often needed, since the nail part can be
+     obtained with `x >> GMP_NUMB_BITS', and that means one less large
+     constant, which can help various RISC chips.
+
+ - Macro: GMP_NUMB_MAX
+     The maximum value that can be stored in the number part of a limb.
+     This is the same as `GMP_NUMB_MASK', but can be used for clarity
+     when doing comparisons rather than bit-wise operations.
+
+   The term "nails" comes from finger or toe nails, which are at the
+ends of a limb (arm or leg).  "numb" is short for number, but is also
+how the developers felt after trying for a long time to come up with
+sensible names for these things.
+
+   In the future (the distant future most likely) a non-zero nail might
+be permitted, giving non-unique representations for numbers in a limb
+vector.  This would help vector processors since carries would only
+ever need to propagate one or two limbs.
 
 
 File: gmp.info,  Node: Random Number Functions,  Next: Formatted Output,  Prev: Low-level Functions,  Up: Top
@@ -529,8 +621,9 @@ A format specification is of the form
      % [flags] [width] [.[precision]] [type] conv
 
    GMP adds types `Z', `Q' and `F' for `mpz_t', `mpq_t' and `mpf_t'
-respectively.  `Z' and `Q' behave like integers.  `Q' will print a `/'
-and a denominator, if needed.  `F' behaves like a float.  For example,
+respectively, and `N' for an `mp_limb_t' array.  `Z', `Q' and `N'
+behave like integers.  `Q' will print a `/' and a denominator, if
+needed.  `F' behaves like a float.  For example,
 
      mpz_t z;
      gmp_printf ("%s is an mpz %Zd\n", "here", z);
@@ -541,21 +634,33 @@ and a denominator, if needed.  `F' behaves like a float.  For example,
      mpf_t f;
      int   n;
      gmp_printf ("fixed point mpf %.*Ff with %d digits\n", n, f, n);
+     
+     const mp_limb_t *ptr;
+     mp_size_t       size;
+     gmp_printf ("limb array %Nx\n", ptr, size);
+
+   For `N' the limbs are expected least significant first, as per the
+`mpn' functions (*note Low-level Functions::).  A negative size can be
+given to print the value as a negative.
 
    All the standard C `printf' types behave the same as the C library
 `printf', and can be freely intermixed with the GMP extensions.  In the
 current implementation the standard parts of the format string are
 simply handed to `printf' and only the GMP extensions handled directly.
 
-   The flags accepted are as follows.  GLIBC style ' (*note Locales and
-Internationalization: (libc)Locales.) is only for the standard C types
-(not the GMP types), and only if the C library supports it.
+   The flags accepted are as follows.  GLIBC style ' is only for the
+standard C types (not the GMP types), and only if the C library
+supports it.
 
      0         pad with zeros (rather than spaces)
      #         show the base with `0x', `0X' or `0'
      +         always show a sign
      (space)   show a space or a `-' sign
      '         group digits, GLIBC style (not GMP types)
+
+   The optional width and precision can be given as a number within the
+format string, or as a `*' to take an extra parameter of type `int', the
+same as the standard `printf'.
 
    The standard types accepted are as follows.  `h' and `l' are
 portable, the rest will depend on the compiler (or include files) for
@@ -575,6 +680,7 @@ The GMP types are
 
      F         mpf_t, float conversions
      Q         mpq_t, integer conversions
+     N         mp_limb_t array, integer conversions
      Z         mpz_t, integer conversions
 
    The conversions accepted are as follows.  `a' and `A' are always
@@ -589,17 +695,18 @@ types.  `m' and `p' depend on the C library.
      i         same as d
      g G       fixed or scientific float
      m         `strerror' string, GLIBC style
-     n         characters written so far
+     n         store characters written so far
      o         octal integer
      p         pointer
      s         string
      u         unsigned integer
      x X       hex integer
 
-   `o', `x' and `X' are unsigned for the standard C types, but for `Z'
-and `Q' a sign is included.  `u' is not meaningful for `Z' and `Q'.
+   `o', `x' and `X' are unsigned for the standard C types, but for
+types `Z', `Q' and `N' they are signed.  `u' is not meaningful for `Z',
+`Q' and `N'.
 
-   `n' can be used with any of the types, even the GMP types.
+   `n' can be used with any type, even the GMP types.
 
    Other types or conversions that might be accepted by the C library
 `printf' cannot be used through `gmp_printf', this includes for
@@ -618,7 +725,7 @@ happens even for an `f' conversion of an `mpf_t' which is an integer,
 for instance 2^1024 in an `mpf_t' of 128 bits precision will only
 produce about 20 digits, then pad with zeros to the decimal point.  An
 empty precision field like `%.Fe' or `%.Ff' can be used to specifically
-request all significant digits.
+request just the significant digits.
 
    The decimal point character (or string) is taken from the current
 locale settings on systems which provide `localeconv' (*note Locales
@@ -753,11 +860,15 @@ available from `<gmp.h>'.
      `ostream operator<<' routines do.  The decimal point follows the
      current locale, on systems providing `localeconv'.
 
-     Hex and octal are supported, unlike the standard `operator<<'
-     routines on `double' etc.  The mantissa will be in hex or octal,
-     the exponent will be in decimal.  For hex the exponent delimiter
-     is an `@'.  This is as per `mpf_out_str'.  `ios::showbase' is
-     supported, and will put a base on the mantissa.
+     Hex and octal are supported, unlike the standard `operator<<' on
+     `double'.  The mantissa will be in hex or octal, the exponent will
+     be in decimal.  For hex the exponent delimiter is an `@'.  This is
+     as per `mpf_out_str'.
+
+     `ios::showbase' is supported, and will put a base on the mantissa,
+     for example hex `0x1.8' or `0x0.8', or octal `01.4' or `00.4'.
+     This last form is slightly strange, but at least differentiates
+     itself from decimal.
 
    These operators mean that GMP types can be printed in the usual C++
 way, for example,
@@ -1054,7 +1165,15 @@ their nature imply intermediate values, like `a=b*c+d*e', still use
 temporaries though.
 
    The classes can be freely intermixed in expressions, as can the
-classes and the standard C++ types.
+classes and the standard types `long', `unsigned long' and `double'.
+Smaller types like `int' or `float' can also be intermixed, since C++
+will promote them.
+
+   Note that `bool' is not accepted directly, but must be explicitly
+cast to an `int' first.  This is because C++ will automatically convert
+any pointer to a `bool', so if GMP accepted `bool' it would make all
+sorts of invalid class and pointer combinations compile but almost
+certainly not do anything sensible.
 
    Conversions back from the classes to standard C++ types aren't done
 automatically, instead member functions like `get_si' are provided (see
@@ -1091,76 +1210,4 @@ are simply put into the global namespace.  This is what `gmp.h' has
 done in the past, and continues to do for compatibility.  The extras
 provided by `gmpxx.h' follow GMP naming conventions and are unlikely to
 clash with anything.
-
-
-File: gmp.info,  Node: C++ Interface Integers,  Next: C++ Interface Rationals,  Prev: C++ Interface General,  Up: C++ Class Interface
-
-C++ Interface Integers
-======================
-
- - Function: void mpz_class::mpz_class (type N)
-     Construct an `mpz_class'.  All the standard C++ types may be used,
-     except `long long' and `long double', and all the GMP C++ classes
-     can be used.  Any necessary conversion follows the corresponding C
-     function, for example `double' follows `mpz_set_d' (*note
-     Assigning Integers::).
-
- - Function: void mpz_class::mpz_class (mpz_t Z)
-     Construct an `mpz_class' from an `mpz_t'.  The value in Z is
-     copied into the new `mpz_class', there won't be any permanent
-     association between it and Z.
-
- - Function: void mpz_class::mpz_class (const char *S)
- - Function: void mpz_class::mpz_class (const char *S, int base)
- - Function: void mpz_class::mpz_class (const string& S)
- - Function: void mpz_class::mpz_class (const string& S, int base)
-     Construct an `mpz_class' converted from a string using
-     `mpz_set_str', (*note Assigning Integers::).  If the BASE is not
-     given then 0 is used.
-
- - Function: mpz_class operator/ (mpz_class A, mpz_class D)
- - Function: mpz_class operator% (mpz_class A, mpz_class D)
-     Divisions involving `mpz_class' round towards zero, as per the
-     `mpz_tdiv_q' and `mpz_tdiv_r' functions (*note Integer Division::).
-     This corresponds to the rounding used for plain `int' calculations
-     on most machines.
-
-     The `mpz_fdiv...' or `mpz_cdiv...' functions can always be called
-     directly if desired.  For example,
-
-          mpz_class q, a, d;
-          ...
-          mpz_fdiv_q (q.get_mpz_t(), a.get_mpz_t(), d.get_mpz_t());
-
- - Function: mpz_class abs (mpz_class OP1)
- - Function: int cmp (mpz_class OP1, type OP2)
- - Function: int cmp (type OP1, mpz_class OP2)
- - Function: double mpz_class::get_d (void)
- - Function: long mpz_class::get_si (void)
- - Function: unsigned long mpz_class::get_ui (void)
- - Function: bool mpz_class::fits_sint_p (void)
- - Function: bool mpz_class::fits_slong_p (void)
- - Function: bool mpz_class::fits_sshort_p (void)
- - Function: bool mpz_class::fits_uint_p (void)
- - Function: bool mpz_class::fits_ulong_p (void)
- - Function: bool mpz_class::fits_ushort_p (void)
- - Function: int sgn (mpz_class OP)
- - Function: mpz_class sqrt (mpz_class OP)
-     These functions provide a C++ class interface to the corresponding
-     GMP C routines.
-
-     `cmp' can be used with any of the classes or the standard C++
-     types, except `long long' and `long double'.
-
-
-   Overloaded operators for combinations of `mpz_class' and `double'
-are provided for completeness, but it should be noted that if the given
-`double' is not an integer then the way any rounding is done is
-currently unspecified.  The rounding might take place at the start, in
-the middle, or at the end of the operation, and it might change in the
-future.
-
-   Conversions between `mpz_class' and `double', however, are defined
-to follow the corresponding C functions `mpz_get_d' and `mpz_set_d'.
-And comparisons are always made exactly, as per `mpz_cmp_d'.
 

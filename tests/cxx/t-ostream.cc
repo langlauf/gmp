@@ -1,6 +1,6 @@
 /* Test ostream formatted output.
 
-Copyright 2001 Free Software Foundation, Inc.
+Copyright 2001, 2002 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -79,8 +79,8 @@ void
 check_mpz (void)
 {
   static const struct {
-    char           *z;
-    char           *want;
+    const char     *z;
+    const char     *want;
     ios::fmtflags  flags;
     int            width;
     int            precision;
@@ -179,8 +179,8 @@ void
 check_mpq (void)
 {
   static const struct {
-    char           *q;
-    char           *want;
+    const char     *q;
+    const char     *want;
     ios::fmtflags  flags;
     int            width;
     int            precision;
@@ -260,8 +260,8 @@ void
 check_mpf (void)
 {
   static const struct {
-    char           *f;
-    char           *want;
+    const char     *f;
+    const char     *want;
     ios::fmtflags  flags;
     int            width;
     int            precision;
@@ -350,13 +350,13 @@ check_mpf (void)
     { "123",  "173", ios::oct },
     { "123", "0173", ios::oct | ios::showbase },
 
-    /* octal showbase suppressed for zero integer part */
+    /* octal showbase suppressed for 0 */
     { "0", "0", ios::oct | ios::showbase },
-    { ".125",    "0.1",  ios::oct | ios::showbase, 0, 1 },
-    { ".015625", "0.01", ios::oct | ios::showbase, 0, 2 },
-    { ".125",    "0.1",  ios::fixed | ios::oct | ios::showbase, 0, 1 },
-    { ".015625", "0.0",  ios::fixed | ios::oct | ios::showbase, 0, 1 },
-    { ".015625", "0.01", ios::fixed | ios::oct | ios::showbase, 0, 2 },
+    { ".125",    "00.1",  ios::oct | ios::showbase, 0, 1 },
+    { ".015625", "00.01", ios::oct | ios::showbase, 0, 2 },
+    { ".125",    "00.1",  ios::fixed | ios::oct | ios::showbase, 0, 1 },
+    { ".015625", "0.0",   ios::fixed | ios::oct | ios::showbase, 0, 1 },
+    { ".015625", "00.01", ios::fixed | ios::oct | ios::showbase, 0, 2 },
 
     {  "0.125",  "1.000000e-01", ios::oct | ios::scientific },
     {  "0.125", "+1.000000e-01", ios::oct | ios::scientific | ios::showpos },

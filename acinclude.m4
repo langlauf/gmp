@@ -24,6 +24,9 @@ dnl  MA 02111-1307, USA.
 define(X86_PATTERN,
 [[i?86*-*-* | k[5-8]*-*-* | pentium*-*-* | athlon-*-*]])
 
+define(POWERPC64_PATTERN,
+[[powerpc64-*-* | powerpc64le-*-* | powerpc620-*-* | powerpc630-*-*]])
+
 
 dnl  GMP_STRIP_PATH(subdir)
 dnl  ----------------------
@@ -51,14 +54,16 @@ dnl  GMP_INCLUDE_GMP_H_BITS_PER_MP_LIMB starts as a dummy, but gets
 dnl  redefined in GMP_C_SIZES when the right value is known.
 
 define(GMP_INCLUDE_GMP_H,
-[[#define __GMP_WITHIN_CONFIGURE 1   /* ignore template stuff */]
+[[#define __GMP_WITHIN_CONFIGURE 1   /* ignore template stuff */
+#define GMP_NAIL_BITS $GMP_NAIL_BITS]
 GMP_INCLUDE_GMP_H_BITS_PER_MP_LIMB
 [$DEFN_LONG_LONG_LIMB
 #include "$srcdir/gmp-h.in"]
 ])
 
 define(GMP_INCLUDE_GMP_H_BITS_PER_MP_LIMB,
-[[#define __GMP_BITS_PER_MP_LIMB 123 /* dummy for mpf_get_prec etc inlines */]])
+[[#define __GMP_BITS_PER_MP_LIMB 123 /* dummy for GMP_NUMB_BITS etc */
+#define GMP_LIMB_BITS 123]])
 
 
 dnl  GMP_HEADER_GETVAL(NAME,FILE)
@@ -86,6 +91,43 @@ define(GMP_VERSION,
 .GMP_HEADER_GETVAL(__GNU_MP_VERSION_MINOR,gmp-h.in)[]dnl
 ifelse(m4_eval(GMP_HEADER_GETVAL(__GNU_MP_VERSION_PATCHLEVEL,gmp-h.in) > 0),1,
 [.GMP_HEADER_GETVAL(__GNU_MP_VERSION_PATCHLEVEL,gmp-h.in)])])
+
+
+dnl  GMP_SUBST_CHECK_FUNCS(func,...)
+dnl  ------------------------------
+dnl  Setup an AC_SUBST of HAVE_FUNC_01 for each argument.
+
+AC_DEFUN(GMP_SUBST_CHECK_FUNCS,
+[m4_if([$1],,,
+[_GMP_SUBST_CHECK_FUNCS(ac_cv_func_[$1],HAVE_[]m4_translit([$1],[a-z],[A-Z])_01)
+GMP_SUBST_CHECK_FUNCS(m4_shift($@))])])
+
+dnl  Called: _GMP_SUBST_CHECK_FUNCS(cachvar,substvar)
+AC_DEFUN(_GMP_SUBST_CHECK_FUNCS,
+[case $[$1] in
+yes) AC_SUBST([$2],1) ;;
+no)  [$2]=0 ;;
+esac
+])
+
+
+dnl  GMP_SUBST_CHECK_HEADERS(foo.h,...)
+dnl  ----------------------------------
+dnl  Setup an AC_SUBST of HAVE_FOO_H_01 for each argument.
+
+AC_DEFUN(GMP_SUBST_CHECK_HEADERS,
+[m4_if([$1],,,
+[_GMP_SUBST_CHECK_HEADERS(ac_cv_header_[]m4_translit([$1],[./],[__]),
+HAVE_[]m4_translit([$1],[a-z./],[A-Z__])_01)
+GMP_SUBST_CHECK_HEADERS(m4_shift($@))])])
+
+dnl  Called: _GMP_SUBST_CHECK_HEADERS(cachvar,substvar)
+AC_DEFUN(_GMP_SUBST_CHECK_HEADERS,
+[case $[$1] in
+yes) AC_SUBST([$2],1) ;;
+no)  [$2]=0 ;;
+esac
+])
 
 
 dnl  GMP_COMPARE_GE(A1,B1, A2,B2, ...)
@@ -204,6 +246,23 @@ HOST_CC=$gmp_cv_prog_host_cc
 ])
 
 
+dnl  GMP_PROG_LEX
+dnl  ------------
+dnl  AC_PROG_LEX bombs if $LEX is set to ${am_missing_run}flex by
+dnl  AM_PROG_LEX.  It needs to see LEX=: if lex is missing.  Avoid this by
+dnl  running AC_PROG_LEX first and then using "missing".
+dnl
+dnl  FIXME: This can be removed and just AM_PROG_LEX used, one that macro
+dnl  works properly.
+
+AC_DEFUN(GMP_PROG_LEX,
+[AC_REQUIRE([AC_PROG_LEX])
+if test "$LEX" = :; then
+  LEX=${am_missing_run}flex
+fi
+])
+
+
 dnl  GMP_PROG_M4
 dnl  -----------
 dnl  Find a working m4, either in $PATH or likely locations, and setup $M4
@@ -317,10 +376,27 @@ dnl  to get the "checking" message printed though.
 
 AC_DEFUN(GMP_PROG_NM,
 [dnl  Make sure we're the first to call AC_PROG_NM, so our extra flags are
- dnl  used by everyone.
+dnl   used by everyone.
 AC_BEFORE([$0],[AC_PROG_NM])
 gmp_user_NM=$NM
 AC_PROG_NM
+
+# FIXME: When cross compiling (ie. $ac_tool_prefix not empty), libtool
+# defaults to plain "nm" if a "${ac_tool_prefix}nm" is not found.  In this
+# case run it again to try the native "nm", firstly so that likely locations
+# are searched, secondly so that -B or -p are added if necessary for BSD
+# format.  This is necessary for instance on OSF with "./configure
+# --build=alphaev5-dec-osf --host=alphaev6-dec-osf".
+#
+if test -z "$gmp_user_NM" && test -n "$ac_tool_prefix" && test "$NM" = nm; then
+  $as_unset lt_cv_path_NM
+  gmp_save_ac_tool_prefix=$ac_tool_prefix
+  ac_tool_prefix=
+  NM=
+  AC_PROG_NM
+  ac_tool_prefix=$gmp_save_ac_tool_prefix
+fi
+
 if test -z "$gmp_user_NM"; then
                         eval nmflags=\"\$nm${abi1}_flags\"
   test -n "$nmflags" || eval nmflags=\"\$nm${abi2}_flags\"
@@ -365,6 +441,14 @@ void *f() { return g(); }
    least) doesn't know.  */
 int n;
 int cmov () { return (n >= 0 ? n : 0); }
+
+/* The following provokes a linker invocation problem with gcc 3.0.3
+   on AIX 4.3 under "-maix64 -mpowerpc64 -mcpu=630".  The -mcpu=630
+   option causes gcc to incorrectly select the 32-bit libgcc.a, not
+   the 64-bit one, and consequently it misses out on the __fixunsdfdi
+   helper (double -> uint64 conversion).  */
+double d;
+unsigned long gcc303 () { return (unsigned long) d; }
 
 int main () { return 0; }
 EOF
@@ -451,7 +535,7 @@ AC_DEFUN(GMP_HPC_HPPA_2_0,
 #   ccom: HP92453-01 A.10.32.30 HP C Compiler
 # Let A.10.32.30 or higher be ok.
 echo >conftest.c
-gmp_tmp_vs=`$1 $2 -V -c -o conftest.o conftest.c 2>&1 | grep "^ccom:"`
+gmp_tmp_vs=`$1 $2 -V -c -o conftest.$OBJEXT conftest.c 2>&1 | grep "^ccom:"`
 echo "Version string: $gmp_tmp_vs" >&AC_FD_CC
 rm conftest*
 gmp_tmp_v1=`echo $gmp_tmp_vs | sed 's/.* .\.\(.*\)\..*\..* HP C.*/\1/'`
@@ -584,6 +668,39 @@ m68*-*-*)
   fi
   ;;
 esac
+])
+
+
+dnl  GMP_GCC_MIPS_O32(gcc,[actions-yes][,[actions-no]])
+dnl  -------------------------------------------------
+dnl  Test whether gcc supports o32.
+dnl
+dnl  gcc 2.7.2.2 only does o32, and doesn't accept -mabi=32.
+dnl
+dnl  gcc 2.95 accepts -mabi=32 but it only works on irix5, on irix6 it gives
+dnl  "cc1: The -mabi=32 support does not work yet".
+
+AC_DEFUN(GMP_GCC_MIPS_O32,
+[AC_MSG_CHECKING([whether gcc supports o32])
+echo 'int x;' >conftest.c
+echo "$1 -mabi=32 -c conftest.c" >&AC_FD_CC
+if $1 -mabi=32 -c conftest.c >conftest.out 2>&1; then
+  result=yes
+else
+  cat conftest.out >&AC_FD_CC
+  if grep "cc1: Invalid option \`abi=32'" conftest.out >/dev/null; then
+    result=yes
+  else
+    result=no
+  fi
+fi
+rm -f conftest.*
+AC_MSG_RESULT($result)
+if test $result = yes; then
+  ifelse([$2],,:,[$2])
+else
+  ifelse([$3],,:,[$3])
+fi
 ])
 
 
@@ -858,7 +975,7 @@ EOF
 EOF
     ;;
   esac
-  gmp_compile="$CC $CFLAGS $CPPFLAGS conftes1.c conftes2.s >&AC_FD_CC"
+  gmp_compile="$CC $CFLAGS $CPPFLAGS -c conftes1.c >&AC_FD_CC && $CCAS $CFLAGS conftes2.s >&AC_FD_CC && $CC $CFLAGS conftes1.$OBJEXT conftes2.$OBJEXT >&AC_FD_CC"
   if AC_TRY_EVAL(gmp_compile); then
     eval tmp_result$tmp_underscore=yes
   else
@@ -908,7 +1025,7 @@ AC_CACHE_CHECK([if .align assembly directive is logarithmic],
 	.align	4
 foo$gmp_cv_asm_label_suffix
 	.byte	2],
-  [gmp_tmp_val=[`$NM conftest.o | grep foo | \
+  [gmp_tmp_val=[`$NM conftest.$OBJEXT | grep foo | \
      sed -e 's;[[][0-9][]]\(.*\);\1;' -e 's;[^1-9]*\([0-9]*\).*;\1;'`]
   if test "$gmp_tmp_val" = "10" || test "$gmp_tmp_val" = "16"; then
     gmp_cv_asm_align_log=yes
@@ -1164,36 +1281,63 @@ dnl  GMP_ASM_LSYM_PREFIX
 dnl  -------------------
 dnl  What is the prefix for a local label?
 dnl
-dnl  FIXME: Consider validating $NM by first requiring that gurkmacka shows
-dnl  up when unprefixed.
+dnl  The prefixes tested are,
+dnl
+dnl      L  - usual for underscore systems
+dnl      .L - usual for non-underscore systems
+dnl      $  - alpha (gas and OSF system assembler)
+dnl      L$ - hppa (gas and HP-UX system assembler)
+dnl
+dnl  The default is "L" if the tests fail for any reason.  There's a good
+dnl  chance this will be adequate, since on most systems labels are local
+dnl  anyway unless given a ".globl", and an "L" will avoid clashes with
+dnl  other identifers.
+dnl
+dnl  For gas, ".L" is normally purely local to the assembler, it doesn't get
+dnl  put into the object file at all.  This style is preferred, to keep the
+dnl  object files nice and clean.
+dnl
+dnl  BSD format nm produces a line like the following.  The lower case "t"
+dnl  indicates a local text segment label.  On OSF with "nm -B", an "N" is
+dnl  printed instead.
+dnl
+dnl      00000000 t Lgurkmacka
+dnl
+dnl  HP-UX nm prints an error message (though seems to give a 0 exit) if
+dnl  there's no symbols at all in an object file, hence the use of "dummy".
 
 AC_DEFUN(GMP_ASM_LSYM_PREFIX,
 [AC_REQUIRE([GMP_ASM_LABEL_SUFFIX])
 AC_REQUIRE([GMP_PROG_NM])
 AC_CACHE_CHECK([what prefix to use for a local label], 
                gmp_cv_asm_lsym_prefix,
-[gmp_cv_asm_lsym_prefix="L"
-gmp_found=no
-for gmp_tmp_pre in L .L $ L$; do
+[for gmp_tmp_pre in L .L $ L$; do
   echo "Trying $gmp_tmp_pre" >&AC_FD_CC
   GMP_TRY_ASSEMBLE(
 [dummy${gmp_cv_asm_label_suffix}
-${gmp_tmp_pre}gurkmacka${gmp_cv_asm_label_suffix}
-	.byte 0],
-  [$NM conftest.o >&AC_FD_CC 2>&AC_FD_CC
-  if test $? != 0; then
-    AC_MSG_WARN([NM failure, using default local label $gmp_cv_asm_lsym_prefix])
-    gmp_found=yes
+${gmp_tmp_pre}gurkmacka${gmp_cv_asm_label_suffix}],
+  [if $NM conftest.$OBJEXT >conftest.nm 2>&AC_FD_CC; then : ; else
+    cat conftest.nm >&AC_FD_CC
+    AC_MSG_WARN(["$NM" failure])
     break
   fi
-  if $NM conftest.o | grep gurkmacka >/dev/null; then : ; else
+  cat conftest.nm >&AC_FD_CC
+  if grep gurkmacka conftest.nm >/dev/null; then : ; else
+    # no mention of the symbol, this is good
     gmp_cv_asm_lsym_prefix="$gmp_tmp_pre"
-    gmp_found=yes
     break
-  fi])
+  fi
+  if grep [' [Nt] .*gurkmacka'] conftest.nm >/dev/null; then
+    # symbol mentioned as a local, use this if nothing better
+    if test -z "$gmp_cv_asm_lsym_prefix"; then
+      gmp_cv_asm_lsym_prefix="$gmp_tmp_pre"
+    fi
+  fi
+  ])
 done
 rm -f conftest*
-if test $gmp_found = no; then
+if test -z "$gmp_cv_asm_lsym_prefix"; then
+  gmp_cv_asm_lsym_prefix=L
   AC_MSG_WARN([cannot determine local label, using default $gmp_cv_asm_lsym_prefix])
 fi
 ])
@@ -1232,7 +1376,7 @@ AC_CACHE_CHECK([how to define a 32-bit word],
 	$gmp_tmp_op	0
 foo$gmp_cv_asm_label_suffix
 	.byte	0],
-        [gmp_tmp_val=[`$NM conftest.o | grep foo | \
+        [gmp_tmp_val=[`$NM conftest.$OBJEXT | grep foo | \
           sed -e 's;[[][0-9][]]\(.*\);\1;' -e 's;[^1-9]*\([0-9]*\).*;\1;'`]
         if test "$gmp_tmp_val" = 4; then
           gmp_cv_asm_w32="$gmp_tmp_op"
@@ -1273,7 +1417,7 @@ AC_DEFUN(GMP_ASM_X86_MMX,
 [gmp_cv_asm_x86_mmx=yes
 case $host in
 *-*-solaris*)
-  if (dis conftest.o >conftest.out) 2>/dev/null; then
+  if (dis conftest.$OBJEXT >conftest.out) 2>/dev/null; then
     if grep "0f 6f c1" conftest.out >/dev/null; then
       gmp_cv_asm_x86_mmx=movq-bug
     fi
@@ -1672,6 +1816,284 @@ fi
 ])
 
 
+dnl  GMP_C_DOUBLE_FORMAT
+dnl  -------------------
+dnl  Determine the floating point format.
+dnl
+dnl  The object file is grepped, in order to work when cross compiling.  A
+dnl  start and end sequence is included to avoid false matches, and
+dnl  allowance is made for the desired data crossing an "od -b" line
+dnl  boundary.  The test number is a small integer so it should appear
+dnl  exactly, no rounding or truncation etc.
+dnl
+dnl  "od -b", incidentally, is supported even by Unix V7, and the awk script
+dnl  used doesn't have functions or anything, so even an "old" awk should
+dnl  suffice.
+
+AC_DEFUN(GMP_C_DOUBLE_FORMAT,
+[AC_REQUIRE([AC_PROG_CC])
+AC_REQUIRE([AC_PROG_AWK])
+AC_CACHE_CHECK([format of `double' floating point],
+                gmp_cv_c_double_format,
+[gmp_cv_c_double_format=unknown
+cat >conftest.c <<\EOF
+[struct {
+  char    before[8];
+  double  x;
+  char    after[8];
+} foo = {
+  { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF },
+  -123456789.0,
+  { 0xFE, 0xDC, 0xBA, 0x98, 0x76, 0x54, 0x32, 0x10 },
+};]
+EOF
+gmp_compile="$CC $CFLAGS $CPPFLAGS -c conftest.c >&AC_FD_CC 2>&1"
+if AC_TRY_EVAL(gmp_compile); then
+cat >conftest.awk <<\EOF
+[
+BEGIN {
+  found = 0
+}
+
+{
+  for (f = 2; f <= NF; f++)
+    {
+      for (i = 0; i < 23; i++)
+        got[i] = got[i+1];
+      got[23] = $f;
+
+      # match the special begin and end sequences
+      if (got[0] != "001") continue
+      if (got[1] != "043") continue
+      if (got[2] != "105") continue
+      if (got[3] != "147") continue
+      if (got[4] != "211") continue
+      if (got[5] != "253") continue
+      if (got[6] != "315") continue
+      if (got[7] != "357") continue
+      if (got[16] != "376") continue
+      if (got[17] != "334") continue
+      if (got[18] != "272") continue
+      if (got[19] != "230") continue
+      if (got[20] != "166") continue
+      if (got[21] != "124") continue
+      if (got[22] != "062") continue
+      if (got[23] != "020") continue
+
+      saw = " (" got[8] " " got[9] " " got[10] " " got[11] " " got[12] " " got[13] " " got[14] " " got[15] ")"
+
+      if (got[8]  == "000" &&  \
+          got[9]  == "000" &&  \
+          got[10] == "000" &&  \
+          got[11] == "124" &&  \
+          got[12] == "064" &&  \
+          got[13] == "157" &&  \
+          got[14] == "235" &&  \
+          got[15] == "301")
+        {
+          print "IEEE little endian"
+          found = 1
+          exit
+        }
+
+      # ARM style little endian but with the two 4-byte halves swapped
+      if (got[8]  == "064" &&  \
+          got[9]  == "157" &&  \
+          got[10] == "235" &&  \
+          got[11] == "301" &&  \
+          got[12] == "000" &&  \
+          got[13] == "000" &&  \
+          got[14] == "000" &&  \
+          got[15] == "124")
+        {
+          print "IEEE little endian, swapped halves"
+          found = 1
+          exit
+        }
+
+      if (got[8]  == "301" &&  \
+          got[9]  == "235" &&  \
+          got[10] == "157" &&  \
+          got[11] == "064" &&  \
+          got[12] == "124" &&  \
+          got[13] == "000" &&  \
+          got[14] == "000" &&  \
+	  got[15] == "000")
+        {
+          print "IEEE big endian"
+          found = 1
+          exit
+        }
+
+      if (got[8]  == "353" &&  \
+          got[9]  == "315" &&  \
+          got[10] == "242" &&  \
+          got[11] == "171" &&  \
+          got[12] == "000" &&  \
+          got[13] == "240" &&  \
+          got[14] == "000" &&  \
+          got[15] == "000")
+        {
+          print "VAX D"
+          found = 1
+          exit
+        }
+
+      if (got[8]  == "275" &&  \
+          got[9]  == "301" &&  \
+          got[10] == "064" &&  \
+          got[11] == "157" &&  \
+          got[12] == "000" &&  \
+          got[13] == "124" &&  \
+          got[14] == "000" &&  \
+          got[15] == "000")
+        {
+          print "VAX G"
+          found = 1
+          exit
+        }
+
+      if (got[8]  == "300" &&  \
+          got[9]  == "033" &&  \
+          got[10] == "353" &&  \
+          got[11] == "171" &&  \
+          got[12] == "242" &&  \
+          got[13] == "240" &&  \
+          got[14] == "000" &&  \
+          got[15] == "000")
+        {
+          print "Cray CFP"
+          found = 1
+          exit
+        }
+    }
+}
+
+END {
+  if (! found)
+    print "unknown", saw
+}
+]
+EOF
+  gmp_cv_c_double_format=`od -b conftest.$OBJEXT | $AWK -f conftest.awk`
+  case $gmp_cv_c_double_format in
+  unknown*)
+    echo "cannot match anything, conftest.$OBJEXT contains" >&AC_FD_CC
+    od -b conftest.$OBJEXT >&AC_FD_CC
+    ;;
+  esac
+else
+  AC_MSG_WARN([oops, cannot compile test program])
+fi
+])
+
+AH_VERBATIM([HAVE_DOUBLE],
+[/* Define one (and only one) of the following for the format of a `double'.
+   If your format is not among these choices, or you don't know what it is,
+   then leave all of them undefined.
+   "IEEE_LITTLE_SWAPPED" means little endian, but with the two 4-byte halves
+   swapped, as used by ARM CPUs in little endian mode.  */
+#undef HAVE_DOUBLE_IEEE_BIG_ENDIAN
+#undef HAVE_DOUBLE_IEEE_LITTLE_ENDIAN
+#undef HAVE_DOUBLE_IEEE_LITTLE_SWAPPED
+#undef HAVE_DOUBLE_VAX_D
+#undef HAVE_DOUBLE_VAX_G
+#undef HAVE_DOUBLE_CRAY_CFP])
+
+case $gmp_cv_c_double_format in
+  "IEEE big endian")
+    AC_DEFINE(HAVE_DOUBLE_IEEE_BIG_ENDIAN, 1) ;;
+  "IEEE little endian")
+    AC_DEFINE(HAVE_DOUBLE_IEEE_LITTLE_ENDIAN, 1) ;;
+  "IEEE little endian, swapped halves")
+    AC_DEFINE(HAVE_DOUBLE_IEEE_LITTLE_SWAPPED, 1) ;;
+  "VAX D")
+    AC_DEFINE(HAVE_DOUBLE_VAX_D, 1) ;;
+  "VAX G")
+    AC_DEFINE(HAVE_DOUBLE_VAX_G, 1) ;;
+  "Cray CFP")
+    AC_DEFINE(HAVE_DOUBLE_CRAY_CFP, 1) ;;
+  unknown*)
+    ;;
+  *) 
+    AC_MSG_WARN([oops, unrecognised float format: $gmp_cv_c_double_format])
+    ;;
+esac
+])
+
+
+dnl  GMP_C_INLINE
+dnl  ------------
+dnl  Establish an "inline" keyword, if possible.
+dnl
+dnl  This is the same as AC_C_INLINE, but introduing a typedef into the test
+dnl  program.  Some versions of HP C succeed when the return value is a
+dnl  plain builtin type like "int", but fail when it's a typedef.
+dnl
+dnl  FIXME: Hopefully autoconf will do this extra itself one day.
+
+AC_DEFUN(GMP_C_INLINE,
+[AC_CACHE_CHECK([for inline], gmp_cv_c_inline,
+[gmp_cv_c_inline=no
+for i in inline __inline__ __inline; do
+  AC_TRY_COMPILE(
+[#ifndef __cplusplus
+typedef int foo_t;
+$i foo_t func1 () { return 0; }
+static $i foo_t func2 () { return 0; }
+#endif], ,
+    [gmp_cv_c_inline=$i
+    break])
+done
+if test $gmp_cv_c_inline = inline; then
+  gmp_cv_c_inline=yes
+fi
+])
+case $gmp_cv_c_inline in
+  inline | yes) ;;
+  no) AC_DEFINE(inline,,
+                [Define as `__inline' if that's what the C compiler calls it,
+                 or to nothing if it is not supported.]) ;;
+  *)  AC_DEFINE_UNQUOTED(inline, $gmp_cv_c_inline) ;;
+esac
+])
+
+
+dnl  GMP_C_RESTRICT
+dnl  --------------
+dnl  Establish a "restrict" keyword, if possible, like AC_C_INLINE.
+dnl
+dnl  If restrict works already, then do nothing.  Otherwise AC_DEFINE it to
+dnl  __restrict__ or __restrict if they work, or to empty otherwise.
+dnl
+dnl  "restrict" is in C99.  GCC 2.95 and up has it in c99 mode, and also as
+dnl  __restrict__ and __restrict in all modes.
+dnl
+dnl  "yes" is used in the cache variable if plain "restrict" works, to make
+dnl  the configure message look nicer.
+
+AC_DEFUN(GMP_C_RESTRICT,
+[AC_CACHE_CHECK([for restrict], gmp_cv_c_restrict,
+[gmp_cv_c_restrict=no
+for r in restrict __restrict__ __restrict; do
+  AC_TRY_COMPILE(, [char * $r foo;],
+    [gmp_cv_c_restrict=$r
+    break])
+done
+if test $gmp_cv_c_restrict = restrict; then
+  gmp_cv_c_restrict=yes
+fi
+])
+case $gmp_cv_c_restrict in
+  restrict | yes) ;;
+  no) AC_DEFINE(restrict,,
+                [Define as `__restrict' if that's what the C compiler calls it,
+                 or to nothing if it is not supported.]) ;;
+  *)  AC_DEFINE_UNQUOTED(restrict, $gmp_cv_c_restrict) ;;
+esac
+])
+
+
 dnl  GMP_C_SIZES
 dnl  -----------
 dnl  Determine some sizes, if not alredy provided by gmp-mparam.h.
@@ -1682,7 +2104,7 @@ dnl  preprocessing time when building the library, for use in #if
 dnl  conditionals.
 dnl
 dnl  BITS_PER_MP_LIMB is also wanted as a plain constant for some macros in
-dnl  the generated gmp.h, and is instantiated as __GMP_BITS_PER_MP_LIMB.
+dnl  the generated gmp.h, and is instantiated as BITS_PER_MP_LIMB.
 dnl
 dnl  If some assembler code depends on a particular type size it's probably
 dnl  best to put explicit #defines for these in gmp-mparam.h.  That way if
@@ -1700,8 +2122,8 @@ dnl  ulongs with bits=8*sizeof, so it's academic.  Strange systems can
 dnl  always have the right values put in gmp-mparam.h explicitly.
 
 AC_DEFUN(GMP_C_SIZES,
-[__GMP_BITS_PER_MP_LIMB=[`sed -n 's/^#define BITS_PER_MP_LIMB[ 	][ 	]*\([0-9]*\).*$/\1/p' $gmp_mparam_source`]
-if test -n "$__GMP_BITS_PER_MP_LIMB" \
+[BITS_PER_MP_LIMB=[`sed -n 's/^#define BITS_PER_MP_LIMB[ 	][ 	]*\([0-9]*\).*$/\1/p' $gmp_mparam_source`]
+if test -n "$BITS_PER_MP_LIMB" \
    && grep "^#define BYTES_PER_MP_LIMB" $gmp_mparam_source >/dev/null; then : ;
 else
   AC_CHECK_SIZEOF(mp_limb_t,,
@@ -1710,8 +2132,8 @@ GMP_INCLUDE_GMP_H)
   if test "$ac_cv_sizeof_mp_limb_t" = 0; then
     AC_MSG_ERROR([some sort of compiler problem, mp_limb_t doesn't seem to work])
   fi
-  if test -z "$__GMP_BITS_PER_MP_LIMB"; then
-    __GMP_BITS_PER_MP_LIMB="(8*$ac_cv_sizeof_mp_limb_t)"
+  if test -z "$BITS_PER_MP_LIMB"; then
+    BITS_PER_MP_LIMB="(8*$ac_cv_sizeof_mp_limb_t)"
   fi
   if grep "^#define BYTES_PER_MP_LIMB" $gmp_mparam_source >/dev/null; then : ;
   else
@@ -1719,9 +2141,10 @@ GMP_INCLUDE_GMP_H)
                        [bytes per mp_limb_t, if not in gmp-mparam.h])
   fi
 fi
-AC_SUBST(__GMP_BITS_PER_MP_LIMB)
+AC_SUBST(BITS_PER_MP_LIMB)
 define([GMP_INCLUDE_GMP_H_BITS_PER_MP_LIMB],
-[[#define __GMP_BITS_PER_MP_LIMB $__GMP_BITS_PER_MP_LIMB]])
+[[#define __GMP_BITS_PER_MP_LIMB $BITS_PER_MP_LIMB
+#define GMP_LIMB_BITS $BITS_PER_MP_LIMB]])
 
 if grep "^#define BITS_PER_ULONG" $gmp_mparam_source >/dev/null; then : ;
 else
@@ -2016,8 +2439,8 @@ dnl  If the compiler has an "inline" of some sort, check whether the
 dnl  #ifdef's in gmp.h recognise it.
 
 AC_DEFUN(GMP_H_EXTERN_INLINE,
-[AC_REQUIRE([AC_C_INLINE])
-case $ac_cv_c_inline in
+[AC_REQUIRE([GMP_C_INLINE])
+case $gmp_cv_c_inline in
 no) ;;
 *)
   AC_TRY_COMPILE(
@@ -2026,9 +2449,9 @@ GMP_INCLUDE_GMP_H
 die die die
 #endif
 ],,,
-  [case $ac_cv_c_inline in
-  "") tmp_inline=inline ;;
-  *)  tmp_inline=$ac_cv_c_inline ;;
+  [case $gmp_cv_c_inline in
+  yes) tmp_inline=inline ;;
+  *)   tmp_inline=$gmp_cv_c_inline ;;
   esac    
   AC_MSG_WARN([gmp.h doesnt recognise compiler "$tmp_inline", inlines will be unavailable])])
   ;;

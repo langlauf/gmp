@@ -22,7 +22,8 @@
 # MA 02111-1307, USA.
 
 
-# Libtool -version-info for libgmp.la and libmp.la.  See (libtool)Versioning
+# Libtool -version-info for libgmp.la and libmp.la.  See "Versioning" in the
+# libtool manual.
 #
 # 1. No interfaces changed, only implementations (good): Increment REVISION.
 #
@@ -43,42 +44,41 @@
 #        3.1.1    4:1:1      -     4:1:1
 #        4.0      5:0:2    3:0:0   4:2:1
 #        4.0.1    5:1:2    3:1:0   4:3:1
+#        4.1      6:0:3    3:2:0   4:4:1
 #
 # Starting at 3:0:0 is a slight abuse of the versioning system, but it
 # ensures we're past soname libgmp.so.2, which was used on Debian GNU/Linux
 # packages of gmp 2.  Pretend gmp 2 was 2:0:0, so the interface changes for
 # gmp 3 mean 3:0:0 is right.
 
-LIBGMP_LT_CURRENT =  5
-LIBGMP_LT_REVISION = 1
-LIBGMP_LT_AGE =      2
+LIBGMP_LT_CURRENT =  6
+LIBGMP_LT_REVISION = 0
+LIBGMP_LT_AGE =      3
 
 LIBGMPXX_LT_CURRENT =  3
-LIBGMPXX_LT_REVISION = 1
+LIBGMPXX_LT_REVISION = 2
 LIBGMPXX_LT_AGE =      0
 
 LIBMP_LT_CURRENT =  4
-LIBMP_LT_REVISION = 3
+LIBMP_LT_REVISION = 4
 LIBMP_LT_AGE =      1
 
 
 AUTOMAKE_OPTIONS = gnu no-dependencies ansi2knr
+ACLOCAL_AMFLAGS = -I mpfr
 
-# mpfr temporarily removed from the distribution
-MPFR_DIR =
-#
-# # FIXME: This is a workaround for automake not allowing info_TEXINFOS to be
-# # conditionalized.  We want mpfr/mpfr.info only installed under
-# # --enable-mpfr, but it and the rest of mpfr always included in a "make
-# # dist".
-# if WANT_MPFR
-# MPFR_DIR = mpfr
-# else
-# if MAINTAINER_MODE
-# MPFR_DIR = mpfr
-# endif
-# endif
 
+# FIXME: This is a workaround for automake not allowing info_TEXINFOS to be
+# conditionalized.  We want mpfr/mpfr.info only installed under
+# --enable-mpfr, but it and the rest of mpfr always included in a "make
+# dist".
+if WANT_MPFR
+MPFR_DIR = mpfr
+else
+if MAINTAINER_MODE
+MPFR_DIR = mpfr
+endif
+endif
 
 # "tests" ahead of "mpfr" ensures tests/t-constants is run before the
 # mpfr/tests programs.
@@ -143,7 +143,7 @@ MPZ_OBJECTS = mpz/abs$U.lo mpz/add$U.lo mpz/add_ui$U.lo			\
   mpz/cong$U.lo mpz/cong_2exp$U.lo mpz/cong_ui$U.lo			\
   mpz/divexact$U.lo mpz/divegcd$U.lo mpz/dive_ui$U.lo			\
   mpz/divis$U.lo mpz/divis_ui$U.lo mpz/divis_2exp$U.lo mpz/dump$U.lo	\
-  mpz/fac_ui$U.lo mpz/fdiv_q$U.lo					\
+  mpz/export$U.lo mpz/fac_ui$U.lo mpz/fdiv_q$U.lo			\
   mpz/fdiv_q_ui$U.lo mpz/fdiv_qr$U.lo mpz/fdiv_qr_ui$U.lo		\
   mpz/fdiv_r$U.lo mpz/fdiv_r_ui$U.lo					\
   mpz/fdiv_ui$U.lo mpz/fib_ui$U.lo mpz/fib2_ui$U.lo mpz/fits_sint$U.lo	\
@@ -151,7 +151,8 @@ MPZ_OBJECTS = mpz/abs$U.lo mpz/add$U.lo mpz/add_ui$U.lo			\
   mpz/fits_ulong$U.lo mpz/fits_ushort$U.lo mpz/gcd$U.lo			\
   mpz/gcd_ui$U.lo mpz/gcdext$U.lo mpz/get_d$U.lo mpz/get_d_2exp$U.lo	\
   mpz/get_si$U.lo mpz/get_str$U.lo mpz/get_ui$U.lo mpz/getlimbn$U.lo	\
-  mpz/hamdist$U.lo mpz/init$U.lo mpz/init2$U.lo mpz/inp_raw$U.lo	\
+  mpz/hamdist$U.lo							\
+  mpz/import$U.lo mpz/init$U.lo mpz/init2$U.lo mpz/inp_raw$U.lo		\
   mpz/inp_str$U.lo mpz/invert$U.lo					\
   mpz/ior$U.lo mpz/iset$U.lo mpz/iset_d$U.lo mpz/iset_si$U.lo		\
   mpz/iset_str$U.lo mpz/iset_ui$U.lo mpz/jacobi$U.lo mpz/kronsz$U.lo	\
@@ -173,7 +174,7 @@ MPZ_OBJECTS = mpz/abs$U.lo mpz/add$U.lo mpz/add_ui$U.lo			\
   mpz/tdiv_ui$U.lo mpz/tdiv_q$U.lo mpz/tdiv_q_2exp$U.lo			\
   mpz/tdiv_q_ui$U.lo mpz/tdiv_qr$U.lo mpz/tdiv_qr_ui$U.lo		\
   mpz/tdiv_r$U.lo mpz/tdiv_r_2exp$U.lo mpz/tdiv_r_ui$U.lo		\
-  mpz/tstbit$U.lo mpz/ui_pow_ui$U.lo mpz/urandomb$U.lo			\
+  mpz/tstbit$U.lo mpz/ui_pow_ui$U.lo mpz/ui_sub$U.lo mpz/urandomb$U.lo	\
   mpz/urandomm$U.lo mpz/xor$U.lo
 
 MPQ_OBJECTS = mpq/abs$U.lo mpq/aors$U.lo				\
@@ -206,9 +207,10 @@ SCANF_OBJECTS =							\
   scanf/scanf$U.lo scanf/sscanf$U.lo scanf/sscanffuns$U.lo	\
   scanf/vfscanf$U.lo scanf/vscanf$U.lo scanf/vsscanf$U.lo
 
-CXX_OBJECTS =								\
-   cxx/isfuns$U.lo cxx/ismpf$U.lo cxx/ismpq$U.lo cxx/ismpz$U.lo		\
-   cxx/osdoprnti$U.lo cxx/osmpf$U.lo cxx/osmpq$U.lo cxx/osmpz$U.lo
+CXX_OBJECTS =							\
+  cxx/isfuns$U.lo cxx/ismpf$U.lo cxx/ismpq$U.lo cxx/ismpz$U.lo	\
+  cxx/osdoprnti$U.lo cxx/osfuns$U.lo				\
+  cxx/osmpf$U.lo cxx/osmpq$U.lo cxx/osmpz$U.lo
 
 MPBSD_OBJECTS = mpbsd/add$U.lo mpbsd/tdiv_qr$U.lo mpbsd/set$U.lo	\
   mpbsd/powm$U.lo mpbsd/sub$U.lo mpbsd/cmp$U.lo mpbsd/mfree$U.lo	\
@@ -250,7 +252,7 @@ libgmp_la_LDFLAGS = $(GMP_LDFLAGS) \
 if WANT_CXX
 GMPXX_LTLIBRARIES_OPTION = libgmpxx.la
 endif
-libgmpxx_la_SOURCES = cxx/osfuns.cc
+libgmpxx_la_SOURCES = dummy.cc
 libgmpxx_la_DEPENDENCIES = $(CXX_OBJECTS)
 libgmpxx_la_LIBADD = $(libgmpxx_la_DEPENDENCIES) libgmp.la
 libgmpxx_la_LDFLAGS = $(GMP_LDFLAGS) \
@@ -290,7 +292,13 @@ info_TEXINFOS = gmp.texi
 gmp_TEXINFOS = fdl.texi
 
 
-# Don't ship CVS directories or emacs backups.
+# Avoid: CVS - cvs directories
+#        *~  - emacs backups
+#        .#* - cvs merge originals
+#
+# *~ and .#* only occur when a whole directory without it's own Makefile.am
+# is distributed, like "doc" or the mpn cpu subdirectories.
+#
 dist-hook:
-	-find $(distdir) \( -name CVS -type d \) -o -name "*~" \
+	-find $(distdir) \( -name CVS -type d \) -o -name "*~" -o -name ".#*" \
 		| xargs rm -rf

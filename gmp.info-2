@@ -1,9 +1,108 @@
-This is gmp.info, produced by makeinfo version 4.0 from gmp.texi.
+This is gmp.info, produced by makeinfo version 4.2 from gmp.texi.
 
+This manual describes how to install and use the GNU multiple precision
+arithmetic library, version 4.1.
+
+   Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
+2001, 2002 Free Software Foundation, Inc.
+
+   Permission is granted to copy, distribute and/or modify this
+document under the terms of the GNU Free Documentation License, Version
+1.1 or any later version published by the Free Software Foundation;
+with no Invariant Sections, with the Front-Cover Texts being "A GNU
+Manual", and with the Back-Cover Texts being "You have freedom to copy
+and modify this GNU Manual, like GNU software".  A copy of the license
+is included in *Note GNU Free Documentation License::.
 INFO-DIR-SECTION GNU libraries
 START-INFO-DIR-ENTRY
 * gmp: (gmp).                   GNU Multiple Precision Arithmetic Library.
 END-INFO-DIR-ENTRY
+
+
+File: gmp.info,  Node: Reentrancy,  Next: Useful Macros and Constants,  Prev: Memory Management,  Up: GMP Basics
+
+Reentrancy
+==========
+
+   GMP is reentrant and thread-safe, with some exceptions:
+
+   * If configured with `--enable-alloca=malloc-notreentrant' (or with
+     `--enable-alloca=notreentrant' when `alloca' is not available),
+     then naturally GMP is not reentrant.
+
+   * `mpf_set_default_prec' and `mpf_init' use a global variable for the
+     selected precision.  `mpf_init2' can be used instead.
+
+   * `mpz_random' and the other old random number functions use a global
+     random state and are hence not reentrant.  The newer random number
+     functions that accept a `gmp_randstate_t' parameter can be used
+     instead.
+
+   * `mp_set_memory_functions' uses global variables to store the
+     selected memory allocation functions.
+
+   * If the memory allocation functions set by a call to
+     `mp_set_memory_functions' (or `malloc' and friends by default) are
+     not reentrant, then GMP will not be reentrant either.
+
+   * If the standard I/O functions such as `fwrite' are not reentrant
+     then the GMP I/O functions using them will not be reentrant either.
+
+   * It's safe for two threads to read from the same GMP variable
+     simultaneously, but it's not safe for one to read while the
+     another might be writing, nor for two threads to write
+     simultaneously.  It's not safe for two threads to generate a
+     random number from the same `gmp_randstate_t' simultaneously,
+     since this involves an update of that variable.
+
+   * On SCO systems the default `<ctype.h>' macros use per-file static
+     variables and may not be reentrant, depending whether the compiler
+     optimizes away fetches from them.  The GMP text-based input
+     functions are affected.
+
+
+File: gmp.info,  Node: Useful Macros and Constants,  Next: Compatibility with older versions,  Prev: Reentrancy,  Up: GMP Basics
+
+Useful Macros and Constants
+===========================
+
+ - Global Constant: const int mp_bits_per_limb
+     The number of bits per limb.
+
+ - Macro: __GNU_MP_VERSION
+ - Macro: __GNU_MP_VERSION_MINOR
+ - Macro: __GNU_MP_VERSION_PATCHLEVEL
+     The major and minor GMP version, and patch level, respectively, as
+     integers.  For GMP i.j, these numbers will be i, j, and 0,
+     respectively.  For GMP i.j.k, these numbers will be i, j, and k,
+     respectively.
+
+ - Global Constant: const char * const gmp_version
+     The GMP version number, as a null-terminated string, in the form
+     "i.j" or "i.j.k".  This release is "4.1".
+
+
+File: gmp.info,  Node: Compatibility with older versions,  Next: Efficiency,  Prev: Useful Macros and Constants,  Up: GMP Basics
+
+Compatibility with older versions
+=================================
+
+   This version of GMP is upwardly binary compatible with all 4.x and
+3.x versions, and upwardly compatible at the source level with all 2.x
+versions, with the following exceptions.
+
+   * `mpn_gcd' had its source arguments swapped as of GMP 3.0, for
+     consistency with other `mpn' functions.
+
+   * `mpf_get_prec' counted precision slightly differently in GMP 3.0
+     and 3.0.1, but in 3.1 reverted to the 2.x style.
+
+   There are a number of compatibility issues between GMP 1 and GMP 2
+that of course also apply when porting applications from GMP 1 to GMP
+4.  Please see the GMP 2 manual for details.
+
+   The Berkeley MP compatibility library (*note BSD Compatible
+Functions::) is source and binary compatible with the standard `libmp'.
 
 
 File: gmp.info,  Node: Efficiency,  Next: Debugging,  Prev: Compatibility with older versions,  Up: GMP Basics
@@ -157,6 +256,17 @@ Number Sequences
      wanted it's probably best to call to get a starting point and
      iterate from there.
 
+Text Input/Output
+     Hexadecimal or octal are suggested for input or output in text
+     form.  Power-of-2 bases like these can be converted much more
+     efficiently than other bases, like decimal.  For big numbers
+     there's usually nothing of particular interest to be seen in the
+     digits, so the base doesn't matter much.
+
+     Maybe we can hope octal will one day become the normal base for
+     everyday use, as proposed by King Charles XII of Sweden and later
+     reformers.
+
 
 File: gmp.info,  Node: Debugging,  Next: Profiling,  Prev: Efficiency,  Up: GMP Basics
 
@@ -191,6 +301,11 @@ Heap Problems
           `http://people.redhat.com/~otaylor/memprof'
           `http://www.cbmamiga.demon.co.uk/mpatrol'
 
+     The GMP default allocation routines in `memory.c' also have a
+     simple sentinel scheme which can be enabled with `#define DEBUG'
+     in that file.  This is mainly designed for detecting buffer
+     overruns during GMP development, but might find other uses.
+
 Stack Backtraces
      On some systems the compiler options GMP uses by default can
      interfere with debugging.  In particular on x86 and 68k systems
@@ -215,7 +330,7 @@ Source File Paths
      absolute path to the source directory.
 
           cd /my/build/dir
-          /my/source/dir/gmp-4.0.1/configure
+          /my/source/dir/gmp-4.1/configure
 
      This works via `VPATH', and might require GNU `make'.  Alternately
      it might be possible to change the `.c.lo' rules appropriately.
@@ -246,6 +361,33 @@ Temporary Memory Checking
      which GMP divides up for its own use, or may be allocated with a
      compiler builtin `alloca' which will go nowhere near any malloc
      debugger hooks.
+
+Checker
+     The checker program (`http://savannah.gnu.org/projects/checker')
+     can be used with GMP.  It contains a stub library which means GMP
+     applications compiled with checker can use a normal GMP build.
+
+     A build of GMP with checking within GMP itself can be made.  This
+     will run very very slowly.  Configure with
+
+          ./configure --host=none-pc-linux-gnu CC=checkergcc
+
+     `--host=none' must be used, since the GMP assembler code doesn't
+     support the checking scheme.  The GMP C++ features cannot be used,
+     since current versions of checker (0.9.9.1) don't yet support the
+     standard C++ library.
+
+Valgrind
+     The valgrind program (`http://devel-home.kde.org/~sewardj') is a
+     memory checker for x86s.  It translates and emulates machine
+     instructions to do strong checks for uninitialized data (at the
+     level of individual bits), memory accesses through bad pointers,
+     and memory leaks.
+
+     Current versions (20020226 snapshot) don't support MMX or SSE, so
+     GMP must be configured for an x86 without those (eg. plain
+     `i386'), or with a special `MPN_PATH' that excludes those
+     subdirectories (*note Build Options::).
 
 Other Problems
      Any suspected bug in GMP itself should be isolated to make sure
@@ -443,6 +585,7 @@ arithmetic.  These functions start with the prefix `mpz_'.
 * Integer Logic and Bit Fiddling::
 * I/O of Integers::
 * Integer Random Numbers::
+* Integer Import and Export::
 * Miscellaneous Integer Functions::
 
 
@@ -631,24 +774,25 @@ standard C types.  Functions for converting _to_ GMP integers are
 described in *Note Assigning Integers:: and *Note I/O of Integers::.
 
  - Function: unsigned long int mpz_get_ui (mpz_t OP)
-     Return the least significant part from OP.  This function combined
-     with
-     `mpz_tdiv_q_2exp(..., OP, CHAR_BIT*sizeof(unsigned long int))' can
-     be used to decompose an integer into unsigned longs.
+     Return the value of OP as an `unsigned long'.
+
+     If OP is too big to fit an `unsigned long' then just the least
+     significant bits that do fit are returned.  The sign of OP is
+     ignored, only the absolute value is used.
 
  - Function: signed long int mpz_get_si (mpz_t OP)
      If OP fits into a `signed long int' return the value of OP.
      Otherwise return the least significant part of OP, with the same
      sign as OP.
 
-     If OP is too large to fit in a `signed long int', the returned
+     If OP is too big to fit in a `signed long int', the returned
      result is probably not very useful.  To find out if the value will
      fit, use the function `mpz_fits_slong_p'.
 
  - Function: double mpz_get_d (mpz_t OP)
      Convert OP to a `double'.
 
- - Function: double mpz_get_d_2exp (signed long int EXP, mpz_t OP)
+ - Function: double mpz_get_d_2exp (signed long int *EXP, mpz_t OP)
      Find D and EXP such that D times 2 raised to EXP, with
      0.5<=abs(D)<1, is a good approximation to OP.
 
@@ -690,6 +834,8 @@ Arithmetic Functions
 
  - Function: void mpz_sub (mpz_t ROP, mpz_t OP1, mpz_t OP2)
  - Function: void mpz_sub_ui (mpz_t ROP, mpz_t OP1, unsigned long int
+          OP2)
+ - Function: void mpz_ui_sub (mpz_t ROP, unsigned long int OP1, mpz_t
           OP2)
      Set ROP to OP1 - OP2.
 
@@ -949,8 +1095,11 @@ Number Theoretic Functions
 
  - Function: void mpz_gcdext (mpz_t G, mpz_t S, mpz_t T, mpz_t A, mpz_t
           B)
-     Compute G, S, and T, such that A*S + B*T = G = gcd(A, B).  If T is
-     `NULL', that argument is not computed.
+     Set G to the greatest common divisor of A and B, and in addition
+     set S and T to coefficients satisfying A*S + B*T = G.  G is always
+     positive, even if one or both of A and B are negative.
+
+     If T is `NULL' then that value is not computed.
 
  - Function: void mpz_lcm (mpz_t ROP, mpz_t OP1, mpz_t OP2)
  - Function: void mpz_lcm_ui (mpz_t ROP, mpz_t OP1, unsigned long OP2)
@@ -1030,96 +1179,4 @@ Number Theoretic Functions
      `mpz_lucnum2_ui'.  The formulas for going from Fibonacci to Lucas
      can be found in *Note Lucas Numbers Algorithm::, the reverse is
      straightforward too.
-
-
-File: gmp.info,  Node: Integer Comparisons,  Next: Integer Logic and Bit Fiddling,  Prev: Number Theoretic Functions,  Up: Integer Functions
-
-Comparison Functions
-====================
-
- - Function: int mpz_cmp (mpz_t OP1, mpz_t OP2)
- - Function: int mpz_cmp_d (mpz_t OP1, double OP2)
- - Macro: int mpz_cmp_si (mpz_t OP1, signed long int OP2)
- - Macro: int mpz_cmp_ui (mpz_t OP1, unsigned long int OP2)
-     Compare OP1 and OP2.  Return a positive value if OP1 > OP2, zero
-     if OP1 = OP2, or a negative value if OP1 < OP2.
-
-     Note that `mpz_cmp_ui' and `mpz_cmp_si' are macros and will
-     evaluate their arguments more than once.
-
- - Function: int mpz_cmpabs (mpz_t OP1, mpz_t OP2)
- - Function: int mpz_cmpabs_d (mpz_t OP1, double OP2)
- - Function: int mpz_cmpabs_ui (mpz_t OP1, unsigned long int OP2)
-     Compare the absolute values of OP1 and OP2.  Return a positive
-     value if abs(OP1) > abs(OP2), zero if abs(OP1) = abs(OP2), or a
-     negative value if abs(OP1) < abs(OP2).
-
-     Note that `mpz_cmpabs_si' is a macro and will evaluate its
-     arguments more than once.
-
- - Macro: int mpz_sgn (mpz_t OP)
-     Return +1 if OP > 0, 0 if OP = 0, and -1 if OP < 0.
-
-     This function is actually implemented as a macro.  It evaluates
-     its argument multiple times.
-
-
-File: gmp.info,  Node: Integer Logic and Bit Fiddling,  Next: I/O of Integers,  Prev: Integer Comparisons,  Up: Integer Functions
-
-Logical and Bit Manipulation Functions
-======================================
-
-   These functions behave as if twos complement arithmetic were used
-(although sign-magnitude is the actual implementation).  The least
-significant bit is number 0.
-
- - Function: void mpz_and (mpz_t ROP, mpz_t OP1, mpz_t OP2)
-     Set ROP to OP1 logical-and OP2.
-
- - Function: void mpz_ior (mpz_t ROP, mpz_t OP1, mpz_t OP2)
-     Set ROP to OP1 inclusive-or OP2.
-
- - Function: void mpz_xor (mpz_t ROP, mpz_t OP1, mpz_t OP2)
-     Set ROP to OP1 exclusive-or OP2.
-
- - Function: void mpz_com (mpz_t ROP, mpz_t OP)
-     Set ROP to the one's complement of OP.
-
- - Function: unsigned long int mpz_popcount (mpz_t OP)
-     If OP>=0, return the population count of OP, which is the number
-     of 1 bits in the binary representation.  If OP<0, the number of 1s
-     is infinite, and the return value is MAX_ULONG, the largest
-     possible `unsigned long'.
-
- - Function: unsigned long int mpz_hamdist (mpz_t OP1, mpz_t OP2)
-     If OP1 and OP2 are both >=0 or both <0, return the hamming
-     distance between the two operands, which is the number of bit
-     positions where OP1 and OP2 have different bit values.  If one
-     operand is >=0 and the other <0 then the number of bits different
-     is infinite, and the return value is MAX_ULONG, the largest
-     possible `unsigned long'.
-
- - Function: unsigned long int mpz_scan0 (mpz_t OP, unsigned long int
-          STARTING_BIT)
- - Function: unsigned long int mpz_scan1 (mpz_t OP, unsigned long int
-          STARTING_BIT)
-     Scan OP, starting from bit STARTING_BIT, towards more significant
-     bits, until the first 0 or 1 bit (respectively) is found.  Return
-     the index of the found bit.
-
-     If the bit at STARTING_BIT is already what's sought, then
-     STARTING_BIT is returned.
-
-     If there's no bit found, then MAX_ULONG is returned.  This will
-     happen in `mpz_scan0' past the end of a positive number, or
-     `mpz_scan1' past the end of a negative.
-
- - Function: void mpz_setbit (mpz_t ROP, unsigned long int BIT_INDEX)
-     Set bit BIT_INDEX in ROP.
-
- - Function: void mpz_clrbit (mpz_t ROP, unsigned long int BIT_INDEX)
-     Clear bit BIT_INDEX in ROP.
-
- - Function: int mpz_tstbit (mpz_t OP, unsigned long int BIT_INDEX)
-     Test bit BIT_INDEX in OP and return 0 or 1 accordingly.
 

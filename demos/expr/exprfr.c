@@ -1,7 +1,6 @@
-/* mpfr expression evaluation */
+/* mpfr expression evaluation.
 
-/*
-Copyright 2000, 2001 Free Software Foundation, Inc.
+Copyright 2000, 2001, 2002 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -18,8 +17,7 @@ License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-MA 02111-1307, USA.
-*/
+MA 02111-1307, USA. */
 
 #include <stdio.h>
 #include "gmp.h"
@@ -42,25 +40,62 @@ MA 02111-1307, USA.
 static void
 e_mpfr_abs (mpfr_ptr dst, mpfr_srcptr src)
 {
-  return mpfr_abs (dst, src, ROUND);
+  mpfr_abs (dst, src, ROUND);
 }
 
 static void
-e_mpfr_agm (mpfr_ptr dst, mpfr_srcptr src1, mpfr_srcptr src2)
+e_mpfr_acos (mpfr_ptr dst, mpfr_srcptr src)
 {
-  return mpfr_agm (dst, src1, src2, ROUND);
+  mpfr_acos (dst, src, ROUND);
 }
 
 static void
 e_mpfr_add (mpfr_ptr dst, mpfr_srcptr src1, mpfr_srcptr src2)
 {
-  return mpfr_add (dst, src1, src2, ROUND);
+  mpfr_add (dst, src1, src2, ROUND);
 }
 
+static void
+e_mpfr_agm (mpfr_ptr dst, mpfr_srcptr src1, mpfr_srcptr src2)
+{
+  mpfr_agm (dst, src1, src2, ROUND);
+}
+
+static void
+e_mpfr_asin (mpfr_ptr dst, mpfr_srcptr src)
+{
+  mpfr_asin (dst, src, ROUND);
+}
+
+static void
+e_mpfr_atan (mpfr_ptr dst, mpfr_srcptr src)
+{
+  mpfr_atan (dst, src, ROUND);
+}
+
+/* because mpfr_cmp is a macro */
 static int
 e_mpfr_cmp (mpfr_srcptr x, mpfr_srcptr y)
 {
   return mpfr_cmp (x, y);
+}
+
+static void
+e_mpfr_dim (mpfr_ptr dst, mpfr_srcptr src1, mpfr_srcptr src2)
+{
+  mpfr_dim (dst, src1, src2, ROUND);
+}
+
+static void
+e_mpfr_const_euler (mpfr_ptr dst)
+{
+  mpfr_const_euler (dst, ROUND);
+}
+
+static void
+e_mpfr_fac_ui (mpfr_ptr dst, unsigned long n)
+{
+  mpfr_fac_ui (dst, n, ROUND);
 }
 
 static void
@@ -76,9 +111,15 @@ e_mpfr_const_pi (mpfr_ptr dst)
 }
 
 static void
-e_mpfr_cos (mpfr_ptr c, mpfr_srcptr a)
+e_mpfr_cos (mpfr_ptr dst, mpfr_srcptr src)
 {
-  mpfr_sin_cos (NULL, c, a, ROUND);
+  mpfr_cos (dst, src, ROUND);
+}
+
+static void
+e_mpfr_cosh (mpfr_ptr dst, mpfr_srcptr src)
+{
+  mpfr_cosh (dst, src, ROUND);
 }
 
 static void
@@ -100,9 +141,45 @@ e_mpfr_exp (mpfr_ptr dst, mpfr_srcptr src)
 }
 
 static void
+e_mpfr_expm1 (mpfr_ptr dst, mpfr_srcptr src)
+{
+  mpfr_expm1 (dst, src, ROUND);
+}
+
+static void
+e_mpfr_fma (mpfr_ptr w, mpfr_srcptr x, mpfr_srcptr y, mpfr_srcptr z)
+{
+  mpfr_fma (w, x, y, z, ROUND);
+}
+
+static void
+e_mpfr_hypot (mpfr_ptr dst, mpfr_srcptr src1, mpfr_srcptr src2)
+{
+  mpfr_hypot (dst, src1, src2, ROUND);
+}
+
+static void
 e_mpfr_log (mpfr_ptr dst, mpfr_srcptr src)
 {
   mpfr_log (dst, src, ROUND);
+}
+
+static void
+e_mpfr_log2 (mpfr_ptr dst, mpfr_srcptr src)
+{
+  mpfr_log2 (dst, src, ROUND);
+}
+
+static void
+e_mpfr_log10 (mpfr_ptr dst, mpfr_srcptr src)
+{
+  mpfr_log10 (dst, src, ROUND);
+}
+
+static void
+e_mpfr_log1p (mpfr_ptr dst, mpfr_srcptr src)
+{
+  mpfr_log1p (dst, src, ROUND);
 }
 
 static void
@@ -114,31 +191,49 @@ e_mpfr_mul (mpfr_ptr dst, mpfr_srcptr src1, mpfr_srcptr src2)
 static void
 e_mpfr_mul_2exp (mpfr_ptr dst, mpfr_srcptr src, unsigned long n)
 {
-  return mpfr_mul_2exp (dst, src, n, ROUND);
+  mpfr_mul_2exp (dst, src, n, ROUND);
 }
 
 static void
 e_mpfr_neg (mpfr_ptr dst, mpfr_srcptr src)
 {
-  return mpfr_neg (dst, src, ROUND);
+  mpfr_neg (dst, src, ROUND);
+}
+
+static void
+e_mpfr_pow_ui (mpfr_ptr p, mpfr_srcptr b, unsigned long e)
+{
+  mpfr_pow_ui (p, b, e, ROUND);
 }
 
 static void
 e_mpfr_reldiff (mpfr_ptr dst, mpfr_srcptr src1, mpfr_srcptr src2)
 {
-  return mpfr_reldiff (dst, src1, src2, ROUND);
+  mpfr_reldiff (dst, src1, src2, ROUND);
+}
+
+static void
+e_mpfr_set_posinf (mpfr_ptr dst)
+{
+  mpfr_set_inf (dst, 1);
+}
+
+static void
+e_mpfr_sin (mpfr_ptr dst, mpfr_srcptr src)
+{
+  mpfr_sin (dst, src, ROUND);
+}
+
+static void
+e_mpfr_sinh (mpfr_ptr dst, mpfr_srcptr src)
+{
+  mpfr_sinh (dst, src, ROUND);
 }
 
 static int
 e_mpfr_sgn (mpfr_srcptr x)
 {
   return mpfr_sgn (x);
-}
-
-static void
-e_mpfr_sin (mpfr_ptr s, mpfr_srcptr a)
-{
-  mpfr_sin_cos (s, NULL, a, ROUND);
 }
 
 static void
@@ -150,13 +245,19 @@ e_mpfr_sqrt (mpfr_ptr dst, mpfr_srcptr src)
 static void
 e_mpfr_sub (mpfr_ptr dst, mpfr_srcptr src1, mpfr_srcptr src2)
 {
-  return mpfr_sub (dst, src1, src2, ROUND);
+  mpfr_sub (dst, src1, src2, ROUND);
 }
 
 static void
-e_mpfr_pow_ui (mpfr_ptr p, mpfr_srcptr b, unsigned long e)
+e_mpfr_tan (mpfr_ptr dst, mpfr_srcptr src)
 {
-  mpfr_pow_ui (p, b, e, ROUND);
+  mpfr_tan (dst, src, ROUND);
+}
+
+static void
+e_mpfr_tanh (mpfr_ptr dst, mpfr_srcptr src)
+{
+  mpfr_tanh (dst, src, ROUND);
 }
 
 
@@ -199,15 +300,27 @@ static __gmp_const struct mpexpr_operator_t  _mpfr_expr_standard_table[] = {
   { "$",   NULL,                             MPEXPR_TYPE_VARIABLE,      1 },
 
   { "abs",     (mpexpr_fun_t) e_mpfr_abs,     MPEXPR_TYPE_UNARY        },
-  { "agm",     (mpexpr_fun_t) e_mpfr_agm,     MPEXPR_TYPE_UNARY        },
+  { "acos",    (mpexpr_fun_t) e_mpfr_acos,    MPEXPR_TYPE_UNARY        },
+  { "agm",     (mpexpr_fun_t) e_mpfr_agm,     MPEXPR_TYPE_BINARY       },
+  { "asin",    (mpexpr_fun_t) e_mpfr_asin,    MPEXPR_TYPE_UNARY        },
+  { "atan",    (mpexpr_fun_t) e_mpfr_atan,    MPEXPR_TYPE_UNARY        },
   { "ceil",    (mpexpr_fun_t) mpfr_ceil,      MPEXPR_TYPE_UNARY        },
   { "cmp",     (mpexpr_fun_t) e_mpfr_cmp,     MPEXPR_TYPE_I_BINARY     },
   { "cos",     (mpexpr_fun_t) e_mpfr_cos,     MPEXPR_TYPE_UNARY        },
+  { "cosh",    (mpexpr_fun_t) e_mpfr_cosh,    MPEXPR_TYPE_UNARY        },
+  { "dim",     (mpexpr_fun_t) e_mpfr_dim,     MPEXPR_TYPE_BINARY       },
   { "eq",      (mpexpr_fun_t) mpfr_eq,        MPEXPR_TYPE_I_TERNARY_UI },
   { "exp",     (mpexpr_fun_t) e_mpfr_exp,     MPEXPR_TYPE_UNARY        },
+  { "expm1",   (mpexpr_fun_t) e_mpfr_expm1,   MPEXPR_TYPE_UNARY        },
+  { "fac",     (mpexpr_fun_t) e_mpfr_fac_ui,  MPEXPR_TYPE_UNARY_UI     },
   { "floor",   (mpexpr_fun_t) mpfr_floor,     MPEXPR_TYPE_UNARY        },
+  { "fma",     (mpexpr_fun_t) e_mpfr_fma,     MPEXPR_TYPE_TERNARY      },
+  { "hypot",   (mpexpr_fun_t) e_mpfr_hypot,   MPEXPR_TYPE_BINARY       },
   { "inf_p",   (mpexpr_fun_t) mpfr_inf_p,     MPEXPR_TYPE_I_UNARY      },
   { "log",     (mpexpr_fun_t) e_mpfr_log,     MPEXPR_TYPE_UNARY        },
+  { "log2",    (mpexpr_fun_t) e_mpfr_log2,    MPEXPR_TYPE_UNARY        },
+  { "log10",   (mpexpr_fun_t) e_mpfr_log10,   MPEXPR_TYPE_UNARY        },
+  { "log1p",   (mpexpr_fun_t) e_mpfr_log1p,   MPEXPR_TYPE_UNARY        },
   { "max",     (mpexpr_fun_t) e_mpfr_cmp,     MPEXPR_TYPE_MAX
                                               | MPEXPR_TYPE_PAIRWISE   },
   { "min",     (mpexpr_fun_t) e_mpfr_cmp,     MPEXPR_TYPE_MIN
@@ -215,13 +328,20 @@ static __gmp_const struct mpexpr_operator_t  _mpfr_expr_standard_table[] = {
   { "nan_p",   (mpexpr_fun_t) mpfr_nan_p,     MPEXPR_TYPE_I_UNARY      },
   { "number_p",(mpexpr_fun_t) mpfr_number_p,  MPEXPR_TYPE_I_UNARY      },
   { "reldiff", (mpexpr_fun_t) e_mpfr_reldiff, MPEXPR_TYPE_BINARY       },
+  { "round",   (mpexpr_fun_t) mpfr_round,     MPEXPR_TYPE_UNARY        },
   { "sgn",     (mpexpr_fun_t) e_mpfr_sgn,     MPEXPR_TYPE_I_UNARY      },
   { "sin",     (mpexpr_fun_t) e_mpfr_sin,     MPEXPR_TYPE_UNARY        },
+  { "sinh",    (mpexpr_fun_t) e_mpfr_sinh,    MPEXPR_TYPE_UNARY        },
   { "sqrt",    (mpexpr_fun_t) e_mpfr_sqrt,    MPEXPR_TYPE_UNARY        },
+  { "tan",     (mpexpr_fun_t) e_mpfr_tan,     MPEXPR_TYPE_UNARY        },
+  { "tanh",    (mpexpr_fun_t) e_mpfr_tanh,    MPEXPR_TYPE_UNARY        },
   { "trunc",   (mpexpr_fun_t) mpfr_trunc,     MPEXPR_TYPE_UNARY        },
 
-  { "log2",    (mpexpr_fun_t) e_mpfr_const_log2, MPEXPR_TYPE_CONSTANT  },
-  { "pi",      (mpexpr_fun_t) e_mpfr_const_pi,   MPEXPR_TYPE_CONSTANT  },
+  { "euler",   (mpexpr_fun_t) e_mpfr_const_euler, MPEXPR_TYPE_CONSTANT },
+  { "loge2",   (mpexpr_fun_t) e_mpfr_const_log2,  MPEXPR_TYPE_CONSTANT },
+  { "nan",     (mpexpr_fun_t) mpfr_set_nan,       MPEXPR_TYPE_CONSTANT },
+  { "inf",     (mpexpr_fun_t) e_mpfr_set_posinf,  MPEXPR_TYPE_CONSTANT },
+  { "pi",      (mpexpr_fun_t) e_mpfr_const_pi,    MPEXPR_TYPE_CONSTANT },
 
   { NULL }
 };
