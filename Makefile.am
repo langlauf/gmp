@@ -1,8 +1,8 @@
 ## Process this file with automake to generate Makefile.in
 
 
-# Copyright 1991, 1993, 1994, 1996, 1997, 1999, 2000, 2001 Free Software
-# Foundation, Inc.
+# Copyright 1991, 1993, 1994, 1996, 1997, 1999, 2000, 2001, 2002 Free
+# Software Foundation, Inc.
 #
 # This file is part of the GNU MP Library.
 #
@@ -42,6 +42,7 @@
 #        3.1      4:0:1      -     4:0:1
 #        3.1.1    4:1:1      -     4:1:1
 #        4.0      5:0:2    3:0:0   4:2:1
+#        4.0.1    5:1:2    3:1:0   4:3:1
 #
 # Starting at 3:0:0 is a slight abuse of the versioning system, but it
 # ensures we're past soname libgmp.so.2, which was used on Debian GNU/Linux
@@ -49,15 +50,15 @@
 # gmp 3 mean 3:0:0 is right.
 
 LIBGMP_LT_CURRENT =  5
-LIBGMP_LT_REVISION = 0
+LIBGMP_LT_REVISION = 1
 LIBGMP_LT_AGE =      2
 
 LIBGMPXX_LT_CURRENT =  3
-LIBGMPXX_LT_REVISION = 0
+LIBGMPXX_LT_REVISION = 1
 LIBGMPXX_LT_AGE =      0
 
 LIBMP_LT_CURRENT =  4
-LIBMP_LT_REVISION = 2
+LIBMP_LT_REVISION = 3
 LIBMP_LT_AGE =      1
 
 

@@ -215,7 +215,7 @@ Source File Paths
      absolute path to the source directory.
 
           cd /my/build/dir
-          /my/source/dir/gmp-4.0/configure
+          /my/source/dir/gmp-4.0.1/configure
 
      This works via `VPATH', and might require GNU `make'.  Alternately
      it might be possible to change the `.c.lo' rules appropriately.
@@ -304,14 +304,14 @@ found, but an application that must have GMP would want to generate an
 error if not found.  For example,
 
      AC_CHECK_LIB(gmp, __gmpz_init, , [AC_MSG_ERROR(
-     [GNU MP not found, see http://www.swox.com/gmp])])
+     [GNU MP not found, see http://swox.com/gmp])])
 
    If functions added in some particular version of GMP are required,
 then one of those can be used when checking.  For example `mpz_mul_si'
 was added in GMP 3.1,
 
      AC_CHECK_LIB(gmp, __gmpz_mul_si, , [AC_MSG_ERROR(
-     [GNU MP not found, or not 3.1 or up, see http://www.swox.com/gmp])])
+     [GNU MP not found, or not 3.1 or up, see http://swox.com/gmp])])
 
    An alternative would be to test the version number in `gmp.h' using
 say `AC_EGREP_CPP'.  That would make it possible to test the exact
@@ -348,7 +348,7 @@ not guaranteed.
 
      AC_CHECK_LIB(mpfr, mpfr_add, , [AC_MSG_ERROR(
      [Need MPFR either from GNU MP 4 or separate MPFR package.
-     See http://www.mpfr.org or http://www.swox.com/gmp])
+     See http://www.mpfr.org or http://swox.com/gmp])
 
 
 File: gmp.info,  Node: Reporting Bugs,  Next: Integer Functions,  Prev: GMP Basics,  Up: Top
@@ -573,8 +573,8 @@ Assignment Functions
      after a minus sign or within or after "0x".  We are considering
      changing the definition of this function, making it fail when
      there is any white-space in the input, since that makes a lot of
-     sense.  Please tell us your opinion about this change.  Do you
-     really want it to accept "3 14" as meaning 314 as it does now?]
+     sense.  Send your opinion of this change to <bug-gmp@gnu.org>.  Do
+     you really want it to accept "3 14" as meaning 314 as it does now?]
 
  - Function: void mpz_swap (mpz_t ROP1, mpz_t ROP2)
      Swap the values ROP1 and ROP2 efficiently.

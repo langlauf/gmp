@@ -1,5 +1,5 @@
-Copyright 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999 2000, 2001
-Free Software Foundation, Inc.
+Copyright 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001,
+2002 Free Software Foundation, Inc.
 .
 This file is part of the GNU MP Library.
 .
@@ -18,6 +18,111 @@ along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA.
 
+
+2002-01-22  Kevin Ryde  <kevin@swox.se>
+
+	* Version 4.0.1 released.
+
+2002-01-20  Kevin Ryde  <kevin@swox.se>
+
+	* gmp.texi (Contributors): Bump release version.
+
+	* acinclude.m4 (GMP_FUNC_VSNPRINTF): Use %n to better detect sparc
+	solaris 2.7 problems.
+	
+2002-01-17  Kevin Ryde  <kevin@swox.se>
+
+	* tests/refmpn.c (refmpn_divmod_1c): Avoid a bug in i386 gcc 3.0.
+
+2002-01-15  Kevin Ryde  <kevin@swox.se>
+
+	* printf/Makefile.am: libdummy.la should be in EXTRA_LTLIBRARIES.
+	
+	* mpf/out_str.c: Use MPF_SIGNIFICANT_DIGITS, so mpf_out_str and
+	mpf_get_str give the same for ndigits==0.
+
+2002-01-06  Kevin Ryde  <kevin@swox.se>
+
+	* gmp-h.in (mpn_divexact_by3c): Remove variables from prototype, to
+	keep out of application namespace.
+
+	* mpbsd/mtox.c: Add TMP_FREE to avoid memory leak in malloc methods.
+
+2002-01-04  Kevin Ryde  <kevin@swox.se>
+
+        * gmp-h.in (__GNU_MP_VERSION_PATCHLEVEL): Bump to 4.0.1.
+        * Makefile.am (*_LT_REVISION): Bump for implementation changes.
+
+2001-12-28  Kevin Ryde  <kevin@swox.se>
+
+        * acinclude.m4 (GMP_PROG_CC_WORKS): For a native compile, demand
+	executables will run, per AC_PROG_CC.  This detects ABI=64 is unusable
+	in a native sparc solaris 7 build with the kernel in 32-bit mode.
+        * gmp.texi (ABI and ISA): Add notes on this, add an example configure
+	setting an ABI.
+
+2001-12-18  Kevin Ryde  <kevin@swox.se>
+	
+        * gmp-h.in (operator<<, operator>>): Remove parameter names from
+        prototypes, to keep out of user namespace.
+
+2001-12-15  Kevin Ryde  <kevin@swox.se>
+
+        * gmp-h.in (mpn_add, mpn_add_1, mpn_cmp, mpn_sub, mpn_sub_1): Follow
+	__GMP_INLINE_PROTOTYPES for whether to give prototype with inline.
+
+2001-12-12  Kevin Ryde  <kevin@swox.se>
+
+        * acinclude.m4 (GMP_PROG_CC_WORKS): Detect cmov problems with gcc
+        -march=pentiumpro on solaris 2.8.
+
+        * tune/common.c, tune/speed.h: Allow for commas in count_leading_zeros
+        and count_trailing_zeros macros.
+
+	* demos/expr/Makefile.am: Distribute exprfr.c and exprfra.c.
+
+	* tune/Makefile.am (speed_ext_SOURCES): Should be speed-ext.c.
+
+2001-12-07  Kevin Ryde  <kevin@swox.se>
+
+	* gmp-h.in, mp-h.in, gmp-impl.h: __GMP_DECLSPEC at start of
+	prototypes, for the benefit of Microsoft C.
+
+	* gmp.texi (Introduction to GMP): Mention ABI and ISA section.
+	(Known Build Problems): Recommend GNU sed on solaris 2.6.
+	(Assigning Integers): Direct feedback to bug-gmp.
+	(References): Typo Knuth vol 2 is from 1998.
+
+	* gmpxx.h (gmp_randclass): Add initializers for gmp_randinit_default
+	and gmp_randinit_lc_2exp_size.
+	gmp.texi (C++ Interface Random Numbers): Describe them.
+
+	* tests/misc/t-locale.c, tests/cxx/t-locale.cc: Ensure mpf_clear is
+	done when the localconv override doesn't work.  Reported by Mike
+	Jetzer.
+
+	* printf/doprnti.c: Don't showbase on a zero mpq denominator.
+	* tests/misc/t-printf.c, tests/cxx/t-ostream.c: Add test cases.
+
+2001-12-04  Kevin Ryde  <kevin@swox.se>
+
+	* gmp.texi (Known Build Problems): Update to gmp_randinit_lc_2exp_size
+	for the sparc solaris 2.7 problem.
+	(Reentrancy): SCO ctype.h affects all text-based input functions.
+	(Formatted Output Strings): Correction to the mpf example.
+	(Single Limb Division): Correction, should be q-1 not q+1.
+	(Extended GCD): Clarify why single-limb is inferior.
+	(Raw Output Internals): Clarify size is twos complement, note limb
+	order means _mp_d doesn't get directly read or written.
+	(Contributors): Clarify mpz_jacobi.
+	And a couple of formatting tweaks elsewhere.
+
+	* tests/cxx/t-headers.cc: New file.
+	* tests/cxx/Makefile.am: Add it.
+
+	* gmpxx.h: Add <strstream>, needed by mpf_class::get_str2.
+
+	* gmp-h.in (mpq_inp_str, mpn_hamdist): Add __GMP_DECLSPEC.
 
 2001-12-01  Torbjorn Granlund  <tege@swox.com>
 

@@ -12,10 +12,10 @@ GNU MP
 ******
 
    This manual describes how to install and use the GNU multiple
-precision arithmetic library, version 4.0.
+precision arithmetic library, version 4.0.1.
 
-   Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001
-Free Software Foundation, Inc.
+   Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
+2001, 2002 Free Software Foundation, Inc.
 
    Permission is granted to copy, distribute and/or modify this
 document under the terms of the GNU Free Documentation License, Version
@@ -133,7 +133,7 @@ Pyramid AP/XP.
 
    The latest version of the library is available at
 
-     `ftp://ftp.gnu.org/pub/gnu/gmp'
+     `ftp://ftp.gnu.org/gnu/gmp'
 
    Many sites around the world mirror `ftp.gnu.org', please use a mirror
 near you, see `http://www.gnu.org/order/ftp.html' for a full list.
@@ -142,7 +142,9 @@ How to use this Manual
 ======================
 
    Everyone should read *Note GMP Basics::.  If you need to install the
-library yourself, you need to read *Note Installing GMP::, too.
+library yourself, then read *Note Installing GMP::.  If you have a
+system with multiple ABIs, then read *Note ABI and ISA::, for the
+compiler options that must be used on applications.
 
    The rest of the manual can be used for later reference, although it
 is probably a good idea to glance through it.
@@ -211,7 +213,7 @@ Build Directory
      directory.  For example
 
           cd /my/build/dir
-          /my/sources/gmp-4.0/configure
+          /my/sources/gmp-4.0.1/configure
 
      Not all `make' programs have the necessary features (`VPATH') to
      support this.  In particular, SunOS and Slowaris `make' have bugs
@@ -538,15 +540,19 @@ For example in some 32-bit ABIs, GMP may support a limb as either a
    By default GMP chooses the best ABI available for a given system,
 and this generally gives significantly greater speed.  But an ABI can
 be chosen explicitly to make GMP compatible with other libraries, or
-particular application requirements.  In all cases it's vital that all
-object code used in a given program is compiled for the same ABI.
+particular application requirements.  For example,
+
+     ./configure ABI=32
+
+   In all cases it's vital that all object code used in a given program
+is compiled for the same ABI.
 
    Usually a limb is implemented as a `long'.  When a `long long' limb
-is used in a particular ABI, this is encoded in a generated `gmp.h'.
-This is convenient for applications, but it does mean that `gmp.h' will
-vary, and can't be just copied around.  `gmp.h' remains compiler
-independent though, since all compilers for a particular ABI will be
-expected to use the same limb type.
+is used this is encoded in the generated `gmp.h'.  This is convenient
+for applications, but it does mean that `gmp.h' will vary, and can't be
+just copied around.  `gmp.h' remains compiler independent though, since
+all compilers for a particular ABI will be expected to use the same
+limb type.
 
    Currently no attempt is made to follow whatever conventions a system
 has for installing library or header files built for a particular ABI.
@@ -582,7 +588,7 @@ HPPA 2.0 (`hppa2.0*')
      for CPU `hppa2.0n' only 2.0n or 1.0 are allowed.
 
 
-MIPS under IRIX 6 (`mips*-*-irix[6789]'
+MIPS under IRIX 6 (`mips*-*-irix[6789]')
      IRIX 6 supports the n32 and 64 ABIs and always has a 64-bit MIPS 3
      or better CPU.  In both these ABIs GMP uses a 64-bit limb.  A new
      enough `gcc' is required (2.95 for instance).
@@ -639,12 +645,13 @@ Sparc V9 (`sparcv9' and `ultrasparc*')
                cc   -xarch=v9
 
     `ABI=32'
-          On Solaris 2.6 and earlier only the plain V8 32-bit ABI can
-          be used, since the kernel doesn't save all registers.  GMP
-          still uses as much of the V9 ISA as it can in these
-          circumstances.  No special compiler options are required for
-          applications, though using something like the following
-          requesting V9 code within the V8 ABI is recommended.
+          On Solaris 2.6 and earlier, and on Solaris 2.7 with the
+          kernel in 32-bit mode, only the plain V8 32-bit ABI can be
+          used, since the kernel doesn't save all registers.  GMP still
+          uses as much of the V9 ISA as it can in these circumstances.
+          No special compiler options are required for applications,
+          though using something like the following requesting V9 code
+          within the V8 ABI is recommended.
 
                gcc  -mv8plus
                cc   -xarch=v8plus
@@ -654,6 +661,13 @@ Sparc V9 (`sparcv9' and `ultrasparc*')
      Don't be confused by the names of these sparc `-m' and `-x'
      options, they're called `arch' but they effectively control the
      ABI.
+
+     On Solaris 2.7 with the kernel in 32-bit-mode, a normal native
+     build will reject `ABI=64' because the resulting executables won't
+     run.  `ABI=64' can still be built if desired by making it look
+     like a cross-compile, for example
+
+          ./configure --build=none --host=sparcv9-sun-solaris2.7 ABI=64
 
 
 File: gmp.info,  Node: Notes for Package Builds,  Next: Notes for Particular Systems,  Prev: ABI and ISA,  Up: Installing GMP
@@ -852,11 +866,16 @@ Sequent Symmetry
      Use the GNU assembler instead of the system assembler, since the
      latter has serious bugs.
 
+Solaris 2.6
+     The system `sed' prints an error "Output line too long" when
+     libtool builds `libgmp.la'.  This doesn't seem cause any obvious
+     ill effects, but GNU `sed' is recommended, to avoid any doubt.
+
 Sparc Solaris 2.7 with gcc 2.95.2 in ABI=32
      A shared library build of GMP seems to fail in this combination,
      it builds but then fails the tests, apparently due to some
-     incorrect data relocations within `gmp_randinit'.  The exact cause
-     is unknown, `--disable-shared' is recommended.
+     incorrect data relocations within `gmp_randinit_lc_2exp_size'.
+     The exact cause is unknown, `--disable-shared' is recommended.
 
 Windows DLL test programs
      When creating a DLL version of `libgmp', libtool creates wrapper
@@ -1131,8 +1150,8 @@ Reentrancy
 
    * On SCO systems the default `<ctype.h>' macros use per-file static
      variables and may not be reentrant, depending whether the compiler
-     optimizes away fetches from them.  The GMP functions affected are
-     `mpz_set_str', `mpz_inp_str', `mpf_set_str' and `mpf_inp_str'.
+     optimizes away fetches from them.  The GMP text-based input
+     functions are affected.
 
 
 File: gmp.info,  Node: Useful Macros and Constants,  Next: Compatibility with older versions,  Prev: Reentrancy,  Up: GMP Basics
@@ -1153,7 +1172,7 @@ Useful Macros and Constants
 
  - Global Constant: const char * const gmp_version
      The GMP version number, as a null-terminated string, in the form
-     "i.j" or "i.j.k".  This release is "4.0".
+     "i.j" or "i.j.k".  This release is "4.0.1".
 
 
 File: gmp.info,  Node: Compatibility with older versions,  Next: Efficiency,  Prev: Useful Macros and Constants,  Up: GMP Basics

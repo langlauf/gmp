@@ -1,7 +1,8 @@
 /* Reference mpn functions, designed to be simple, portable and independent
    of the normal gmp code.  Speed isn't a consideration.
 
-Copyright 1996, 1997, 1998, 1999, 2000, 2001 Free Software Foundation, Inc.
+Copyright 1996, 1997, 1998, 1999, 2000, 2001, 2002 Free Software Foundation,
+Inc.
 
 This file is part of the GNU MP Library.
 
@@ -716,14 +717,25 @@ refmpn_udiv_qrnnd (mp_limb_t *q, mp_limb_t *r,
   *r >>= n;
 }
 
+/* This little subroutine avoids some bad code generation from i386 gcc 3.0
+   -fPIC -O2 -fomit-frame-pointer (%ebp being used uninitialized).  */
+static mp_limb_t
+refmpn_divmod_1c_workaround (mp_ptr rp, mp_srcptr sp, mp_size_t size,
+                             mp_limb_t divisor, mp_limb_t carry)
+{
+  mp_size_t  i;
+  for (i = size-1; i >= 0; i--)
+    refmpn_udiv_qrnnd (&rp[i], &carry, carry, sp[i], divisor);
+  return carry;
+}
+
 mp_limb_t
-refmpn_divmod_1c (mp_ptr rp, mp_srcptr sp, mp_size_t size, mp_limb_t divisor,
-                 mp_limb_t carry)
+refmpn_divmod_1c (mp_ptr rp, mp_srcptr sp, mp_size_t size,
+                  mp_limb_t divisor, mp_limb_t carry)
 {
   mp_ptr     sp_orig;
   mp_ptr     prod;
   mp_limb_t  carry_orig;
-  mp_size_t  i;
 
   ASSERT (refmpn_overlap_fullonly_p (rp, sp, size));
   ASSERT (size >= 0);
@@ -736,8 +748,7 @@ refmpn_divmod_1c (mp_ptr rp, mp_srcptr sp, mp_size_t size, mp_limb_t divisor,
   prod = refmpn_malloc_limbs (size);
   carry_orig = carry;
 
-  for (i = size-1; i >= 0; i--)
-    refmpn_udiv_qrnnd (&rp[i], &carry, carry, sp[i], divisor);
+  carry = refmpn_divmod_1c_workaround (rp, sp, size, divisor, carry);
 
   /* check by multiplying back */
 #if 0

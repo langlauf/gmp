@@ -14,7 +14,7 @@
 dnl  GMP specific autoconf macros
 
 
-dnl  Copyright 2000, 2001 Free Software Foundation, Inc.
+dnl  Copyright 2000, 2001, 2002 Free Software Foundation, Inc.
 dnl
 dnl  This file is part of the GNU MP Library.
 dnl
@@ -352,25 +352,51 @@ dnl  Check if cc+cflags can compile and link.
 dnl
 dnl  This test is designed to be run repeatedly with different cc+cflags
 dnl  selections, so the result is not cached.
+dnl
+dnl  For a native build, meaning $cross_compiling == no, we require that the
+dnl  generated program will run.  This is the same as AC_PROG_CC does in
+dnl  _AC_COMPILER_EXEEXT_WORKS, and checking here will ensure we don't pass
+dnl  a CC/CFLAGS combination that it rejects.
+dnl
+dnl  sparc-*-solaris2.7 can compile ABI=64 but won't run it if the kernel
+dnl  was booted in 32-bit mode.  The effect of requiring the compiler output
+dnl  will run is that a plain native "./configure" falls back on ABI=32, but
+dnl  ABI=64 is still available as a cross-compile.
 
 AC_DEFUN(GMP_PROG_CC_WORKS,
 [AC_MSG_CHECKING([compiler $1])
 cat >conftest.c <<EOF
+
 /* The following provokes an internal error from gcc 2.95.2 -mpowerpc64
    (without -maix64), hence detecting an unusable compiler */
 void *g() { return (void *) 0; }
 void *f() { return g(); }
 
+/* The following provokes an invalid instruction syntax from i386 gcc
+   -march=pentiumpro on Solaris 2.8.  The native sun assembler
+   requires a non-standard syntax for cmov which gcc (as of 2.95.2 at
+   least) doesn't know.  */
+int n;
+int cmov () { return (n >= 0 ? n : 0); }
+
 int main () { return 0; }
 EOF
-gmp_compile="$1 conftest.c -o conftest >&AC_FD_CC"
+gmp_prog_cc_works=no
+gmp_compile="$1 conftest.c >&AC_FD_CC"
 if AC_TRY_EVAL(gmp_compile); then
-  rm -f conftest*
-  AC_MSG_RESULT(yes)
+  if test "$cross_compiling" = no; then
+    if AC_TRY_COMMAND([./a.out || ./a.exe || ./conftest]); then
+      gmp_prog_cc_works=yes
+    fi
+  else
+    gmp_prog_cc_works=yes
+  fi
+fi
+rm -f conftest* a.out a.exe
+AC_MSG_RESULT($gmp_prog_cc_works)
+if test $gmp_prog_cc_works = yes; then
   ifelse([$2],,:,[$2])
 else
-  rm -f conftest*
-  AC_MSG_RESULT(no)
   ifelse([$3],,:,[$3])
 fi
 ])
@@ -1884,8 +1910,15 @@ dnl  GMP_FUNC_VSNPRINTF
 dnl  ------------------
 dnl  Check whether vsnprintf exists, and works properly.
 dnl
-dnl  Sparc Solaris 2.7 in 64-bit mode doesn't truncate, so vsnprintf is just
-dnl  like vsprintf, which is completely useless.
+dnl  Sparc Solaris 2.7 in 64-bit mode doesn't always truncate, making
+dnl  vsnprintf like vsprintf, and hence completely useless.  On one system a
+dnl  literal string is enough to provoke the problem, on another a "%n" was
+dnl  needed.  There seems to be something weird going on with the optimizer
+dnl  or something, since on the first system adding a second check with
+dnl  "%n", or even just an initialized local variable, makes it work.  In
+dnl  any case, without bothering to get to the bottom of this, the two
+dnl  program runs in the code below end up successfully detecting the
+dnl  problem.
 dnl
 dnl  glibc 2.0.x returns either -1 or bufsize-1 for an overflow (both seen,
 dnl  not sure which 2.0.x does which), but still puts the correct null
@@ -1901,13 +1934,19 @@ if test "$gmp_vsnprintf_exists" = no; then
 else
   AC_CACHE_CHECK([whether vsnprintf works],
                  gmp_cv_func_vsnprintf,
-  [AC_TRY_RUN([
+  [gmp_cv_func_vsnprintf=yes
+   for i in 'check ("hello world");' 'int n; check ("%nhello world", &n);'; do
+     AC_TRY_RUN([
+#include <string.h>  /* for strcmp */
+#include <stdio.h>   /* for vsnprintf */
+
 #if HAVE_STDARG
 #include <stdarg.h>
 #else
 #include <varargs.h>
 #endif
 
+int
 #if HAVE_STDARG
 check (const char *fmt, ...)
 #else
@@ -1935,18 +1974,21 @@ check (va_alist)
   /* allowed return values */
   if (ret != -1 && ret != 3 && ret != 11)
     exit (2);
+
+  return 0;
 }
 
 int
 main ()
 {
-  check ("hello world");
+$i
   exit (0);
 }
 ],
-    [gmp_cv_func_vsnprintf=yes],
-    [gmp_cv_func_vsnprintf=no],
-    [gmp_cv_func_vsnprintf=probably])
+      [:],
+      [gmp_cv_func_vsnprintf=no; break],
+      [gmp_cv_func_vsnprintf=probably; break])
+  done
   ])
   if test "$gmp_cv_func_vsnprintf" = probably; then
     AC_MSG_WARN([cannot check for properly working vsnprintf when cross compiling, will assume it's ok])

@@ -288,7 +288,8 @@ algorithm L, and `mpn/generic/gcdext.c'.  This is an O(N^2) algorithm.
    The multipliers at each step are found using single limb
 calculations for sizes up to `GCDEXT_THRESHOLD', or double limb
 calculations above that.  The single limb code is faster but doesn't
-produce full-limb multipliers.
+produce full-limb multipliers, hence not making full use of the
+`mpn_addmul_1' calls.
 
    When a CPU has a data-dependent multiplier, meaning one which is
 faster on operands with fewer bits, the extra work in the double-limb
@@ -655,7 +656,7 @@ Fibonacci numbers with the following simple formulas.
 saved.  Trailing zero bits on n can be handled with a single square
 each.
 
-     L[2k] = = L[k]^2 - 2*(-1)^k
+     L[2k] = L[k]^2 - 2*(-1)^k
 
    And the lowest 1 bit can be handled with one multiply of a pair of
 Fibonacci numbers, similar to what `mpz_fib_ui' does.

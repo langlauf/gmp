@@ -177,9 +177,9 @@ Raw Output Internals
      +------+------------------------+
 
    The size is 4 bytes written most significant byte first, being the
-number of subsequent data bytes, or the negative of that when a
-negative integer is represented.  The data bytes are the absolute value
-of the integer, written most significant byte first.
+number of subsequent data bytes, or the twos complement negative of
+that when a negative integer is represented.  The data bytes are the
+absolute value of the integer, written most significant byte first.
 
    The most significant data byte is always non-zero, so the output is
 the same on all systems, irrespective of limb size.
@@ -190,6 +190,9 @@ compatibility.
 
    The use of "big endian" for both the size and data fields is
 deliberate, it makes the data easy to read in a hex dump of a file.
+Unfortunately it also means that the limb data must be reversed when
+reading or writing, so neither a big endian nor little endian system
+can just read and write `_mp_d'.
 
 
 File: gmp.info,  Node: C++ Interface Internals,  Prev: Raw Output Internals,  Up: Internals
@@ -320,10 +323,11 @@ intermediary releases.
    Joachim Hollman was involved in the design of the `mpf' interface,
 and in the `mpz' design revisions for version 2.
 
-   Bennet Yee contributed the functions `mpz_jacobi' and `mpz_legendre'.
+   Bennet Yee contributed the initial versions of `mpz_jacobi' and
+`mpz_legendre'.
 
    Andreas Schwab contributed the files `mpn/m68k/lshift.S' and
-`mpn/m68k/rshift.S'.
+`mpn/m68k/rshift.S' (now in `.asm' form).
 
    The development of floating point functions of GNU MP 2, were
 supported in part by the ESPRIT-BRA (Basic Research Activities) 6846
@@ -364,11 +368,11 @@ elsewhere.
 
    Steve Root helped write the optimized alpha 21264 assembly code.
 
-   Gerardo Ballabio wrote the gmpxx.h C++ class interface and the C++
+   Gerardo Ballabio wrote the `gmpxx.h' C++ class interface and the C++
 istream input routines.
 
-   GNU MP 3.1 was finished and released by Torbjorn Granlund and Kevin
-Ryde.  Torbjorn's work was partially funded by the IDA Center for
+   GNU MP 4.0.1 was finished and released by Torbjorn Granlund and
+Kevin Ryde.  Torbjorn's work was partially funded by the IDA Center for
 Computing Sciences, USA.
 
    (This list is chronological, not ordered after significance.  If you
@@ -389,7 +393,7 @@ Books
      `http://www.math.u-bordeaux.fr/~cohen'
 
    * Donald E. Knuth, "The Art of Computer Programming", volume 2,
-     "Seminumerical Algorithms", 3rd edition, Addison-Wesley, 1988.
+     "Seminumerical Algorithms", 3rd edition, Addison-Wesley, 1998.
      `http://www-cs-faculty.stanford.edu/~knuth/taocp.html'
 
    * John D. Lipson, "Elements of Algebra and Algebraic Computing", The
@@ -402,7 +406,7 @@ Books
    * Richard M. Stallman, "Using and Porting GCC", Free Software
      Foundation, 1999, available online
      `http://www.gnu.org/software/gcc/onlinedocs/', and in the GCC
-     package `ftp://ftp.gnu.org/pub/gnu/gcc/'
+     package `ftp://ftp.gnu.org/gnu/gcc/'
 
 Papers
 ======

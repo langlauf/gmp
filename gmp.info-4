@@ -540,7 +540,7 @@ and a denominator, if needed.  `F' behaves like a float.  For example,
      
      mpf_t f;
      int   n;
-     gmp_printf ("fixed point mpf %.*f with %d digits\n", n, f, n);
+     gmp_printf ("fixed point mpf %.*Ff with %d digits\n", n, f, n);
 
    All the standard C `printf' types behave the same as the C library
 `printf', and can be freely intermixed with the GMP extensions.  In the

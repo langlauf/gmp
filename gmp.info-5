@@ -182,18 +182,26 @@ C++ Interface Random Numbers
      `gmp_randclass' to hold an algorithm selection and current state,
      as per `gmp_randstate_t'.
 
+ - Function:  gmp_randclass::gmp_randclass (void (*RANDINIT)
+          (gmp_randstate_t, ...), ...)
+     Construct a `gmp_randclass', using a call to the given RANDINIT
+     function (*note Random State Initialization::).  The arguments
+     expected are the same as RANDINIT, but with `mpz_class' instead of
+     `mpz_t'.  For example,
+
+          gmp_randclass r1 (gmp_randinit_default);
+          gmp_randclass r2 (gmp_randinit_lc_2exp_size, 32);
+          gmp_randclass r3 (gmp_randinit_lc_2exp, a, c, m2exp);
+
+     `gmp_randinit_lc_2exp_size' can fail if the size requested is too
+     big, the behaviour of `gmp_randclass::gmp_randclass' is undefined
+     in this case (perhaps this will change in the future).
+
  - Function:  gmp_randclass::gmp_randclass (gmp_randalg_t ALG, ...)
      Construct a `gmp_randclass' using the same parameters as
-     `gmp_randinit' (*note Random State Initialization::).
-
- - Function:  gmp_randclass::gmp_randclass (void (*RANDINIT)
-          (gmp_randstate_t, mpz_t, unsigned long, unsigned long),
-          mpz_class A, unsigned long C, unsigned long M2EXP)
-     Construct a `gmp_randclass', using a call to the given RANDINIT
-     function.  Currently `gmp_randinit_lc_2exp' is the only choice for
-     this, for example,
-
-          gmp_randclass r (gmp_randinit_lc_2exp, a, c, m2exp);
+     `gmp_randinit' (*note Random State Initialization::).  This
+     function is obsolete and the above RANDINIT style should be
+     preferred.
 
  - Function: void gmp_randclass::seed (unsigned long int S)
  - Function: void gmp_randclass::seed (mpz_class S)
@@ -1111,7 +1119,7 @@ References::) and is implemented as `udiv_qrnnd_preinv' in
 (see `invert_limb') and then multiply by the high limb (plus one bit)
 of the dividend to get a quotient q.  With d normalized (high bit set),
 q is no more than 1 too small.  Subtracting q*d from the dividend gives
-a remainder, and reveals whether q or q+1 is correct.
+a remainder, and reveals whether q or q-1 is correct.
 
    The result is a division done with two multiplications and four or
 five arithmetic operations.  On CPUs with low latency multipliers this
