@@ -25,64 +25,6 @@ versions, except that this permission notice may be stated in a
 translation approved by the Foundation.
 
 
-File: gmp.info,  Node: I/O of Integers,  Next: Miscellaneous Integer Functions,  Prev: Integer Logic and Bit Fiddling,  Up: Integer Functions
-
-Input and Output Functions
-==========================
-
-   Functions that perform input from a stdio stream, and functions that
-output to a stdio stream.  Passing a NULL pointer for a STREAM argument
-to any of these functions will make them read from `stdin' and write to
-`stdout', respectively.
-
-   When using any of these functions, it is a good idea to include
-`stdio.h' before `gmp.h', since that will allow `gmp.h' to define
-prototypes for these functions.
-
- - Function: size_t mpz_out_str (FILE *STREAM, int BASE, mpz_t OP)
-     Output OP on stdio stream STREAM, as a string of digits in base
-     BASE.  The base may vary from 2 to 36.
-
-     Return the number of bytes written, or if an error occurred,
-     return 0.
-
- - Function: size_t mpz_inp_str (mpz_t ROP, FILE *STREAM, int BASE)
-     Input a possibly white-space preceded string in base BASE from
-     stdio stream STREAM, and put the read integer in ROP.  The base
-     may vary from 2 to 36.  If BASE is 0, the actual base is
-     determined from the leading characters: if the first two
-     characters are `0x' or `0X', hexadecimal is assumed, otherwise if
-     the first character is `0', octal is assumed, otherwise decimal is
-     assumed.
-
-     Return the number of bytes read, or if an error occurred, return 0.
-
- - Function: size_t mpz_out_raw (FILE *STREAM, mpz_t OP)
-     Output OP on stdio stream STREAM, in raw binary format.  The
-     integer is written in a portable format, with 4 bytes of size
-     information, and that many bytes of limbs.  Both the size and the
-     limbs are written in decreasing significance order (i.e., in
-     big-endian).
-
-     The output can be read with `mpz_inp_raw'.
-
-     Return the number of bytes written, or if an error occurred,
-     return 0.
-
-     The output of this can not be read by `mpz_inp_raw' from GMP 1,
-     because of changes necessary for compatibility between 32-bit and
-     64-bit machines.
-
- - Function: size_t mpz_inp_raw (mpz_t ROP, FILE *STREAM)
-     Input from stdio stream STREAM in the format written by
-     `mpz_out_raw', and put the result in ROP.  Return the number of
-     bytes read, or if an error occurred, return 0.
-
-     This routine can read the output from `mpz_out_raw' also from GMP
-     1, in spite of changes necessary for compatibility between 32-bit
-     and 64-bit machines.
-
-
 File: gmp.info,  Node: Miscellaneous Integer Functions,  Prev: I/O of Integers,  Up: Integer Functions
 
 Miscellaneous Functions
@@ -371,7 +313,7 @@ Floating-point Functions
    This chapter describes the GMP functions for performing floating
 point arithmetic.  These functions start with the prefix `mpf_'.
 
-   GMP integers are stored in objects of type `mpf_t'.
+   GMP floating point numbers are stored in objects of type `mpf_t'.
 
    The GMP floating-point functions have an interface that is similar
 to the GMP integer functions.  The function prefix for floating-point
@@ -722,9 +664,9 @@ File: gmp.info,  Node: Miscellaneous Float Functions,  Prev: I/O of Floats,  Up:
 Miscellaneous Functions
 =======================
 
- - Function: void mpf_ceil (mpf_t ROP, mp_size_t OP)
- - Function: void mpf_floor (mpf_t ROP, mp_size_t OP)
- - Function: void mpf_trunc (mpf_t ROP, mp_size_t OP)
+ - Function: void mpf_ceil (mpf_t ROP, mpf_t OP)
+ - Function: void mpf_floor (mpf_t ROP, mpf_t OP)
+ - Function: void mpf_trunc (mpf_t ROP, mpf_t OP)
      Set ROP to OP rounded to an integer.  `mpf_ceil' rounds to the
      next higher integer, `mpf_floor' to the next lower, and
      `mpf_trunc' to the integer towards zero.
@@ -1165,4 +1107,89 @@ Functions::.
 * Menu:
 
 * Random State Initialization::	How to initialize a random state.
+
+
+File: gmp.info,  Node: Random State Initialization,  Prev: Random Number Functions,  Up: Random Number Functions
+
+Random State Initialization
+===========================
+
+   See *Note Random Number Functions:: for a discussion on how to
+choose the initial seed value passed to these functions.
+
+ - Function: void gmp_randinit (gmp_randstate_t STATE, gmp_randalg_t
+          ALG, ...)
+     Initialize random state variable STATE.
+
+     ALG denotes what algorithm to use for random number generation.
+     Use one of
+        - GMP_RAND_ALG_LC -- Linear congruential.
+
+          A fast generator defined by X = (aX + c) mod m.
+
+          A third argument SIZE of type unsigned long int is required.
+          SIZE is the size of the largest good quality random number to
+          be generated, expressed in number of bits.  If the random
+          generation functions are asked for a bigger random number
+          than indicated by this parameter, two or more numbers of SIZE
+          bits will be generated and concatenated, resulting in a "bad"
+          random number.  This can be used to generate big random
+          numbers relatively cheap if the quality of randomness isn't
+          of great importance.
+
+          a, c, and m are picked from a table where the modulus (m) is
+          a power of 2 and the multiplier is congruent to 5 (mod 8).
+          The choice is based on the SIZE parameter.  The maximum SIZE
+          supported by this algorithm is 128.  If you need bigger
+          random numbers, use your own scheme and call one of the other
+          `gmp_randinit' functions.
+
+
+     If ALG is 0 or GMP_RAND_ALG_DEFAULT, the default algorithm is
+     used.  The default algorithm is typically a fast algorithm like
+     the linear congruential and requires a third SIZE argument (see
+     GMP_RAND_ALG_LC).
+
+     When you're done with a STATE variable, call `gmp_randclear' to
+     deallocate any memory allocated by this function.
+
+     `gmp_randinit' may set the following bits in GMP_ERRNO:
+        * GMP_ERROR_UNSUPPORTED_ARGUMENT -- ALG is unsupported
+
+        * GMP_ERROR_INVALID_ARGUMENT -- SIZE is too big
+
+ - Function: void gmp_randinit_lc_2exp (gmp_randstate_t STATE, mpz_t A,
+     unsigned long int C, unsigned long int M2EXP)
+
+     Initialize random state variable STATE with given linear
+     congruential scheme.
+
+     Parameters A, C, and M2EXP are the multiplier, adder, and modulus
+     for the linear congruential scheme to use, respectively.  The
+     modulus is expressed as a power of 2, so that M = 2^M2EXP.
+
+     The least significant bits of a random number generated by the
+     linear congruential algorithm where the modulus is a power of two
+     are not very random.  Therefore, the lower half of a random number
+     generated by an LC scheme initialized with this function is
+     discarded.  Thus, the size of a random number is M2EXP / 2
+     (rounded upwards) bits when this function has been used for
+     initializing the random state.
+
+     When you're done with a STATE variable, call `gmp_randclear' to
+     deallocate any memory allocated by this function.
+
+ - Function: void gmp_randseed (gmp_randstate_t STATE, mpz_t SEED)
+ - Function: void gmp_randseed_ui (gmp_randstate_t STATE, unsigned long
+          int SEED)
+     Set the initial seed value.
+
+     Parameter SEED is the initial random seed.  The function
+     `gmp_randseed_ui' takes the SEED as an unsigned long int rather
+     than as an mpz_t.
+
+ - Function: void gmp_randclear (gmp_randstate_t STATE)
+     Free all memory occupied by STATE.  Make sure to call this
+     function for all `gmp_randstate_t' variables when you are done with
+     them.
 

@@ -67,7 +67,7 @@
 # interface changes for gmp 3 mean 3:0:0 is right.
 
 LIBGMP_LT_CURRENT =  3
-LIBGMP_LT_REVISION = 0
+LIBGMP_LT_REVISION = 1
 LIBGMP_LT_AGE =      0
 
 LIBMP_LT_CURRENT =  3

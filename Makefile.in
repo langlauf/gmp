@@ -160,7 +160,7 @@ mpn_objs_in_libgmp = @mpn_objs_in_libgmp@
 
 
 LIBGMP_LT_CURRENT = 3
-LIBGMP_LT_REVISION = 0
+LIBGMP_LT_REVISION = 1
 LIBGMP_LT_AGE = 0
 
 LIBMP_LT_CURRENT = 3
