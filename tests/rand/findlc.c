@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2000 Free Software Foundation, Inc.
+Copyright 2000 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -30,7 +30,7 @@ MA 02111-1307, USA.
 #define RCSID(msg) \
 static /**/const char *const rcsid[] = { (char *)rcsid, "\100(#)" msg }
 
-RCSID("$Id: findlc.c,v 1.3 2000/07/24 17:04:39 tege Exp $");
+RCSID("$Id: findlc.c,v 1.4 2000/10/14 23:18:06 kevin Exp $");
 
 int g_debug = 0;
 
