@@ -721,6 +721,10 @@ HPPA:
 @nisamp{hppa2.0w}
 
 @item
+IA-64:
+@nisamp{ia64}
+
+@item
 MIPS:
 @nisamp{mips},
 @nisamp{mips3},
@@ -786,7 +790,7 @@ SPARC:
 @nisamp{sparc64}
 
 @item
-80x86 family:
+x86 family:
 @nisamp{i386},
 @nisamp{i486},
 @nisamp{i586},
@@ -799,7 +803,10 @@ SPARC:
 @nisamp{k6},
 @nisamp{k62},
 @nisamp{k63},
-@nisamp{athlon}
+@nisamp{athlon},
+@nisamp{x86_64},
+@nisamp{viac3},
+@nisamp{viac32}
 
 @item
 Other:
@@ -8033,7 +8040,7 @@ is certainly not optimal.
 
 The @math{r/b^n} scheme described above for using multiplications to bring out
 digits might be useful for more than a single limb.  Some brief experiments
-with it on the base case when recursing didn't give a noticable improvement,
+with it on the base case when recursing didn't give a noticeable improvement,
 but perhaps that was only due to the implementation.  Something similar would
 work for the sub-quadratic divisions too, though there would be the cost of
 calculating a bigger radix power.
