@@ -1,7 +1,7 @@
 This is gmp.info, produced by makeinfo version 4.2 from gmp.texi.
 
 This manual describes how to install and use the GNU multiple precision
-arithmetic library, version 4.1.1.
+arithmetic library, version 4.1.2.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
 2001, 2002 Free Software Foundation, Inc.
@@ -17,6 +17,86 @@ INFO-DIR-SECTION GNU libraries
 START-INFO-DIR-ENTRY
 * gmp: (gmp).                   GNU Multiple Precision Arithmetic Library.
 END-INFO-DIR-ENTRY
+
+
+File: gmp.info,  Node: Parameter Conventions,  Next: Memory Management,  Prev: Variable Conventions,  Up: GMP Basics
+
+Parameter Conventions
+=====================
+
+   When a GMP variable is used as a function parameter, it's
+effectively a call-by-reference, meaning if the function stores a value
+there it will change the original in the caller.  Parameters which are
+input-only can be designated `const' to provoke a compiler error or
+warning on attempting to modify them.
+
+   When a function is going to return a GMP result, it should designate
+a parameter that it sets, like the library functions do.  More than one
+value can be returned by having more than one output parameter, again
+like the library functions.  A `return' of an `mpz_t' etc doesn't
+return the object, only a pointer, and this is almost certainly not
+what's wanted.
+
+   Here's an example accepting an `mpz_t' parameter, doing a
+calculation, and storing the result to the indicated parameter.
+
+     void
+     foo (mpz_t result, const mpz_t param, unsigned long n)
+     {
+       unsigned long  i;
+       mpz_mul_ui (result, param, n);
+       for (i = 1; i < n; i++)
+         mpz_add_ui (result, result, i*7);
+     }
+     
+     int
+     main (void)
+     {
+       mpz_t  r, n;
+       mpz_init (r);
+       mpz_init_set_str (n, "123456", 0);
+       foo (r, n, 20L);
+       gmp_printf ("%Zd\n", r);
+       return 0;
+     }
+
+   `foo' works even if the mainline passes the same variable for
+`param' and `result', just like the library functions.  But sometimes
+it's tricky to make that work, and an application might not want to
+bother supporting that sort of thing.
+
+   For interest, the GMP types `mpz_t' etc are implemented as
+one-element arrays of certain structures.  This is why declaring a
+variable creates an object with the fields GMP needs, but then using it
+as a parameter passes a pointer to the object.  Note that the actual
+fields in each `mpz_t' etc are for internal use only and should not be
+accessed directly by code that expects to be compatible with future GMP
+releases.
+
+
+File: gmp.info,  Node: Memory Management,  Next: Reentrancy,  Prev: Parameter Conventions,  Up: GMP Basics
+
+Memory Management
+=================
+
+   The GMP types like `mpz_t' are small, containing only a couple of
+sizes, and pointers to allocated data.  Once a variable is initialized,
+GMP takes care of all space allocation.  Additional space is allocated
+whenever a variable doesn't have enough.
+
+   `mpz_t' and `mpq_t' variables never reduce their allocated space.
+Normally this is the best policy, since it avoids frequent reallocation.
+Applications that need to return memory to the heap at some particular
+point can use `mpz_realloc2', or clear variables no longer needed.
+
+   `mpf_t' variables, in the current implementation, use a fixed amount
+of space, determined by the chosen precision and allocated at
+initialization, so their size doesn't change.
+
+   All memory is allocated using `malloc' and friends by default, but
+this can be changed, see *Note Custom Allocation::.  Temporary memory
+on the stack is also used (via `alloca'), but this can be changed at
+build-time if desired, see *Note Build Options::.
 
 
 File: gmp.info,  Node: Reentrancy,  Next: Useful Macros and Constants,  Prev: Memory Management,  Up: GMP Basics
@@ -79,7 +159,7 @@ Useful Macros and Constants
 
  - Global Constant: const char * const gmp_version
      The GMP version number, as a null-terminated string, in the form
-     "i.j" or "i.j.k".  This release is "4.1.1".
+     "i.j" or "i.j.k".  This release is "4.1.2".
 
 
 File: gmp.info,  Node: Compatibility with older versions,  Next: Demonstration Programs,  Prev: Useful Macros and Constants,  Up: GMP Basics
@@ -318,6 +398,17 @@ Stack Overflow
      `--enable-alloca' choices in *Note Build Options::, for how to
      address this.
 
+     In new enough versions of GCC, `-fstack-check' may be able to
+     ensure an overflow is recognised by the system before too much
+     damage is done, or `-fstack-limit-symbol' or
+     `-fstack-limit-register' may be able to add checking if the system
+     itself doesn't do any (*note Options for Code Generation:
+     (gcc)Code Gen Options.).  These options must be added to the
+     `CFLAGS' used in the GMP build (*note Build Options::), adding
+     them just to an application will have no effect.  Note also
+     they're a slowdown, adding overhead to each function call and each
+     stack allocation.
+
 Heap Problems
      The most likely cause of application problems with GMP is heap
      corruption.  Failing to `init' GMP variables will have
@@ -369,7 +460,7 @@ Source File Paths
      absolute path to the source directory.
 
           cd /my/build/dir
-          /my/source/dir/gmp-4.1.1/configure
+          /my/source/dir/gmp-4.1.2/configure
 
      This works via `VPATH', and might require GNU `make'.  Alternately
      it might be possible to change the `.c.lo' rules appropriately.
@@ -400,6 +491,15 @@ Temporary Memory Checking
      which GMP divides up for its own use, or may be allocated with a
      compiler builtin `alloca' which will go nowhere near any malloc
      debugger hooks.
+
+Maximum Debuggability
+     To summarize the above, a GMP build for maximum debuggability
+     would be
+
+          ./configure --disable-shared --enable-assert \
+            --enable-alloca=debug --host=none CFLAGS=-g
+
+     For C++, add `--enable-cxx CXXFLAGS=-g'.
 
 Checker
      The checker program (`http://savannah.gnu.org/projects/checker')

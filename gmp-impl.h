@@ -569,9 +569,14 @@ void __gmp_default_free _PROTO ((void *, size_t));
 
 /* In gcc 2.96 and up on i386, tail calls are optimized to jumps if the
    stack usage is compatible.  __attribute__ ((regparm (N))) helps by
-   putting leading parameters in registers, avoiding extra stack.  */
+   putting leading parameters in registers, avoiding extra stack.
 
-#if HAVE_HOST_CPU_FAMILY_x86 && __GMP_GNUC_PREREQ (2,96)
+   regparm cannot be used with calls going through the PLT, because the
+   binding code there may clobber the registers (%eax, %edx, %ecx) used for
+   the regparm parameters.  Calls to local (ie. static) functions could
+   still use this, if we cared to differentiate locals and globals.  */
+
+#if HAVE_HOST_CPU_FAMILY_x86 && __GMP_GNUC_PREREQ (2,96) && ! defined (PIC)
 #define USE_LEADING_REGPARM 1
 #else
 #define USE_LEADING_REGPARM 0
@@ -2481,7 +2486,7 @@ union ieee_double_extract
  || defined (__x86_64__)						\
  || defined (__i860__)							\
  || defined (__i960__)							\
- || defined (__ia64)							\
+ || defined (__ia64) && ! defined (__hpux)				\
  || defined (MIPSEL) || defined (_MIPSEL)				\
  || defined (__ns32000__)						\
  || defined (__WINNT) || defined (_WIN32)
@@ -2528,6 +2533,7 @@ union ieee_double_extract
  || defined (_IBMR2) || defined (_ARCH_PPC)				\
  || defined (__sh__)							\
  || defined (__sparc) || defined (sparc) || defined (__sparc__)		\
+ || defined (__sparc_v9) || defined (__sparc_v9__)			\
  || defined (__we32k__)
 #define _GMP_IEEE_FLOATS 1
 union ieee_double_extract

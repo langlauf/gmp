@@ -1,7 +1,7 @@
 This is gmp.info, produced by makeinfo version 4.2 from gmp.texi.
 
 This manual describes how to install and use the GNU multiple precision
-arithmetic library, version 4.1.1.
+arithmetic library, version 4.1.2.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
 2001, 2002 Free Software Foundation, Inc.
@@ -418,9 +418,9 @@ Concept Index
 * Allocation of memory:                  Custom Allocation.
 * Anonymous FTP of latest version:       Introduction to GMP.
 * Application Binary Interface:          ABI and ISA.
-* Arithmetic functions <1>:              Float Arithmetic.
-* Arithmetic functions <2>:              Rational Arithmetic.
-* Arithmetic functions:                  Integer Arithmetic.
+* Arithmetic functions <1>:              Rational Arithmetic.
+* Arithmetic functions <2>:              Integer Arithmetic.
+* Arithmetic functions:                  Float Arithmetic.
 * Assignment functions <1>:              Assigning Floats.
 * Assignment functions:                  Assigning Integers.
 * Autoconf detections:                   Autoconf.
@@ -441,9 +441,9 @@ Concept Index
 * C++ Interface:                         C++ Class Interface.
 * C++ istream input:                     C++ Formatted Input.
 * C++ ostream output:                    C++ Formatted Output.
-* Comparison functions <1>:              Float Comparison.
+* Comparison functions <1>:              Comparing Rationals.
 * Comparison functions <2>:              Integer Comparisons.
-* Comparison functions:                  Comparing Rationals.
+* Comparison functions:                  Float Comparison.
 * Compatibility with older versions:     Compatibility with older versions.
 * Conditions for copying GNU MP:         Copying.
 * Configuring GMP:                       Installing GMP.
@@ -452,8 +452,8 @@ Concept Index
 * Conventions for parameters:            Parameter Conventions.
 * Conventions for variables:             Variable Conventions.
 * Conversion functions <1>:              Converting Integers.
-* Conversion functions <2>:              Rational Conversions.
-* Conversion functions:                  Converting Floats.
+* Conversion functions <2>:              Converting Floats.
+* Conversion functions:                  Rational Conversions.
 * Copying conditions:                    Copying.
 * CPUs supported:                        Introduction to GMP.
 * Custom allocation:                     Custom Allocation.
@@ -461,8 +461,8 @@ Concept Index
 * Demonstration programs:                Demonstration Programs.
 * DESTDIR:                               Known Build Problems.
 * Division algorithms:                   Division Algorithms.
-* Division functions <1>:                Rational Arithmetic.
-* Division functions <2>:                Integer Division.
+* Division functions <1>:                Integer Division.
+* Division functions <2>:                Rational Arithmetic.
 * Division functions:                    Float Arithmetic.
 * Efficiency:                            Efficiency.
 * Emacs:                                 Emacs.
@@ -504,13 +504,13 @@ Concept Index
 * I/O functions:                         I/O of Rationals.
 * Import:                                Integer Import and Export.
 * Initialization and assignment functions <1>: Initializing Rationals.
-* Initialization and assignment functions <2>: Simultaneous Float Init & Assign.
-* Initialization and assignment functions: Simultaneous Integer Init & Assign.
+* Initialization and assignment functions <2>: Simultaneous Integer Init & Assign.
+* Initialization and assignment functions: Simultaneous Float Init & Assign.
 * Initialization functions <1>:          Initializing Integers.
 * Initialization functions:              Initializing Floats.
 * Input functions <1>:                   I/O of Floats.
-* Input functions <2>:                   I/O of Integers.
-* Input functions:                       I/O of Rationals.
+* Input functions <2>:                   I/O of Rationals.
+* Input functions:                       I/O of Integers.
 * Installing GMP:                        Installing GMP.
 * Instruction Set Architecture:          ABI and ISA.
 * Integer:                               Nomenclature and Types.
@@ -563,8 +563,8 @@ Concept Index
 * Number theoretic functions:            Number Theoretic Functions.
 * Numerator and denominator:             Applying Integer Functions.
 * ostream output:                        C++ Formatted Output.
-* Output functions <1>:                  I/O of Floats.
-* Output functions <2>:                  I/O of Integers.
+* Output functions <1>:                  I/O of Integers.
+* Output functions <2>:                  I/O of Floats.
 * Output functions:                      I/O of Rationals.
 * Packaged builds:                       Notes for Package Builds.
 * Parameter conventions:                 Parameter Conventions.
@@ -595,14 +595,15 @@ Concept Index
 * References:                            References.
 * Reporting bugs:                        Reporting Bugs.
 * Root extraction algorithms:            Root Extraction Algorithms.
-* Root extraction functions <1>:         Float Arithmetic.
-* Root extraction functions:             Integer Roots.
+* Root extraction functions <1>:         Integer Roots.
+* Root extraction functions:             Float Arithmetic.
 * Sample programs:                       Demonstration Programs.
 * scanf formatted input:                 Formatted Input.
 * Shared library versioning:             Notes for Package Builds.
-* Sign tests <1>:                        Integer Comparisons.
-* Sign tests <2>:                        Comparing Rationals.
-* Sign tests:                            Float Comparison.
+* Sign tests <1>:                        Comparing Rationals.
+* Sign tests <2>:                        Float Comparison.
+* Sign tests:                            Integer Comparisons.
+* Sparc:                                 Notes for Particular Systems.
 * Stack overflow segfaults:              Build Options.
 * Stripped libraries:                    Known Build Problems.
 * Systems:                               Notes for Particular Systems.

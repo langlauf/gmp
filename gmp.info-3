@@ -1,7 +1,7 @@
 This is gmp.info, produced by makeinfo version 4.2 from gmp.texi.
 
 This manual describes how to install and use the GNU multiple precision
-arithmetic library, version 4.1.1.
+arithmetic library, version 4.1.2.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
 2001, 2002 Free Software Foundation, Inc.
@@ -779,6 +779,14 @@ increase it a little to facilitate efficient calculation.  Currently
 this means rounding up to a whole limb, and then sometimes having a
 further partial limb, depending on the high limb of the mantissa.  But
 applications shouldn't be concerned by such details.
+
+   The mantissa in stored in binary, as might be imagined from the fact
+precisions are expressed in bits.  One consequence of this is that
+decimal fractions like 0.1 cannot be represented exactly.  The same is
+true of plain IEEE `double' floats.  This makes both highly unsuitable
+for calculations involving money or other values that should be exact
+decimal fractions.  (Suitably scaled integers, or perhaps rationals,
+are better choices.)
 
    `mpf' functions and variables have no special notion of infinity or
 not-a-number, and applications must take care not to overflow the

@@ -1324,8 +1324,7 @@ mprotect_maybe (void *addr, size_t len, int prot)
 #if HAVE_MPROTECT
   if (mprotect (addr, len, prot) != 0)
     {
-      fprintf (stderr, "Cannot mprotect %p 0x%X 0x%X: %s\n",
-               addr, len, prot, strerror (errno));
+      fprintf (stderr, "Cannot mprotect %p 0x%X 0x%X\n", addr, len, prot);
       exit (1);
     }
 #else
@@ -1384,8 +1383,7 @@ malloc_region (struct region_t *r, mp_size_t n)
   p = mmap (NULL, nbytes, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANON, -1, 0);
   if (p == (void *) -1)
     {
-      fprintf (stderr, "Cannot mmap %#x anon bytes: %s\n",
-               nbytes, strerror (errno));
+      fprintf (stderr, "Cannot mmap %#x anon bytes\n", nbytes);
       exit (1);
     }
 #else

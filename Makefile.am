@@ -46,6 +46,7 @@
 #        4.0.1    5:1:2    3:1:0   4:3:1
 #        4.1      6:0:3    3:2:0   4:4:1
 #        4.1.1    6:1:3    3:3:0   4:5:1
+#        4.1.2    6:2:3    3:4:0   4:6:1
 #
 # Starting at 3:0:0 is a slight abuse of the versioning system, but it
 # ensures we're past soname libgmp.so.2, which was used on Debian GNU/Linux
@@ -53,15 +54,15 @@
 # gmp 3 mean 3:0:0 is right.
 
 LIBGMP_LT_CURRENT =  6
-LIBGMP_LT_REVISION = 1
+LIBGMP_LT_REVISION = 2
 LIBGMP_LT_AGE =      3
 
 LIBGMPXX_LT_CURRENT =  3
-LIBGMPXX_LT_REVISION = 3
+LIBGMPXX_LT_REVISION = 4
 LIBGMPXX_LT_AGE =      0
 
 LIBMP_LT_CURRENT =  4
-LIBMP_LT_REVISION = 5
+LIBMP_LT_REVISION = 6
 LIBMP_LT_AGE =      1
 
 

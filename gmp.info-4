@@ -1,7 +1,7 @@
 This is gmp.info, produced by makeinfo version 4.2 from gmp.texi.
 
 This manual describes how to install and use the GNU multiple precision
-arithmetic library, version 4.1.1.
+arithmetic library, version 4.1.2.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
 2001, 2002 Free Software Foundation, Inc.
@@ -714,8 +714,8 @@ the type and the C library for the output.
      hh        char
      j         intmax_t or uintmax_t
      l         long or wchar_t
-     ll        same as L
-     L         long long or long double
+     ll        long long
+     L         long double
      q         quad_t or u_quad_t
      t         ptrdiff_t
      z         size_t
@@ -731,7 +731,7 @@ The GMP types are
 supported for `mpf_t' but depend on the C library for standard C float
 types.  `m' and `p' depend on the C library.
 
-     a A       hex floats, GLIBC style
+     a A       hex floats, C99 style
      c         character
      d         decimal integer
      e E       scientific format float
@@ -767,7 +767,7 @@ accurately represented by the operand, the same as `mpf_get_str' does.
 Zeros will be used if necessary to pad to the requested precision.  This
 happens even for an `f' conversion of an `mpf_t' which is an integer,
 for instance 2^1024 in an `mpf_t' of 128 bits precision will only
-produce about 20 digits, then pad with zeros to the decimal point.  An
+produce about 40 digits, then pad with zeros to the decimal point.  An
 empty precision field like `%.Fe' or `%.Ff' can be used to specifically
 request just the significant digits.
 
@@ -775,6 +775,9 @@ request just the significant digits.
 locale settings on systems which provide `localeconv' (*note Locales
 and Internationalization: (libc)Locales.).  The C library will normally
 do the same for standard float output.
+
+   The format string is only interpreted as plain `char's, multibyte
+characters are not recognised.  Perhaps this will change in the future.
 
 
 File: gmp.info,  Node: Formatted Output Functions,  Next: C++ Formatted Output,  Prev: Formatted Output Strings,  Up: Formatted Output
@@ -989,9 +992,9 @@ the type and the C library for the input.
      h         short
      hh        char
      j         intmax_t or uintmax_t
-     l         long or wchar_t
-     ll        same as L
-     L         long long or long double
+     l         long int, double or wchar_t
+     ll        long long
+     L         long double
      q         quad_t or u_quad_t
      t         ptrdiff_t
      z         size_t
@@ -1055,6 +1058,9 @@ expected is taken from the current locale settings on systems which
 provide `localeconv' (*note Locales and Internationalization:
 (libc)Locales.).  The C library will normally do the same for standard
 float input.
+
+   The format string is only interpreted as plain `char's, multibyte
+characters are not recognised.  Perhaps this will change in the future.
 
 
 File: gmp.info,  Node: Formatted Input Functions,  Next: C++ Formatted Input,  Prev: Formatted Input Strings,  Up: Formatted Input

@@ -1,7 +1,7 @@
 This is gmp.info, produced by makeinfo version 4.2 from gmp.texi.
 
 This manual describes how to install and use the GNU multiple precision
-arithmetic library, version 4.1.1.
+arithmetic library, version 4.1.2.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
 2001, 2002 Free Software Foundation, Inc.
@@ -688,6 +688,9 @@ C++
 
         * ALP `http://www.inria.fr/saga/logiciels/ALP'
           Linear algebra and polynomials using templates.
+
+        * Arithmos `http://win-www.uia.ac.be/u/cant/arithmos'
+          Rationals with infinities and square roots.
 
         * CLN `http://clisp.cons.org/~haible/packages-cln.html'
           High level classes for arithmetic.

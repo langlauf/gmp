@@ -19,6 +19,99 @@ the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA.
 
 
+2002-12-24  Kevin Ryde  <kevin@swox.se>
+
+	* Version 4.1.2 released.
+
+	* tests/devel/try.c (mprotect_maybe, malloc_region): Don't use
+	strerror, need to check it exists first.
+
+2002-12-22  Torbjorn Granlund  <tege@swox.com>
+
+	* configure.in (hppa2.0*-*-*): Pass +O2 instead of +O3 to work around
+	compiler bug with mpfr/tests/tdiv.
+
+	* gmp-impl.h (union ieee_double_extract): Test for __sparc_v9 and
+	__sparc_v9__.
+
+2002-12-20  Torbjorn Granlund  <tege@swox.com>
+
+	* mpn/generic/rootrem.c: In Newton loop, pad qp with leading zero.
+
+2002-12-19  Torbjorn Granlund  <tege@swox.com>
+
+	* mpn/generic/rootrem.c: Allocate 1.585 (log2(3)) times more space
+	for pp temporary to allow for worst case overestimate of root.
+	Add some asserts.
+
+	* tests/mpz/t-root.c: Generalize and speed up.
+
+2002-12-19  Kevin Ryde  <kevin@swox.se>
+
+	* gmp.texi (Build Options): Mention MS Interix, reported by Paul
+	Leyland.
+	(Notes for Particular Systems): Compaq C++ must be used in "standard"
+	iostream mode.  Add Sparc app regs.
+	(Debugging): Note gcc -fstack options to detect overflow.
+	(Formatted Output Strings, Formatted Input Strings): Format strings
+	are not multibyte.
+
+2002-12-18  Kevin Ryde  <kevin@swox.se>
+
+	* gmp-h.in (__GNU_MP_VERSION_PATCHLEVEL): Bump to 4.1.2.
+	* Makefile.am (LIBGMP_LT_REVISION, LIBGMPXX_LT_REVISION,
+	LIBMP_LT_REVISION): Increment.
+
+2002-12-18  Paul Zimmermann  <Paul.Zimmermann@loria.fr>
+
+	* mpfr/pow.c: Fixed bug (infinite loop) for exact powers.
+
+	* mpfr/sub.c: Fixed wrong inexact flag for a - b where a and b are of
+	different signs and EXP(a) < EXP(b).
+
+2002-12-17  Torbjorn Granlund  <tege@swox.com>
+
+	* printf/printffuns.c (gmp_fprintf_reps): Make it actually work
+	for padding > 256.
+
+2002-12-17  Kevin Ryde  <kevin@swox.se>
+
+	* gmp.texi (Formatted Output Strings): %a and %A are C99 not glibc.
+	(Formatted Input Strings): Type "l" is for double too.
+
+2002-12-13  Kevin Ryde  <kevin@swox.se>
+
+	* gmp.texi (Debugging): Add maximum debuggability config options.
+        (Language Bindings): Add Arithmos, reported by Johan Vervloet.
+	(Formatted Output Strings): 128 bits is about 40 digits, ll is only
+	for long long not long double.
+	(Formatted Input Strings): ll is only for long long not long double.
+
+2002-12-08  Torbjorn Granlund  <tege@swox.com>
+
+	* gmp-impl.h (USE_LEADING_REGPARM): Disable for PIC code generation.
+
+2002-12-04  Torbjorn Granlund  <tege@swox.com>
+
+	* gmp-impl.h (union ieee_double_extract): Amend test for ia64 with hpux
+	test.
+
+2002-12-04  Kevin Ryde  <kevin@swox.se>
+
+	* gmp.texi (Floating-point Functions): Note the mantissa is binary and
+	decimal fractions cannot be represented exactly.  Suggested by Serge
+	Winitzki.
+	(Known Build Problems): Note libtool stripping options when linking.
+	Reported by Vincent Lefevre.
+
+2002-12-03  Kevin Ryde  <kevin@swox.se>
+
+	* INSTALL: Use return rather than exit in the example programs.
+	Suggested by Richard Dawe.
+
+	* longlong.h (count_leading_zeros, count_trailing_zeros) [ev67, ev68]:
+	Restrict __asm__ ctlz and cttz to __GNUC__.
+
 2002-11-25  Kevin Ryde  <kevin@swox.se>
 
 	* Version 4.1.1 released.

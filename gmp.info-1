@@ -1,7 +1,7 @@
 This is gmp.info, produced by makeinfo version 4.2 from gmp.texi.
 
 This manual describes how to install and use the GNU multiple precision
-arithmetic library, version 4.1.1.
+arithmetic library, version 4.1.2.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
 2001, 2002 Free Software Foundation, Inc.
@@ -25,7 +25,7 @@ GNU MP
 ******
 
 This manual describes how to install and use the GNU multiple precision
-arithmetic library, version 4.1.1.
+arithmetic library, version 4.1.2.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
 2001, 2002 Free Software Foundation, Inc.
@@ -217,6 +217,10 @@ Non-Unix Systems
           `http://www.delorie.com/djgpp'
           `http://www.mingw.org'
 
+     Microsoft also publishes an Interix "Services for Unix" which can
+     be used to build GMP on Windows (with a normal `./configure'), but
+     it's not free software.
+
      The `macos' directory contains an unsupported port to MacOS 9 on
      Power Macintosh, see `macos/README'.  Note that MacOS X "Darwin"
      should use the normal Unix-style `./configure'.
@@ -231,7 +235,7 @@ Build Directory
      directory.  For example
 
           cd /my/build/dir
-          /my/sources/gmp-4.1.1/configure
+          /my/sources/gmp-4.1.2/configure
 
      Not all `make' programs have the necessary features (`VPATH') to
      support this.  In particular, SunOS and Slowaris `make' have bugs
@@ -754,6 +758,15 @@ ARM
      have a bug in unsigned division, giving wrong results for some
      operands.  GMP `./configure' will demand GCC 2.95.4 or later.
 
+Compaq C++
+     Compaq C++ on OSF 5.1 has two flavours of `iostream', a standard
+     one and an old pre-standard one (see `man iostream_intro').  GMP
+     can only use the standard one, which unfortunately is not the
+     default but must be selected by defining `__USE_STD_IOSTREAM'.
+     Configure with for instance
+
+          ./configure --enable-cxx CPPFLAGS=-D__USE_STD_IOSTREAM
+
 Microsoft Windows
      On systems `*-*-cygwin*', `*-*-mingw*' and `*-*-pw32*' by default
      GMP builds only a static library, but a DLL can be built instead
@@ -810,6 +823,18 @@ Sparc CPU Types
      `sparcv8' or `supersparc' on relevant systems will give a
      significant performance increase over the V7 code.
 
+Sparc App Regs
+     The GMP assembler code for both 32-bit and 64-bit Sparc clobbers
+     the "application registers" `g2', `g3' and `g4', the same way that
+     the GCC default `-mapp-regs' does (*note SPARC Options: (gcc)SPARC
+     Options.).
+
+     This makes that code unsuitable for use with the special V9
+     `-mcmodel=embmedany' (which uses `g4' as a data segment pointer),
+     and for applications wanting to use those registers for special
+     purposes.  In these cases the only suggestion currently is to
+     build GMP with CPU `none' to avoid the assembler code.
+
 SunOS 4
      `/usr/bin/m4' lacks various features needed to process `.asm'
      files, and instead `./configure' will automatically use
@@ -852,6 +877,15 @@ Known Build Problems
 ====================
 
    You might find more up-to-date information at `http://swox.com/gmp/'.
+
+Compiler link options
+     The version of libtool currently in use rather aggressively strips
+     compiler options when linking a shared library.  This will
+     hopefully be relaxed in the future, but for now if this is a
+     problem the suggestion is to create a little script to hide them,
+     and for instance configure with
+
+          ./configure CC=gcc-with-my-options
 
 DJGPP
      The DJGPP port of `bash' 2.03 is unable to run the `configure'
@@ -1134,84 +1168,4 @@ end.  For example,
          }
        mpz_clear (n);
      }
-
-
-File: gmp.info,  Node: Parameter Conventions,  Next: Memory Management,  Prev: Variable Conventions,  Up: GMP Basics
-
-Parameter Conventions
-=====================
-
-   When a GMP variable is used as a function parameter, it's
-effectively a call-by-reference, meaning if the function stores a value
-there it will change the original in the caller.  Parameters which are
-input-only can be designated `const' to provoke a compiler error or
-warning on attempting to modify them.
-
-   When a function is going to return a GMP result, it should designate
-a parameter that it sets, like the library functions do.  More than one
-value can be returned by having more than one output parameter, again
-like the library functions.  A `return' of an `mpz_t' etc doesn't
-return the object, only a pointer, and this is almost certainly not
-what's wanted.
-
-   Here's an example accepting an `mpz_t' parameter, doing a
-calculation, and storing the result to the indicated parameter.
-
-     void
-     foo (mpz_t result, const mpz_t param, unsigned long n)
-     {
-       unsigned long  i;
-       mpz_mul_ui (result, param, n);
-       for (i = 1; i < n; i++)
-         mpz_add_ui (result, result, i*7);
-     }
-     
-     int
-     main (void)
-     {
-       mpz_t  r, n;
-       mpz_init (r);
-       mpz_init_set_str (n, "123456", 0);
-       foo (r, n, 20L);
-       gmp_printf ("%Zd\n", r);
-       return 0;
-     }
-
-   `foo' works even if the mainline passes the same variable for
-`param' and `result', just like the library functions.  But sometimes
-it's tricky to make that work, and an application might not want to
-bother supporting that sort of thing.
-
-   For interest, the GMP types `mpz_t' etc are implemented as
-one-element arrays of certain structures.  This is why declaring a
-variable creates an object with the fields GMP needs, but then using it
-as a parameter passes a pointer to the object.  Note that the actual
-fields in each `mpz_t' etc are for internal use only and should not be
-accessed directly by code that expects to be compatible with future GMP
-releases.
-
-
-File: gmp.info,  Node: Memory Management,  Next: Reentrancy,  Prev: Parameter Conventions,  Up: GMP Basics
-
-Memory Management
-=================
-
-   The GMP types like `mpz_t' are small, containing only a couple of
-sizes, and pointers to allocated data.  Once a variable is initialized,
-GMP takes care of all space allocation.  Additional space is allocated
-whenever a variable doesn't have enough.
-
-   `mpz_t' and `mpq_t' variables never reduce their allocated space.
-Normally this is the best policy, since it avoids frequent reallocation.
-Applications that need to return memory to the heap at some particular
-point can use `mpz_realloc2', or clear variables no longer needed.
-
-   `mpf_t' variables, in the current implementation, use a fixed amount
-of space, determined by the chosen precision and allocated at
-initialization, so their size doesn't change.
-
-   All memory is allocated using `malloc' and friends by default, but
-this can be changed, see *Note Custom Allocation::.  Temporary memory
-on the stack is also used (via `alloca'), but this can be changed at
-build-time if desired, see *Note Build Options::.
 

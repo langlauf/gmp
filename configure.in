@@ -25,7 +25,7 @@ MA 02111-1307, USA.
 ])
 
 
-AC_REVISION($Revision: 1.425.2.15 $)
+AC_REVISION($Revision: 1.425.2.17 $)
 AC_PREREQ(2.52)
 AC_INIT(gmp-impl.h)
 m4_pattern_forbid([^[ \t]*GMP_])
@@ -493,8 +493,8 @@ case $host in
 
         # no gcc support for long long in 2.0n
 	cclist_20n="cc"
-        # +O2 to cc triggers bug in mpz/powm.c (cvs version 1.4)
-        cc_20n_cflags="+DA2.0 +e +O3"
+        # +O3 causes problems with fp rounding in mpfr/tests/tdiv.
+        cc_20n_cflags="+DA2.0 +e +O2"
         cc_20n_testlist="hpc-hppa-2-0"
         path_20n="pa64"
 	limb_20n=longlong
@@ -516,7 +516,7 @@ case $host in
 
           # gcc support for 2.0w is in progress
           cclist_20w="cc"
-          cc_20w_cflags="+DD64 +O3"
+          cc_20w_cflags="+DD64 +O2" # +O3 causes problems with fp rounding in mpfr/tests/tdiv.
           cc_20w_testlist="hpc-hppa-2-0"
           path_20w="pa64"
           extra_functions_20w="umul_ppmm udiv_qrnnd"
