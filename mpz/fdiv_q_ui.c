@@ -1,7 +1,7 @@
 /* mpz_fdiv_q_ui -- Division rounding the quotient towards -infinity.
    The remainder gets the same sign as the denominator.
 
-Copyright (C) 1994, 1995, 1996 Free Software Foundation, Inc.
+Copyright (C) 1994, 1995, 1996, 1999 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -38,6 +38,9 @@ mpz_fdiv_q_ui (quot, dividend, divisor)
   mp_ptr quot_ptr;
   mp_limb_t remainder_limb;
 
+  if (divisor == 0)
+    DIVIDE_BY_ZERO;
+
   dividend_size = dividend->_mp_size;
   size = ABS (dividend_size);
 
@@ -51,7 +54,7 @@ mpz_fdiv_q_ui (quot, dividend, divisor)
 
   if (remainder_limb != 0 && dividend_size < 0)
     {
-      mpn_add_1 (quot_ptr, quot_ptr, size, (mp_limb_t) 1);
+      mpn_incr_u (quot_ptr, (mp_limb_t) 1);
       remainder_limb = divisor - remainder_limb;
     }
 

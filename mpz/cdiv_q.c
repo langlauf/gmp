@@ -1,7 +1,7 @@
 /* mpz_cdiv_q -- Division rounding the quotient towards +infinity.  The
    remainder gets the opposite sign as the denominator.
 
-Copyright (C) 1994, 1995, 1996 Free Software Foundation, Inc.
+Copyright (C) 1994, 1995, 1996, 2000 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -40,7 +40,7 @@ mpz_cdiv_q (quot, dividend, divisor)
 
   TMP_MARK (marker);
 
-  MPZ_TMP_INIT (rem, 1 + ABS (dividend_size));
+  MPZ_TMP_INIT (rem, ABS (divisor_size));
 
   mpz_tdiv_qr (quot, rem, dividend, divisor);
 

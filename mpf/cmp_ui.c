@@ -1,6 +1,6 @@
 /* mpf_cmp_ui -- Compare a float with an unsigned integer.
 
-Copyright (C) 1993, 1994, 1995 Free Software Foundation, Inc.
+Copyright (C) 1993, 1994, 1995, 1999 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -54,6 +54,12 @@ mpf_cmp_ui (u, vlimb)
 
   up = u->_mp_d;
 
+  /* 3. Compare the most significant mantissa limb with V.  */
+  if (up[usize - 1] > vlimb)
+    return 1;
+  else if (up[usize - 1] < vlimb)
+    return -1;
+
 #define STRICT_MPF_NORMALIZATION 0
 #if ! STRICT_MPF_NORMALIZATION
   /* Ignore zeroes at the low end of U.  */
@@ -64,16 +70,10 @@ mpf_cmp_ui (u, vlimb)
     }
 #endif
 
-  /* 3. Now, if the number of limbs are different, we have a difference
+  /* 4. Now, if the number of limbs are different, we have a difference
      since we have made sure the trailing limbs are not zero.  */
   if (usize > 1)
     return 1;
-
-  /* 4. Compare the mantissas.  */
-  if (*up > vlimb)
-    return 1;
-  else if (*up < vlimb)
-    return -1;
 
   /* Wow, we got zero even if we tried hard to avoid it.  */
   return 0;

@@ -1,7 +1,7 @@
-# VAX __mpn_sub_n -- Subtract two limb vectors of the same length > 0 and store
+# VAX __gmpn_sub_n -- Subtract two limb vectors of the same length > 0 and store
 # difference in a third limb vector.
 
-# Copyright (C) 1992, 1994 Free Software Foundation, Inc.
+# Copyright (C) 1999, 2000 Free Software Foundation, Inc.
 
 # This file is part of the GNU MP Library.
 
@@ -29,20 +29,33 @@
 
 .text
 	.align 1
-.globl ___mpn_sub_n
-___mpn_sub_n:
+.globl ___gmpn_sub_n
+___gmpn_sub_n:
 	.word	0x0
 	movl	16(ap),r0
 	movl	12(ap),r1
 	movl	8(ap),r2
 	movl	4(ap),r3
-	subl2	r4,r4
+	mnegl	r0,r5
+	addl2	$3,r0
+	ashl	$-2,r0,r0	# unroll loop count
+	bicl2	$-4,r5		# mask out low 2 bits
+	movaq	(r5)[r5],r5	# 9x
+	jmp	Loop(r5)
 
-Loop:
+Loop:	movl	(r2)+,r4
+	sbwc	(r1)+,r4
+	movl	r4,(r3)+
 	movl	(r2)+,r4
 	sbwc	(r1)+,r4
 	movl	r4,(r3)+
-	jsobgtr	r0,Loop
+	movl	(r2)+,r4
+	sbwc	(r1)+,r4
+	movl	r4,(r3)+
+	movl	(r2)+,r4
+	sbwc	(r1)+,r4
+	movl	r4,(r3)+
+	sobgtr	r0,Loop
 
 	adwc	r0,r0
 	ret

@@ -1,6 +1,7 @@
 /* mpn/gcd.c: mpn_gcd for gcd of two odd integers.
 
-Copyright (C) 1991, 1993, 1994, 1995, 1996 Free Software Foundation, Inc.
+Copyright (C) 1991, 1993, 1994, 1995, 1996, 1997, 1998 Free Software
+Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -22,7 +23,7 @@ MA 02111-1307, USA. */
 /* Integer greatest common divisor of two unsigned integers, using
    the accelerated algorithm (see reference below).
 
-   mp_size_t mpn_gcd (vp, vsize, up, usize).
+   mp_size_t mpn_gcd (up, usize, vp, vsize).
 
    Preconditions [U = (up, usize) and V = (vp, vsize)]:
 
@@ -129,7 +130,11 @@ gcd_2 (vp, up)
    precision.  If N2 > N1 initially, the first iteration of the while loop
    will swap them.  In all other situations, N1 >= N2 is maintained.  */
 
-static __gmp_inline mp_limb_t
+static
+#if ! defined (__i386__)
+__gmp_inline			/* don't inline this for the x86 */
+#endif
+mp_limb_t
 #if __STDC__
 find_a (mp_srcptr cp)
 #else
@@ -176,14 +181,14 @@ find_a (cp)
 
 mp_size_t
 #if __STDC__
-mpn_gcd (mp_ptr gp, mp_ptr vp, mp_size_t vsize, mp_ptr up, mp_size_t usize)
+mpn_gcd (mp_ptr gp, mp_ptr up, mp_size_t usize, mp_ptr vp, mp_size_t vsize)
 #else
-mpn_gcd (gp, vp, vsize, up, usize)
+mpn_gcd (gp, up, usize, vp, vsize)
      mp_ptr gp;
-     mp_ptr vp;
-     mp_size_t vsize;
      mp_ptr up;
      mp_size_t usize;
+     mp_ptr vp;
+     mp_size_t vsize;
 #endif
 {
   mp_ptr orig_vp = vp;
@@ -241,7 +246,7 @@ mpn_gcd (gp, vp, vsize, up, usize)
 
 	  if ((up[0] & 1) == 0)			/* Result even; remove twos. */
 	    {
-	      unsigned long int r;
+	      unsigned int r;
 	      count_trailing_zeros (r, up[0]);
 	      mpn_rshift (anchor_up, up, usize, r);
 	      usize -= (anchor_up[usize-1] == 0);
@@ -342,7 +347,7 @@ mpn_gcd (gp, vp, vsize, up, usize)
 	    up += 1, usize -= 1;
 	  if ((up[0] & 1) == 0)
 	    {
-	      unsigned long int r;
+	      unsigned int r;
 	      count_trailing_zeros (r, up[0]);
 	      mpn_rshift (up, up, usize, r);
 	      usize -= (up[usize-1] == 0);

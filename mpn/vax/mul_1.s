@@ -1,7 +1,7 @@
-# VAX __mpn_mul_1 -- Multiply a limb vector with a limb and store
+# VAX __gmpn_mul_1 -- Multiply a limb vector with a limb and store
 # the result in a second limb vector.
 
-# Copyright (C) 1992, 1994 Free Software Foundation, Inc.
+# Copyright (C) 1992, 1994, 1996, 2000 Free Software Foundation, Inc.
 
 # This file is part of the GNU MP Library.
 
@@ -29,8 +29,8 @@
 
 .text
 	.align 1
-.globl ___mpn_mul_1
-___mpn_mul_1:
+.globl ___gmpn_mul_1
+___gmpn_mul_1:
 	.word	0xfc0
 	movl	12(ap),r4
 	movl	8(ap),r8
@@ -61,7 +61,7 @@ L1p1:	emul	r1,r6,$0,r10
 	adwc	$0,r11
 	movl	r10,(r9)+
 
-	jsobgtr	r7,Loop1
+	sobgtr	r7,Loop1
 	movl	r11,r0
 	ret
 
@@ -76,7 +76,7 @@ L1n1:	emul	r1,r6,$0,r10
 	adwc	r6,r11
 	movl	r10,(r9)+
 
-	jsobgtr	r7,Loop1
+	sobgtr	r7,Loop1
 	movl	r11,r0
 	ret
 
@@ -101,7 +101,7 @@ L2p1:	emul	r1,r6,$0,r10
 	adwc	r1,r11
 	movl	r10,(r9)+
 
-	jsobgtr	r7,Loop2
+	sobgtr	r7,Loop2
 	movl	r11,r0
 	ret
 
@@ -118,6 +118,6 @@ L2n1:	emul	r1,r6,$0,r10
 	adwc	r6,r11
 	movl	r10,(r9)+
 
-	jsobgtr	r7,Loop2
+	sobgtr	r7,Loop2
 	movl	r11,r0
 	ret

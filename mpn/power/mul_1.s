@@ -1,7 +1,7 @@
-# IBM POWER __mpn_mul_1 -- Multiply a limb vector with a limb and store
+# IBM POWER __gmpn_mul_1 -- Multiply a limb vector with a limb and store
 # the result in a second limb vector.
 
-# Copyright (C) 1992, 1994 Free Software Foundation, Inc.
+# Copyright (C) 1992, 1994, 1999, 2000 Free Software Foundation, Inc.
 
 # This file is part of the GNU MP Library.
 
@@ -38,15 +38,14 @@
 # we can branch in zero cycles, so that's how we perform the additions.
 
 	.toc
-	.csect .__mpn_mul_1[PR]
-	.align 2
-	.globl __mpn_mul_1
-	.globl .__mpn_mul_1
-	.csect __mpn_mul_1[DS]
-__mpn_mul_1:
-	.long .__mpn_mul_1[PR], TOC[tc0], 0
-	.csect .__mpn_mul_1[PR]
-.__mpn_mul_1:
+	.globl	__gmpn_mul_1
+	.globl	.__gmpn_mul_1
+	.csect	__gmpn_mul_1[DS]
+__gmpn_mul_1:
+	.long	.__gmpn_mul_1[PR], TOC[tc0], 0
+	.csect	.text[PR]
+	.align	2
+.__gmpn_mul_1:
 
 	cal	3,-4(3)
 	l	0,0(4)

@@ -1,7 +1,8 @@
-/* i80386 __mpn_mul_1 -- Multiply a limb vector with a limb and store
-   the result in a second limb vector.
+/* x86 __gmpn_mul_1 (for 386, 486, and Pentium Pro) -- Multiply a limb vector
+   with a limb and store the result in a second limb vector.
 
-Copyright (C) 1992, 1994 Free Software Foundation, Inc.
+Copyright (C) 1992, 1994, 1997, 1998, 1999, 2000 Free Software Foundation,
+Inc.
 
 This file is part of the GNU MP Library.
 
@@ -24,52 +25,95 @@ MA 02111-1307, USA. */
    INPUT PARAMETERS
    res_ptr	(sp + 4)
    s1_ptr	(sp + 8)
-   size		(sp + 12)
+   n		(sp + 12)
    s2_limb	(sp + 16)
 */
 
-#include "sysdep.h"
 #include "asm-syntax.h"
 
 #define res_ptr edi
 #define s1_ptr esi
-#define size ecx
+#define n ecx
 #define s2_limb ebp
 
 	TEXT
 	ALIGN (3)
-	GLOBL	C_SYMBOL_NAME(__mpn_mul_1)
-C_SYMBOL_NAME(__mpn_mul_1:)
+PROLOGUE(C_SYMBOL_NAME(__gmpn_mul_1))
+	GLOBL	C_SYMBOL_NAME(__gmpn_mul_1)
+C_SYMBOL_NAME(__gmpn_mul_1:)
 
 	INSN1(push,l	,R(edi))
 	INSN1(push,l	,R(esi))
 	INSN1(push,l	,R(ebx))
 	INSN1(push,l	,R(ebp))
 
-	INSN2(mov,l	,R(res_ptr),MEM_DISP(esp,20))
-	INSN2(mov,l	,R(s1_ptr),MEM_DISP(esp,24))
-	INSN2(mov,l	,R(size),MEM_DISP(esp,28))
-	INSN2(mov,l	,R(s2_limb),MEM_DISP(esp,32))
+	movl	20(%esp),%edi
+	movl	24(%esp),%esi
+	movl	28(%esp),%ecx
 
-	INSN2(lea,l	,R(res_ptr),MEM_INDEX(res_ptr,size,4))
-	INSN2(lea,l	,R(s1_ptr),MEM_INDEX(s1_ptr,size,4))
-	INSN1(neg,l	,R(size))
-	INSN2(xor,l	,R(ebx),R(ebx))
+	xorl	%ebx,%ebx
+	andl	$3,%ecx
+	jz	Lend0
+
+Loop0:	movl	(%esi),%eax
+	mull	32(%esp)
+	leal	4(%esi),%esi
+	addl	%ebx,%eax
+	movl	$0,%ebx
+	adcl	%ebx,%edx
+	movl	%eax,(%edi)
+	movl	%edx,%ebx		/* propagate carry into cylimb */
+
+	leal	4(%edi),%edi
+	decl	%ecx
+	jnz	Loop0
+
+Lend0:	movl	28(%esp),%ecx
+	shrl	$2,%ecx
+	jz	Lend
+
+/* This runs at 50 cycles on a P5 */
 	ALIGN (3)
-Loop:
-	INSN2(mov,l	,R(eax),MEM_INDEX(s1_ptr,size,4))
-	INSN1(mul,l	,R(s2_limb))
-	INSN2(add,l	,R(eax),R(ebx))
-	INSN2(mov,l	,MEM_INDEX(res_ptr,size,4),R(eax))
-	INSN2(adc,l	,R(edx),$0)
-	INSN2(mov,l	,R(ebx),R(edx))
+Loop:	movl	(%esi),%eax
+	mull	32(%esp)
+	addl	%eax,%ebx
+	movl	$0,%ebp
+	adcl	%edx,%ebp
 
-	INSN1(inc,l	,R(size))
-	INSN1(jnz,	,Loop)
-	INSN2(mov,l	,R(eax),R(ebx))
+	movl	4(%esi),%eax
+	mull	32(%esp)
+	movl	%ebx,(%edi)
+	addl	%eax,%ebp	/* new lo + cylimb */
+	movl	$0,%ebx
+	adcl	%edx,%ebx
+
+	movl	8(%esi),%eax
+	mull	32(%esp)
+	movl	%ebp,4(%edi)
+	addl	%eax,%ebx	/* new lo + cylimb */
+	movl	$0,%ebp
+	adcl	%edx,%ebp
+
+	movl	12(%esi),%eax
+	mull	32(%esp)
+	movl	%ebx,8(%edi)
+	addl	%eax,%ebp	/* new lo + cylimb */
+	movl	$0,%ebx
+	adcl	%edx,%ebx
+
+	movl	%ebp,12(%edi)
+
+	leal	16(%esi),%esi
+	leal	16(%edi),%edi
+	decl	%ecx
+	jnz	Loop
+
+Lend:	movl	%ebx,%eax
 
 	INSN1(pop,l	,R(ebp))
 	INSN1(pop,l	,R(ebx))
 	INSN1(pop,l	,R(esi))
 	INSN1(pop,l	,R(edi))
 	ret
+
+EPILOGUE(C_SYMBOL_NAME(__gmpn_mul_1))

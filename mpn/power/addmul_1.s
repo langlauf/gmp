@@ -1,7 +1,7 @@
-# IBM POWER __mpn_addmul_1 -- Multiply a limb vector with a limb and add
+# IBM POWER __gmpn_addmul_1 -- Multiply a limb vector with a limb and add
 # the result to a second limb vector.
 
-# Copyright (C) 1992, 1994 Free Software Foundation, Inc.
+# Copyright (C) 1992, 1994, 1999, 2000 Free Software Foundation, Inc.
 
 # This file is part of the GNU MP Library.
 
@@ -38,15 +38,14 @@
 # we can branch in zero cycles, so that's how we perform the additions.
 
 	.toc
-	.csect .__mpn_addmul_1[PR]
-	.align 2
-	.globl __mpn_addmul_1
-	.globl .__mpn_addmul_1
-	.csect __mpn_addmul_1[DS]
-__mpn_addmul_1:
-	.long .__mpn_addmul_1[PR], TOC[tc0], 0
-	.csect .__mpn_addmul_1[PR]
-.__mpn_addmul_1:
+	.globl	__gmpn_addmul_1
+	.globl	.__gmpn_addmul_1
+	.csect	__gmpn_addmul_1[DS]
+__gmpn_addmul_1:
+	.long	.__gmpn_addmul_1[PR], TOC[tc0], 0
+	.csect	.text[PR]
+	.align	2
+.__gmpn_addmul_1:
 
 	cal	3,-4(3)
 	l	0,0(4)

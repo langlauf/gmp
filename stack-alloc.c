@@ -1,7 +1,7 @@
 /* Stack allocation routines.  This is intended for machines without support
    for the `alloca' function.
 
-Copyright (C) 1996 Free Software Foundation, Inc.
+Copyright (C) 1996, 1997, 1999, 2000 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -22,19 +22,35 @@ MA 02111-1307, USA. */
 
 #include "stack-alloc.h"
 
+#define __need_size_t
+#include <stddef.h>
+#undef __need_size_t
+
+/* gmp-impl.h and stack-alloc.h conflict when not USE_STACK_ALLOC, so these
+   declarations are copied here */
+#if __STDC__
+extern void *	(*__gmp_allocate_func) (size_t);
+extern void	(*__gmp_free_func) (void *, size_t);
+#else
+extern void *	(*__gmp_allocate_func) ();
+extern void	(*__gmp_free_func) ();
+#endif
+
 typedef struct tmp_stack tmp_stack;
 
-void *malloc ();
 static unsigned long max_total_allocation = 0;
 static unsigned long current_total_allocation = 0;
 
 static tmp_stack xxx = {&xxx, &xxx, 0};
 static tmp_stack *current = &xxx;
 
+/* The rounded size of the header of each allocation block.  */
+#define HSIZ ((sizeof (tmp_stack) + __TMP_ALIGN - 1) & -__TMP_ALIGN)
+
 /* Allocate a block of exactly <size> bytes.  This should only be called
    through the TMP_ALLOC macro, which takes care of rounding/alignment.  */
 void *
-__tmp_alloc (size)
+__gmp_tmp_alloc (size)
      unsigned long size;
 {
   void *this;
@@ -56,20 +72,20 @@ __tmp_alloc (size)
 	  /* We need more temporary memory than ever before.  Increase
 	     for future needs.  */
 	  now = now * 3 / 2;
-	  chunk_size = now - current_total_allocation + sizeof (tmp_stack);
+	  chunk_size = now - current_total_allocation + HSIZ;
 	  current_total_allocation = now;
 	  max_total_allocation = current_total_allocation;
 	}
       else
 	{
-	  chunk_size = max_total_allocation - current_total_allocation + sizeof (tmp_stack);
+	  chunk_size = max_total_allocation - current_total_allocation + HSIZ;
 	  current_total_allocation = max_total_allocation;
 	}
 
-      chunk = malloc (chunk_size);
+      chunk = (*__gmp_allocate_func) (chunk_size);
       header = chunk;
       header->end = (char *) chunk + chunk_size;
-      header->alloc_point = (char *) chunk + sizeof (tmp_stack);
+      header->alloc_point = (char *) chunk + HSIZ;
       header->prev = current;
       current = header;
     }
@@ -79,19 +95,20 @@ __tmp_alloc (size)
   return this;
 }
 
-/* Typically called at function entry.  <mark> is assigned so that __tmp_free
-   can later be used to reclaim all subsecuently allocated storage.  */
+/* Typically called at function entry.  <mark> is assigned so that
+   __gmp_tmp_free can later be used to reclaim all subsequently allocated
+   storage.  */
 void
-__tmp_mark (mark)
+__gmp_tmp_mark (mark)
      tmp_marker *mark;
 {
   mark->which_chunk = current;
   mark->alloc_point = current->alloc_point;
 }
 
-/* Free everything allocated since <mark> was assigned by __tmp_mark */
+/* Free everything allocated since <mark> was assigned by __gmp_tmp_mark */
 void
-__tmp_free (mark)
+__gmp_tmp_free (mark)
      tmp_marker *mark;
 {
   while (mark->which_chunk != current)
@@ -100,9 +117,8 @@ __tmp_free (mark)
 
       tmp = current;
       current = tmp->prev;
-      current_total_allocation -= (((char *) (tmp->end) - (char *) tmp)
-				   - sizeof (tmp_stack));
-      free (tmp);
+      current_total_allocation -= (((char *) (tmp->end) - (char *) tmp) - HSIZ);
+      (*__gmp_free_func) (tmp, (char *) tmp->end - (char *) tmp);
     }
   current->alloc_point = mark->alloc_point;
 }

@@ -1,6 +1,6 @@
 /* gmp-mparam.h -- Compiler/machine parameter header file.
 
-Copyright (C) 1991, 1993, 1994 Free Software Foundation, Inc.
+Copyright (C) 1991, 1993, 1994, 1999 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -25,3 +25,12 @@ MA 02111-1307, USA. */
 #define BITS_PER_INT 32
 #define BITS_PER_SHORTINT 16
 #define BITS_PER_CHAR 8
+
+/* These values are for the 21164 family.  The 21264 will require much
+   higher values, since it has such quick multiplication.  */
+#ifndef KARATSUBA_MUL_THRESHOLD
+#define KARATSUBA_MUL_THRESHOLD 16
+#endif
+#ifndef KARATSUBA_SQR_THRESHOLD
+#define KARATSUBA_SQR_THRESHOLD 32
+#endif

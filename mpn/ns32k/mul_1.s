@@ -1,7 +1,7 @@
-# ns32000 __mpn_mul_1 -- Multiply a limb vector with a limb and store
+# ns32000 __gmpn_mul_1 -- Multiply a limb vector with a limb and store
 # the result in a second limb vector.
 
-# Copyright (C) 1992, 1994 Free Software Foundation, Inc.
+# Copyright (C) 1992, 1994, 2000 Free Software Foundation, Inc.
 
 # This file is part of the GNU MP Library.
 
@@ -22,8 +22,8 @@
 
 
 	.align 1
-.globl ___mpn_mul_1
-___mpn_mul_1:
+.globl ___gmpn_mul_1
+___gmpn_mul_1:
 	save	[r3,r4,r5,r6,r7]
 	negd	24(sp),r4
 	movd	r4,r0

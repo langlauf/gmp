@@ -1,6 +1,6 @@
-; HP-PA  __mpn_rshift -- 
+; HP-PA  __gmpn_rshift -- 
 
-; Copyright (C) 1992, 1994 Free Software Foundation, Inc.
+; Copyright (C) 1992, 1994, 2000 Free Software Foundation, Inc.
 
 ; This file is part of the GNU MP Library.
 
@@ -27,8 +27,8 @@
 ; cnt		gr23
 
 	.code
-	.export		__mpn_rshift
-__mpn_rshift
+	.export		__gmpn_rshift
+__gmpn_rshift
 	.proc
 	.callinfo	frame=64,no_calls
 	.entry

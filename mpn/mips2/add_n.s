@@ -1,7 +1,7 @@
- # MIPS2 __mpn_add_n -- Add two limb vectors of the same length > 0 and
+ # MIPS2 __gmpn_add_n -- Add two limb vectors of the same length > 0 and
  # store sum in a third limb vector.
 
- # Copyright (C) 1995 Free Software Foundation, Inc.
+ # Copyright (C) 1995, 2000 Free Software Foundation, Inc.
 
  # This file is part of the GNU MP Library.
 
@@ -29,9 +29,9 @@
 
 	.text
 	.align	2
-	.globl	__mpn_add_n
-	.ent	__mpn_add_n
-__mpn_add_n:
+	.globl	__gmpn_add_n
+	.ent	__gmpn_add_n
+__gmpn_add_n:
 	.set	noreorder
 	.set	nomacro
 
@@ -117,4 +117,4 @@ __mpn_add_n:
 	j	$31
 	or	$2,$2,$8
 
-	.end	__mpn_add_n
+	.end	__gmpn_add_n

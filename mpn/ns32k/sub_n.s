@@ -1,7 +1,7 @@
-# ns32000 __mpn_sub_n -- Subtract two limb vectors of the same length > 0 and
+# ns32000 __gmpn_sub_n -- Subtract two limb vectors of the same length > 0 and
 # store difference in a third limb vector.
 
-# Copyright (C) 1992, 1994 Free Software Foundation, Inc.
+# Copyright (C) 1992, 1994, 2000 Free Software Foundation, Inc.
 
 # This file is part of the GNU MP Library.
 
@@ -22,8 +22,8 @@
 
 
 	.align 1
-.globl ___mpn_sub_n
-___mpn_sub_n:
+.globl ___gmpn_sub_n
+___gmpn_sub_n:
 	save	[r3,r4,r5]
 	negd	28(sp),r3
 	movd	r3,r0

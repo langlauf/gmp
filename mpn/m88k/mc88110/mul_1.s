@@ -1,7 +1,7 @@
-; mc88110 __mpn_mul_1 -- Multiply a limb vector with a single limb and
+; mc88110 __gmpn_mul_1 -- Multiply a limb vector with a single limb and
 ; store the product in a second limb vector.
 
-; Copyright (C) 1992, 1994, 1995 Free Software Foundation, Inc.
+; Copyright (C) 1992, 1994, 1995, 2000 Free Software Foundation, Inc.
 
 ; This file is part of the GNU MP Library.
 
@@ -29,8 +29,8 @@
 
 	text
 	align	16
-	global	___mpn_mul_1
-___mpn_mul_1:
+	global	___gmpn_mul_1
+___gmpn_mul_1:
 	; Make S1_PTR and RES_PTR point at the end of their blocks
 	; and negate SIZE.
 	lda	 r3,r3[r4]

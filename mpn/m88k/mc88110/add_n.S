@@ -1,7 +1,7 @@
-; mc88110 __mpn_add_n -- Add two limb vectors of the same length > 0 and store
+; mc88110 __gmpn_add_n -- Add two limb vectors of the same length > 0 and store
 ; sum in a third limb vector.
 
-; Copyright (C) 1995, 1996 Free Software Foundation, Inc.
+; Copyright (C) 1995, 1996, 2000 Free Software Foundation, Inc.
 
 ; This file is part of the GNU MP Library.
 
@@ -31,8 +31,8 @@
 
 	text
 	align	16
-	global	C_SYMBOL_NAME(__mpn_add_n)
-C_SYMBOL_NAME(__mpn_add_n):
+	global	C_SYMBOL_NAME(__gmpn_add_n)
+C_SYMBOL_NAME(__gmpn_add_n):
 	addu.co	 r0,r0,r0		; clear cy flag
 	xor	 r12,s2_ptr,res_ptr
 	bb1	 2,r12,L1

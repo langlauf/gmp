@@ -1,6 +1,6 @@
- # MIPS3 __mpn_rshift --
+ # MIPS3 __gmpn_rshift --
 
- # Copyright (C) 1995 Free Software Foundation, Inc.
+ # Copyright (C) 1995, 2000 Free Software Foundation, Inc.
 
  # This file is part of the GNU MP Library.
 
@@ -28,9 +28,9 @@
 
 	.text
 	.align	2
-	.globl	__mpn_rshift
-	.ent	__mpn_rshift
-__mpn_rshift:
+	.globl	__gmpn_rshift
+	.ent	__gmpn_rshift
+__gmpn_rshift:
 	.set	noreorder
 	.set	nomacro
 
@@ -89,4 +89,4 @@ __mpn_rshift:
 .Lend:	dsrl	$8,$10,$7
 	j	$31
 	sd	$8,0($4)
-	.end	__mpn_rshift
+	.end	__gmpn_rshift

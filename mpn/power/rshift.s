@@ -1,6 +1,6 @@
-# IBM POWER __mpn_rshift -- 
+# IBM POWER __gmpn_rshift -- 
 
-# Copyright (C) 1992, 1994 Free Software Foundation, Inc.
+# Copyright (C) 1992, 1994, 1999, 2000 Free Software Foundation, Inc.
 
 # This file is part of the GNU MP Library.
 
@@ -27,17 +27,14 @@
 # cnt		r6
 
 	.toc
-	.extern __mpn_rshift[DS]
-	.extern .__mpn_rshift
-.csect [PR]
-	.align 2
-	.globl __mpn_rshift
-	.globl .__mpn_rshift
-	.csect __mpn_rshift[DS]
-__mpn_rshift:
-	.long .__mpn_rshift, TOC[tc0], 0
-	.csect [PR]
-.__mpn_rshift:
+	.globl	__gmpn_rshift
+	.globl	.__gmpn_rshift
+	.csect	__gmpn_rshift[DS]
+__gmpn_rshift:
+	.long	.__gmpn_rshift, TOC[tc0], 0
+	.csect	.text[PR]
+	.align	2
+.__gmpn_rshift:
 	sfi	8,6,32
 	mtctr	5		# put limb count in CTR loop register
 	l	0,0(4)		# read least significant limb

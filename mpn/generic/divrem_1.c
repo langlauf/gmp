@@ -6,7 +6,7 @@
 
    QUOT_PTR and DIVIDEND_PTR might point to the same limb.
 
-Copyright (C) 1996 Free Software Foundation, Inc.
+Copyright (C) 1996, 1998, 1999, 2000 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -31,28 +31,48 @@ MA 02111-1307, USA. */
 
 mp_limb_t
 #if __STDC__
-mpn_divrem_1 (mp_ptr qp, mp_size_t qsize,
-	      mp_srcptr dividend_ptr, mp_size_t dividend_size,
-	      mp_limb_t divisor_limb)
+mpn_divrem_1 (mp_ptr qp, mp_size_t qxn,
+	      mp_srcptr np, mp_size_t nn,
+	      mp_limb_t d)
 #else
-mpn_divrem_1 (qp, qsize, dividend_ptr, dividend_size, divisor_limb)
+mpn_divrem_1 (qp, qxn, np, nn, d)
      mp_ptr qp;
-     mp_size_t qsize;
-     mp_srcptr dividend_ptr;
-     mp_size_t dividend_size;
-     mp_limb_t divisor_limb;
+     mp_size_t qxn;
+     mp_srcptr np;
+     mp_size_t nn;
+     mp_limb_t d;
 #endif
 {
   mp_limb_t rlimb;
-  long i;
+  mp_size_t i;
 
   /* Develop integer part of quotient.  */
-  rlimb = mpn_divmod_1 (qp + qsize, dividend_ptr, dividend_size, divisor_limb);
+  rlimb = mpn_divmod_1 (qp + qxn, np, nn, d);
 
-  if (qsize != 0)
+  /* Develop fraction part of quotient.  This is not as fast as it should;
+     the preinvert stuff from mpn_divmod_1 ought to be used here too.  */
+  if (UDIV_NEEDS_NORMALIZATION)
     {
-      for (i = qsize - 1; i >= 0; i--)
-	udiv_qrnnd (qp[i], rlimb, rlimb, 0, divisor_limb);
+      int normalization_steps;
+
+      count_leading_zeros (normalization_steps, d);
+      if (normalization_steps != 0)
+	{
+	  d <<= normalization_steps;
+	  rlimb <<= normalization_steps;
+
+	  for (i = qxn - 1; i >= 0; i--)
+	    udiv_qrnnd (qp[i], rlimb, rlimb, 0, d);
+
+	  return rlimb >> normalization_steps;
+	}
+      else
+	/* fall out */
+	;
     }
+
+  for (i = qxn - 1; i >= 0; i--)
+    udiv_qrnnd (qp[i], rlimb, rlimb, 0, d);
+
   return rlimb;
 }

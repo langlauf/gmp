@@ -1,7 +1,7 @@
 /* min(MINT) -- Do decimal input from standard input and store result in
    MINT.
 
-Copyright (C) 1991, 1994 Free Software Foundation, Inc.
+Copyright (C) 1991, 1994, 1996 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -25,6 +25,27 @@ MA 02111-1307, USA. */
 #include "mp.h"
 #include "gmp.h"
 #include "gmp-impl.h"
+
+static int
+digit_value_in_base (c, base)
+     int c;
+     int base;
+{
+  int digit;
+
+  if (isdigit (c))
+    digit = c - '0';
+  else if (islower (c))
+    digit = c - 'a' + 10;
+  else if (isupper (c))
+    digit = c - 'A' + 10;
+  else
+    return -1;
+
+  if (digit < base)
+    return digit;
+  return -1;
+}
 
 void
 #if __STDC__

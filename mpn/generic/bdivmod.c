@@ -1,6 +1,7 @@
 /* mpn/bdivmod.c: mpn_bdivmod for computing U/V mod 2^d.
 
-Copyright (C) 1991, 1993, 1994, 1995, 1996 Free Software Foundation, Inc.
+Copyright (C) 1991, 1993, 1994, 1995, 1996, 1999 Free Software Foundation,
+Inc.
 
 This file is part of the GNU MP Library.
 
@@ -65,16 +66,13 @@ mpn_bdivmod (qp, up, usize, vp, vsize, d)
      unsigned long int d;
 #endif
 {
-  /* Cache for v_inv is used to make mpn_accelgcd faster.  */
-  static mp_limb_t previous_low_vlimb = 0;
-  static mp_limb_t v_inv;		/* 1/V mod 2^BITS_PER_MP_LIMB.  */
+  mp_limb_t v_inv = 0;		/* 1/V mod 2^BITS_PER_MP_LIMB.  */
 
-  if (vp[0] != previous_low_vlimb)	/* Cache miss; compute v_inv.  */
+  /* Compute v_inv.  */
     {
-      mp_limb_t v = previous_low_vlimb = vp[0];
+      mp_limb_t v = vp[0];
       mp_limb_t make_zero = 1;
       mp_limb_t two_i = 1;
-      v_inv = 0;
       do
 	{
 	  while ((two_i & make_zero) == 0)
@@ -114,12 +112,16 @@ mpn_bdivmod (qp, up, usize, vp, vsize, d)
     {
       mp_limb_t b;
       mp_limb_t q = (up[0] * v_inv) & (((mp_limb_t)1<<d) - 1);
-      switch (q)
+      if (q <= 1)
 	{
-	  case 0:  return 0;
-	  case 1:  b = mpn_sub_n (up, up, vp, MIN (usize, vsize));   break;
-	  default: b = mpn_submul_1 (up, vp, MIN (usize, vsize), q); break;
+	  if (q == 0)
+	    return 0;
+	  else
+	    b = mpn_sub_n (up, up, vp, MIN (usize, vsize));
 	}
+      else
+	b = mpn_submul_1 (up, vp, MIN (usize, vsize), q);
+
       if (usize > vsize)
 	mpn_sub_1 (up + vsize, up + vsize, usize - vsize, b);
       return q;

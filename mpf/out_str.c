@@ -2,7 +2,7 @@
    the float OP to STREAM in base BASE.  Return the number of characters
    written, or 0 if an error occurred.
 
-Copyright (C) 1996 Free Software Foundation, Inc.
+Copyright (C) 1996, 1997 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -22,6 +22,7 @@ the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA. */
 
 #include <stdio.h>
+#include <string.h>
 #include "gmp.h"
 #include "gmp-impl.h"
 
@@ -65,6 +66,7 @@ mpf_out_str (stream, base, n_digits, op)
       str++;
       fputc ('-', stream);
       written = 1;
+      n_digits--;
     }
 
   fwrite ("0.", 1, 2, stream);

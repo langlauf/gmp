@@ -1,7 +1,7 @@
 /* xtom -- convert a hexadecimal string to a MINT, and return a pointer to
    the MINT.
 
-Copyright (C) 1991, 1994, 1995 Free Software Foundation, Inc.
+Copyright (C) 1991, 1994, 1995, 1996 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -20,6 +20,8 @@ along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA. */
 
+#include <string.h>
+#include <ctype.h>
 #include "mp.h"
 #include "gmp.h"
 #include "gmp-impl.h"

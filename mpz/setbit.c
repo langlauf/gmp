@@ -1,6 +1,7 @@
 /* mpz_setbit -- set a specified bit.
 
-Copyright (C) 1991, 1993, 1994, 1995 Free Software Foundation, Inc.
+Copyright (C) 1991, 1993, 1994, 1995, 1997, 1999 Free Software Foundation,
+Inc.
 
 This file is part of the GNU MP Library.
 
@@ -63,7 +64,7 @@ mpz_setbit (d, bit_index)
 
       /* Simulate two's complement arithmetic, i.e. simulate
 	 1. Set OP = ~(OP - 1) [with infinitely many leading ones].
-	 2. set the bit.
+	 2. Set the bit.
 	 3. Set OP = ~OP + 1.  */
 
       dsize = -dsize;
@@ -108,6 +109,11 @@ mpz_setbit (d, bit_index)
 	    }
 	}
       else
-	;
+	{
+	  mpn_decr_u (dp + limb_index,
+		     (mp_limb_t) 1 << (bit_index % BITS_PER_MP_LIMB));
+	  dsize -= dp[dsize - 1] == 0;
+	  d->_mp_size = -dsize;
+	}
     }
 }

@@ -1,6 +1,7 @@
-/* Pentium optimized __mpn_lshift -- 
+/* Pentium optimized __gmpn_lshift -- 
 
-Copyright (C) 1992, 1994, 1995 Free Software Foundation, Inc.
+Copyright (C) 1992, 1994, 1995, 1996, 1999, 2000 Free Software Foundation,
+Inc.
 
 This file is part of the GNU MP Library.
 
@@ -27,13 +28,13 @@ MA 02111-1307, USA. */
   cnt		(sp + 16)
 */
 
-#include "sysdep.h"
 #include "asm-syntax.h"
 
 .text
 	ALIGN (3)
-	.globl C_SYMBOL_NAME(__mpn_lshift)
-C_SYMBOL_NAME(__mpn_lshift:)
+PROLOGUE(C_SYMBOL_NAME(__gmpn_lshift))
+	.globl C_SYMBOL_NAME(__gmpn_lshift)
+C_SYMBOL_NAME(__gmpn_lshift:)
 	pushl	%edi
 	pushl	%esi
 	pushl	%ebx
@@ -61,7 +62,7 @@ Lnormal:
 	movl	(%esi),%edx
 	subl	$4,%esi
 	xorl	%eax,%eax
-	shldl	%cl,%edx,%eax		/* compute carry limb */
+	INSND(shld,l	,R(eax),R(edx),R(cl))		/* compute carry limb */
 	pushl	%eax			/* push carry limb onto stack */
 
 	decl	%ebp
@@ -77,29 +78,29 @@ Loop:	movl	-28(%edi),%eax		/* fetch destination cache line */
 
 	movl	(%esi),%eax
 	movl	-4(%esi),%edx
-	shldl	%cl,%eax,%ebx
-	shldl	%cl,%edx,%eax
+	INSND(shld,l	,R(ebx),R(eax),R(cl))
+	INSND(shld,l	,R(eax),R(edx),R(cl))
 	movl	%ebx,(%edi)
 	movl	%eax,-4(%edi)
 
 	movl	-8(%esi),%ebx
 	movl	-12(%esi),%eax
-	shldl	%cl,%ebx,%edx
-	shldl	%cl,%eax,%ebx
+	INSND(shld,l    ,R(edx),R(ebx),R(cl))
+	INSND(shld,l	,R(ebx),R(eax),R(cl))
 	movl	%edx,-8(%edi)
 	movl	%ebx,-12(%edi)
 
 	movl	-16(%esi),%edx
 	movl	-20(%esi),%ebx
-	shldl	%cl,%edx,%eax
-	shldl	%cl,%ebx,%edx
+	INSND(shld,l	,R(eax),R(edx),R(cl))
+	INSND(shld,l    ,R(edx),R(ebx),R(cl))
 	movl	%eax,-16(%edi)
 	movl	%edx,-20(%edi)
 
 	movl	-24(%esi),%eax
 	movl	-28(%esi),%edx
-	shldl	%cl,%eax,%ebx
-	shldl	%cl,%edx,%eax
+	INSND(shld,l	,R(ebx),R(eax),R(cl))
+	INSND(shld,l	,R(eax),R(edx),R(cl))
 	movl	%ebx,-24(%edi)
 	movl	%eax,-28(%edi)
 
@@ -215,3 +216,5 @@ LL1:	movl	%edx,(%edi)		/* store last limb */
 	popl	%esi
 	popl	%edi
 	ret
+
+EPILOGUE(C_SYMBOL_NAME(__gmpn_lshift))

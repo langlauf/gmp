@@ -1,7 +1,7 @@
-! SH __mpn_sub_n -- Subtract two limb vectors of the same length > 0 and store
+! SH __gmpn_sub_n -- Subtract two limb vectors of the same length > 0 and store
 ! difference in a third limb vector.
 
-! Copyright (C) 1995 Free Software Foundation, Inc.
+! Copyright (C) 1995, 1997, 2000 Free Software Foundation, Inc.
 
 ! This file is part of the GNU MP Library.
 
@@ -29,8 +29,8 @@
 
 	.text
 	.align 2
-	.global	___mpn_sub_n
-___mpn_sub_n:
+	.global	___gmpn_sub_n
+___gmpn_sub_n:
 	mov	#0,r3		! clear cy save reg
 
 Loop:	mov.l	@r5+,r1
@@ -44,4 +44,4 @@ Loop:	mov.l	@r5+,r1
 	 add	#4,r4
 
 	rts
-	movt	r0		! return carry-out from most sign. limb
+	mov	r3,r0		! return carry-out from most sign. limb

@@ -2,7 +2,8 @@
    in base BASE to a float in dest.  If BASE is zero, the leading characters
    of STRING is used to figure out the base.
 
-Copyright (C) 1993, 1994, 1995, 1996 Free Software Foundation, Inc.
+Copyright (C) 1993, 1994, 1995, 1996, 1997, 2000 Free Software Foundation,
+Inc.
 
 This file is part of the GNU MP Library.
 
@@ -26,6 +27,10 @@ MA 02111-1307, USA. */
 #include "gmp.h"
 #include "gmp-impl.h"
 #include "longlong.h"
+
+
+#define swapptr(xp,yp) \
+do { mp_ptr _swapptr_tmp = (xp); (xp) = (yp); (yp) = _swapptr_tmp; } while (0)
 
 long int strtol _PROTO ((const char *, char **ptr, int));
 
@@ -89,7 +94,8 @@ mpf_set_str (x, str, base)
   decimal_exponent_flag = base < 0;
   base = ABS (base);
 
-  if (digit_value_in_base (c, base == 0 ? 10 : base) < 0)
+  if (digit_value_in_base (c, base == 0 ? 10 : base) < 0
+      && (c != '.' || digit_value_in_base (str[1], base == 0 ? 10 : base) < 0))
     return -1;			/* error if no digits */
 
   /* If BASE is 0, try to find out the base by looking at the initial
@@ -101,9 +107,12 @@ mpf_set_str (x, str, base)
       if (c == '0')
 	{
 	  base = 8;
-	  c = *++str;
-	  if (c == 'x' || c == 'X')
-	    base = 16;
+	  if (str[1] == 'x' || str[1] == 'X')
+	    {
+	      base = 16;
+	      str += 2;
+	      c = *str;
+	    }
 	}
 #endif
     }
@@ -159,14 +168,13 @@ mpf_set_str (x, str, base)
   xsize = str_size / __mp_bases[base].chars_per_limb + 2;
   {
     long exp_in_base;
-    mp_size_t rsize, msize;
+    mp_size_t ralloc, rsize, msize;
     int cnt, i;
-    mp_ptr mp, xp, tp, rp;
-    mp_limb_t cy;
+    mp_ptr mp, tp, rp;
     mp_exp_t exp_in_limbs;
-    mp_size_t prec = x->_mp_prec;
+    mp_size_t prec = x->_mp_prec + 1;
     int divflag;
-    mp_size_t xxx = 0;
+    mp_size_t madj, radj;
 
     mp = (mp_ptr) TMP_ALLOC (xsize * BYTES_PER_MP_LIMB);
     msize = mpn_set_str (mp, (unsigned char *) begs, str_size, base);
@@ -177,6 +185,15 @@ mpf_set_str (x, str, base)
 	x->_mp_exp = 0;
 	TMP_FREE (marker);
 	return 0;
+      }
+
+    madj = 0;
+    /* Ignore excess limbs in MP,MSIZE.  */
+    if (msize > prec)
+      {
+	madj = msize - prec;
+	mp += msize - prec;
+	msize = prec;
       }
 
     if (expflag != 0)
@@ -193,35 +210,39 @@ mpf_set_str (x, str, base)
       {
 	MPN_COPY (x->_mp_d, mp, msize);
 	x->_mp_size = negative ? -msize : msize;
-	x->_mp_exp = msize;
+	x->_mp_exp = msize + madj;
 	TMP_FREE (marker);
 	return 0;
       }
 
-#if 1
-    rsize = (((mp_size_t) (exp_in_base / __mp_bases[base].chars_per_bit_exactly))
-	     / BITS_PER_MP_LIMB + 3);
-#else
-    count_leading_zeros (cnt, (mp_limb_t) base);
-    rsize = exp_in_base - cnt * exp_in_base / BITS_PER_MP_LIMB + 1;
-#endif
-    rp = (mp_ptr) TMP_ALLOC (rsize * BYTES_PER_MP_LIMB);
-    tp = (mp_ptr) TMP_ALLOC (rsize * BYTES_PER_MP_LIMB);
+    radj = 0;			/* counts number of ignored low limbs in r */
+
+    ralloc = 2 * (prec + 1);
+    rp = (mp_ptr) TMP_ALLOC (ralloc * BYTES_PER_MP_LIMB);
+    tp = (mp_ptr) TMP_ALLOC (ralloc * BYTES_PER_MP_LIMB);
 
     rp[0] = base;
     rsize = 1;
-
     count_leading_zeros (cnt, exp_in_base);
-
     for (i = BITS_PER_MP_LIMB - cnt - 2; i >= 0; i--)
       {
 	mpn_mul_n (tp, rp, rp, rsize);
 	rsize = 2 * rsize;
 	rsize -= tp[rsize - 1] == 0;
-	xp = tp; tp = rp; rp = xp;
+	radj <<= 1;
+
+	if (rsize > prec)
+	  {
+	    radj += rsize - prec;
+	    MPN_COPY_INCR (rp, tp + rsize - prec, prec);
+	    rsize = prec;
+	  }
+	else
+	  swapptr (rp, tp);
 
 	if (((exp_in_base >> i) & 1) != 0)
 	  {
+	    mp_limb_t cy;
 	    cy = mpn_mul_1 (rp, rp, rsize, (mp_limb_t) base);
 	    rp[rsize] = cy;
 	    rsize += cy != 0;
@@ -230,48 +251,47 @@ mpf_set_str (x, str, base)
 
     if (rsize > prec)
       {
-	xxx += rsize - prec;
+	radj += rsize - prec;
 	rp += rsize - prec;
 	rsize = prec;
       }
-#if 0
-    if (msize > prec)
-      {
-	xxx -= msize - prec;
-	mp += msize - prec;
-	msize = prec;
-      }
-#endif
+
     if (divflag)
       {
 	mp_ptr qp;
-	mp_limb_t qflag;
-	mp_size_t xtra;
-	if (msize <= rsize)
+	mp_limb_t qlimb;
+	if (msize < rsize)
 	  {
-	    /* Allocate extra limb for current divrem sematics. */
+	    /* Pad out MP,MSIZE for current divrem semantics.  */
 	    mp_ptr tmp = (mp_ptr) TMP_ALLOC ((rsize + 1) * BYTES_PER_MP_LIMB);
 	    MPN_ZERO (tmp, rsize - msize);
 	    MPN_COPY (tmp + rsize - msize, mp, msize);
 	    mp = tmp;
-	    xxx += rsize - msize;
+	    madj -= rsize - msize;
 	    msize = rsize;
 	  }
 	count_leading_zeros (cnt, rp[rsize - 1]);
 	if (cnt != 0)
 	  {
+	    mp_limb_t cy;
 	    mpn_lshift (rp, rp, rsize, cnt);
 	    cy = mpn_lshift (mp, mp, msize, cnt);
 	    if (cy)
 	      mp[msize++] = cy;
 	  }
+
 	qp = (mp_ptr) TMP_ALLOC ((prec + 1) * BYTES_PER_MP_LIMB);
-	xtra = prec - (msize - rsize);
-	qflag = mpn_divrem (qp, xtra, mp, msize, rp, rsize);
-	qp[prec] = qflag;
+	qlimb = mpn_divrem (qp, prec - (msize - rsize), mp, msize, rp, rsize);
 	tp = qp;
-	rsize = prec + qflag;
-	exp_in_limbs = rsize - xtra - xxx;
+	exp_in_limbs = qlimb + (msize - rsize) + (madj - radj);
+	rsize = prec;
+	if (qlimb != 0)
+	  {
+	    tp[prec] = qlimb;
+	    /* Skip the least significant limb not to overrun the destination
+	       variable.  */
+	    tp++;
+	  }
       }
     else
       {
@@ -282,11 +302,10 @@ mpf_set_str (x, str, base)
 	  mpn_mul (tp, mp, msize, rp, rsize);
 	rsize += msize;
 	rsize -= tp[rsize - 1] == 0;
-	exp_in_limbs = rsize + xxx;
+	exp_in_limbs = rsize + madj + radj;
 
 	if (rsize > prec)
 	  {
-	    xxx = rsize - prec;
 	    tp += rsize - prec;
 	    rsize = prec;
 	    exp_in_limbs += 0;

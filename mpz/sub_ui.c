@@ -1,6 +1,6 @@
 /* mpz_sub_ui -- Subtract an unsigned one-word integer from an MP_INT.
 
-Copyright (C) 1991, 1993, 1994, 1996 Free Software Foundation, Inc.
+Copyright (C) 1991, 1993, 1994, 1996, 1999 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -59,7 +59,7 @@ mpz_sub_ui (w, u, v)
   if (usize < 0)
     {
       mp_limb_t cy;
-      cy = mpn_add_1 (wp, up, abs_usize, v);
+      cy = mpn_add_1 (wp, up, abs_usize, (mp_limb_t) v);
       wp[abs_usize] = cy;
       wsize = -(abs_usize + cy);
     }
@@ -74,7 +74,7 @@ mpz_sub_ui (w, u, v)
 	}
       else
 	{
-	  mpn_sub_1 (wp, up, abs_usize, v);
+	  mpn_sub_1 (wp, up, abs_usize, (mp_limb_t) v);
 	  /* Size can decrease with at most one limb.  */
 	  wsize = abs_usize - (wp[abs_usize - 1] == 0);
 	}

@@ -1,7 +1,7 @@
-/* Pentium __mpn_addmul_1 -- Multiply a limb vector with a limb and add
+/* Pentium __gmpn_addmul_1 -- Multiply a limb vector with a limb and add
    the result to a second limb vector.
 
-Copyright (C) 1992, 1994, 1996 Free Software Foundation, Inc.
+Copyright (C) 1992, 1994, 1996, 1999, 2000 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -24,22 +24,22 @@ MA 02111-1307, USA. */
    INPUT PARAMETERS
    res_ptr	(sp + 4)
    s1_ptr	(sp + 8)
-   size		(sp + 12)
+   n		(sp + 12)
    s2_limb	(sp + 16)
 */
 
-#include "sysdep.h"
 #include "asm-syntax.h"
 
 #define res_ptr edi
 #define s1_ptr esi
-#define size ecx
+#define n ecx
 #define s2_limb ebp
 
 	TEXT
 	ALIGN (3)
-	GLOBL	C_SYMBOL_NAME(__mpn_addmul_1)
-C_SYMBOL_NAME(__mpn_addmul_1:)
+PROLOGUE(C_SYMBOL_NAME(__gmpn_addmul_1))
+	GLOBL	C_SYMBOL_NAME(__gmpn_addmul_1)
+C_SYMBOL_NAME(__gmpn_addmul_1:)
 
 	INSN1(push,l	,R(edi))
 	INSN1(push,l	,R(esi))
@@ -48,28 +48,28 @@ C_SYMBOL_NAME(__mpn_addmul_1:)
 
 	INSN2(mov,l	,R(res_ptr),MEM_DISP(esp,20))
 	INSN2(mov,l	,R(s1_ptr),MEM_DISP(esp,24))
-	INSN2(mov,l	,R(size),MEM_DISP(esp,28))
+	INSN2(mov,l	,R(n),MEM_DISP(esp,28))
 	INSN2(mov,l	,R(s2_limb),MEM_DISP(esp,32))
 
-	INSN2(lea,l	,R(res_ptr),MEM_INDEX(res_ptr,size,4))
-	INSN2(lea,l	,R(s1_ptr),MEM_INDEX(s1_ptr,size,4))
-	INSN1(neg,l	,R(size))
+	INSN2(lea,l	,R(res_ptr),MEM_INDEX(res_ptr,n,4))
+	INSN2(lea,l	,R(s1_ptr),MEM_INDEX(s1_ptr,n,4))
+	INSN1(neg,l	,R(n))
 	INSN2(xor,l	,R(ebx),R(ebx))
 	ALIGN (3)
 
 Loop:	INSN2(adc,l	,R(ebx),$0)
-	INSN2(mov,l	,R(eax),MEM_INDEX(s1_ptr,size,4))
+	INSN2(mov,l	,R(eax),MEM_INDEX(s1_ptr,n,4))
 
 	INSN1(mul,l	,R(s2_limb))
 
 	INSN2(add,l	,R(eax),R(ebx))
-	INSN2(mov,l	,R(ebx),MEM_INDEX(res_ptr,size,4))
+	INSN2(mov,l	,R(ebx),MEM_INDEX(res_ptr,n,4))
 
 	INSN2(adc,l	,R(edx),$0)
 	INSN2(add,l	,R(ebx),R(eax))
 
-	INSN2(mov,l	,MEM_INDEX(res_ptr,size,4),R(ebx))
-	INSN1(inc,l	,R(size))
+	INSN2(mov,l	,MEM_INDEX(res_ptr,n,4),R(ebx))
+	INSN1(inc,l	,R(n))
 
 	INSN2(mov,l	,R(ebx),R(edx))
 	INSN1(jnz,	,Loop)
@@ -81,3 +81,5 @@ Loop:	INSN2(adc,l	,R(ebx),$0)
 	INSN1(pop,l	,R(esi))
 	INSN1(pop,l	,R(edi))
 	ret
+
+EPILOGUE(C_SYMBOL_NAME(__gmpn_addmul_1))

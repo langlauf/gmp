@@ -1,6 +1,6 @@
-/* i80386 __mpn_rshift -- 
+/* i80386 __gmpn_rshift -- 
 
-Copyright (C) 1992, 1994 Free Software Foundation, Inc.
+Copyright (C) 1992, 1994, 1996, 1999, 2000 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -27,13 +27,13 @@ MA 02111-1307, USA. */
   cnt		(sp + 16)
 */
 
-#include "sysdep.h"
 #include "asm-syntax.h"
 
 .text
 	ALIGN (3)
-	.globl C_SYMBOL_NAME(__mpn_rshift)
-C_SYMBOL_NAME(__mpn_rshift:)
+PROLOGUE(C_SYMBOL_NAME(__gmpn_rshift))
+	.globl C_SYMBOL_NAME(__gmpn_rshift)
+C_SYMBOL_NAME(__gmpn_rshift:)
 	pushl	%edi
 	pushl	%esi
 	pushl	%ebx
@@ -49,21 +49,21 @@ C_SYMBOL_NAME(__mpn_rshift:)
 
 	movl	(%esi,%edx,4),%ebx	/* read least significant limb */
 	xorl	%eax,%eax
-	shrdl	%cl,%ebx,%eax		/* compute carry limb */
+	INSND(shrd,l	,R(eax),R(ebx),R(cl))	/* compute carry limb */
 	incl	%edx
 	jz	Lend
 	pushl	%eax			/* push carry limb onto stack */
-	testb	$1,%edx
+	testb	$1,%dl
 	jnz	L1			/* enter loop in the middle */
 	movl	%ebx,%eax
 
 	ALIGN (3)
 Loop:	movl	(%esi,%edx,4),%ebx	/* load next higher limb */
-	shrdl	%cl,%ebx,%eax		/* compute result limb */
+	INSND(shrd,l	,R(eax),R(ebx),R(cl))	/* compute result limb */
 	movl	%eax,(%edi,%edx,4)	/* store it */
 	incl	%edx
 L1:	movl	(%esi,%edx,4),%eax
-	shrdl	%cl,%eax,%ebx
+	INSND(shrd,l	,R(ebx),R(eax),R(cl))
 	movl	%ebx,(%edi,%edx,4)
 	incl	%edx
 	jnz	Loop
@@ -85,3 +85,5 @@ Lend:	shrl	%cl,%ebx		/* compute most significant limb */
 	popl	%esi
 	popl	%edi
 	ret
+
+EPILOGUE(C_SYMBOL_NAME(__gmpn_rshift))

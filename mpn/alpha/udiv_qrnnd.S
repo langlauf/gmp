@@ -1,6 +1,6 @@
  # Alpha 21064 __udiv_qrnnd
 
- # Copyright (C) 1992, 1994, 1995 Free Software Foundation, Inc.
+ # Copyright (C) 1992, 1994, 1995, 1997, 2000 Free Software Foundation, Inc.
 
  # This file is part of the GNU MP Library.
 
@@ -20,15 +20,15 @@
  # MA 02111-1307, USA.
 
 
-        .set noreorder
-        .set noat
+	.set noreorder
+	.set noat
 .text
-        .align	3
-        .globl	__udiv_qrnnd
-        .ent	__udiv_qrnnd
-__udiv_qrnnd:
-        .frame $30,0,$26,0
-        .prologue 0
+	.align	3
+	.globl	__gmpn_udiv_qrnnd
+	.ent	__gmpn_udiv_qrnnd
+__gmpn_udiv_qrnnd:
+	.frame $30,0,$26,0
+	.prologue 0
 #define cnt	$2
 #define tmp	$3
 #define rem_ptr	$16
@@ -148,4 +148,4 @@ __udiv_qrnnd:
 	bis	$31,n0,$0
 	ret	$31,($26),1
 
-	.end	__udiv_qrnnd
+	.end	__gmpn_udiv_qrnnd

@@ -1,6 +1,7 @@
 /* asm.h -- Definitions for x86 syntax variations.
 
-Copyright (C) 1992, 1994, 1995 Free Software Foundation, Inc.
+Copyright (C) 1992, 1994, 1995, 1996, 1999, 2000 Free Software Foundation,
+Inc.
 
 This file is part of the GNU MP Library.
 
@@ -23,17 +24,31 @@ MA 02111-1307, USA.  */
 #undef ALIGN
 
 #if defined (BSD_SYNTAX) || defined (ELF_SYNTAX)
+#if __STDC__
+#define R(r) %##r
+#else
 #define R(r) %r
+#endif /* __STDC__ */
 #define MEM(base)(base)
 #define MEM_DISP(base,displacement)displacement(R(base))
 #define MEM_INDEX(base,index,size)(R(base),R(index),size)
 #ifdef __STDC__
 #define INSN1(mnemonic,size_suffix,dst)mnemonic##size_suffix dst
 #define INSN2(mnemonic,size_suffix,dst,src)mnemonic##size_suffix src,dst
+#ifdef OLD_GAS
+#define INSND(mnemonic,size_suffix,dst,src,cl)mnemonic##size_suffix cl,src,dst
+#else
+#define INSND(mnemonic,size_suffix,dst,src,cl)mnemonic##size_suffix src,dst
+#endif /* OLD_GAS */
 #else
 #define INSN1(mnemonic,size_suffix,dst)mnemonic/**/size_suffix dst
 #define INSN2(mnemonic,size_suffix,dst,src)mnemonic/**/size_suffix src,dst
-#endif
+#ifdef OLD_GAS
+#define INSND(mnemonic,size_suffix,dst,src,cl)mnemonic/**/size_suffix src,dst
+#else
+#define INSND(mnemonic,size_suffix,dst,src,cl)mnemonic/**/size_suffix cl,src,dst
+#endif /* OLD_GAS */
+#endif /* __STDC__ */
 #define TEXT .text
 #if defined (BSD_SYNTAX)
 #define ALIGN(log) .align log
@@ -59,4 +74,12 @@ MA 02111-1307, USA.  */
 #ifdef BROKEN_ALIGN
 #undef ALIGN
 #define ALIGN(log) .align log,0x90
+#endif
+
+#ifdef ELF_SYNTAX
+#define PROLOGUE(name) .type name,@function
+#define EPILOGUE(name) .size name,.-name
+#else
+#define PROLOGUE(name)
+#define EPILOGUE(name)
 #endif

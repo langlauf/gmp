@@ -1,6 +1,7 @@
-/* Pentium optimized __mpn_rshift -- 
+/* Pentium optimized __gmpn_rshift -- mpn right shift.
 
-Copyright (C) 1992, 1994, 1995 Free Software Foundation, Inc.
+Copyright (C) 1992, 1994, 1995, 1996, 1999, 2000 Free Software Foundation,
+Inc.
 
 This file is part of the GNU MP Library.
 
@@ -27,13 +28,13 @@ MA 02111-1307, USA. */
   cnt		(sp + 16)
 */
 
-#include "sysdep.h"
 #include "asm-syntax.h"
 
 .text
 	ALIGN (3)
-	.globl C_SYMBOL_NAME(__mpn_rshift)
-C_SYMBOL_NAME(__mpn_rshift:)
+PROLOGUE(C_SYMBOL_NAME(__gmpn_rshift))
+	.globl C_SYMBOL_NAME(__gmpn_rshift)
+C_SYMBOL_NAME(__gmpn_rshift:)
 	pushl	%edi
 	pushl	%esi
 	pushl	%ebx
@@ -58,7 +59,7 @@ Lnormal:
 	movl	(%esi),%edx
 	addl	$4,%esi
 	xorl	%eax,%eax
-	shrdl	%cl,%edx,%eax		/* compute carry limb */
+	INSND(shrd,l	,R(eax),R(edx),R(cl))		/* compute carry limb */
 	pushl	%eax			/* push carry limb onto stack */
 
 	decl	%ebp
@@ -74,29 +75,29 @@ Loop:	movl	28(%edi),%eax		/* fetch destination cache line */
 
 	movl	(%esi),%eax
 	movl	4(%esi),%edx
-	shrdl	%cl,%eax,%ebx
-	shrdl	%cl,%edx,%eax
+	INSND(shrd,l	,R(ebx),R(eax),R(cl))
+	INSND(shrd,l	,R(eax),R(edx),R(cl))
 	movl	%ebx,(%edi)
 	movl	%eax,4(%edi)
 
 	movl	8(%esi),%ebx
 	movl	12(%esi),%eax
-	shrdl	%cl,%ebx,%edx
-	shrdl	%cl,%eax,%ebx
+	INSND(shrd,l	,R(edx),R(ebx),R(cl))
+	INSND(shrd,l	,R(ebx),R(eax),R(cl))
 	movl	%edx,8(%edi)
 	movl	%ebx,12(%edi)
 
 	movl	16(%esi),%edx
 	movl	20(%esi),%ebx
-	shrdl	%cl,%edx,%eax
-	shrdl	%cl,%ebx,%edx
+	INSND(shrd,l	,R(eax),R(edx),R(cl))
+	INSND(shrd,l	,R(edx),R(ebx),R(cl))
 	movl	%eax,16(%edi)
 	movl	%edx,20(%edi)
 
 	movl	24(%esi),%eax
 	movl	28(%esi),%edx
-	shrdl	%cl,%eax,%ebx
-	shrdl	%cl,%edx,%eax
+	INSND(shrd,l	,R(ebx),R(eax),R(cl))
+	INSND(shrd,l	,R(eax),R(edx),R(cl))
 	movl	%ebx,24(%edi)
 	movl	%eax,28(%edi)
 
@@ -144,7 +145,7 @@ Lspecial:
 	pushl	%ebp
 	shrl	$3,%ebp
 
-	shrl	$1,%edx
+	shrl	%edx
 	incl	%ebp
 	decl	%ebp
 	jz	LLend
@@ -157,30 +158,30 @@ LLoop:	movl	-28(%edi),%eax		/* fetch destination cache line */
 
 	movl	(%esi),%eax
 	movl	-4(%esi),%edx
-	rcrl	$1,%eax
+	rcrl	%eax
 	movl	%ebx,(%edi)
-	rcrl	$1,%edx
+	rcrl	%edx
 	movl	%eax,-4(%edi)
 
 	movl	-8(%esi),%ebx
 	movl	-12(%esi),%eax
-	rcrl	$1,%ebx
+	rcrl	%ebx
 	movl	%edx,-8(%edi)
-	rcrl	$1,%eax
+	rcrl	%eax
 	movl	%ebx,-12(%edi)
 
 	movl	-16(%esi),%edx
 	movl	-20(%esi),%ebx
-	rcrl	$1,%edx
+	rcrl	%edx
 	movl	%eax,-16(%edi)
-	rcrl	$1,%ebx
+	rcrl	%ebx
 	movl	%edx,-20(%edi)
 
 	movl	-24(%esi),%eax
 	movl	-28(%esi),%edx
-	rcrl	$1,%eax
+	rcrl	%eax
 	movl	%ebx,-24(%edi)
-	rcrl	$1,%edx
+	rcrl	%edx
 	movl	%eax,-28(%edi)
 
 	leal	-32(%esi),%esi		/* use leal not to clobber carry */
@@ -195,7 +196,7 @@ LLend:	popl	%ebp
 	addl	%eax,%eax		/* restore carry from eax */
 LLoop2:	movl	%edx,%ebx
 	movl	(%esi),%edx
-	rcrl	$1,%edx
+	rcrl	%edx
 	movl	%ebx,(%edi)
 
 	leal	-4(%esi),%esi		/* use leal not to clobber carry */
@@ -208,10 +209,12 @@ LLend2:	addl	%eax,%eax		/* restore carry from eax */
 LL1:	movl	%edx,(%edi)		/* store last limb */
 
 	movl	$0,%eax
-	rcrl	$1,%eax
+	rcrl	%eax
 
 	popl	%ebp
 	popl	%ebx
 	popl	%esi
 	popl	%edi
 	ret
+
+EPILOGUE(C_SYMBOL_NAME(__gmpn_rshift))

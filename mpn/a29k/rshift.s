@@ -1,6 +1,6 @@
-; 29000 __mpn_rshift --
+; 29000 __gmpn_rshift --
 
-; Copyright (C) 1992, 1994 Free Software Foundation, Inc.
+; Copyright (C) 1992, 1994, 2000 Free Software Foundation, Inc.
 
 ; This file is part of the GNU MP Library.
 
@@ -32,9 +32,9 @@
 	.sect .lit,lit
 	.text
 	.align	4
-	.global	___mpn_rshift
+	.global	___gmpn_rshift
 	.word	0x60000
-___mpn_rshift:
+___gmpn_rshift:
 	load	0,0,gr119,lr3
 	add	lr3,lr3,4
 

@@ -4,7 +4,8 @@
    the base in the C standard way, i.e.  0xhh...h means base 16,
    0oo...o means base 8, otherwise assume base 10.
 
-Copyright (C) 1991, 1993, 1994, Free Software Foundation, Inc.
+Copyright (C) 1991, 1993, 1994, 1996, 1997, 1998 Free Software Foundation,
+Inc.
 
 This file is part of the GNU MP Library.
 
@@ -23,6 +24,7 @@ along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA. */
 
+#include <string.h>
 #include <ctype.h>
 #include "gmp.h"
 #include "gmp-impl.h"
@@ -96,13 +98,30 @@ mpz_set_str (x, str, base)
 	      base = 16;
 	      c = *str++;
 	    }
+	  else if (c == 'b' || c == 'B')
+	    {
+	      base = 2;
+	      c = *str++;
+	    }
 	}
+    }
+
+  /* Skip leading zeros.  */
+  while (c == '0')
+    c = *str++;
+  /* Make sure the string does not become empty, mpn_set_str would fail.  */
+  if (c == 0)
+    {
+      x->_mp_size = 0;
+      return 0;
     }
 
   TMP_MARK (marker);
   str_size = strlen (str - 1);
   s = begs = (char *) TMP_ALLOC (str_size + 1);
 
+  /* Remove spaces from the string and convert the result from ASCII to a
+     byte array.  */
   for (i = 0; i < str_size; i++)
     {
       if (!isspace (c))
@@ -120,10 +139,12 @@ mpz_set_str (x, str, base)
 
   str_size = s - begs;
 
-  xsize = str_size / __mp_bases[base].chars_per_limb + 1;
+  xsize = (((mp_size_t) (str_size / __mp_bases[base].chars_per_bit_exactly))
+	   / BITS_PER_MP_LIMB + 2);
   if (x->_mp_alloc < xsize)
     _mpz_realloc (x, xsize);
 
+  /* Convert the byte array in base BASE to our bignum format.  */
   xsize = mpn_set_str (x->_mp_d, (unsigned char *) begs, str_size, base);
   x->_mp_size = negative ? -xsize : xsize;
 

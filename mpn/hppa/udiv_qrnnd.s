@@ -1,7 +1,7 @@
 ; HP-PA  __udiv_qrnnd division support, used from longlong.h.
 ; This version runs fast on pre-PA7000 CPUs.
 
-; Copyright (C) 1993, 1994 Free Software Foundation, Inc.
+; Copyright (C) 1993, 1994, 2000 Free Software Foundation, Inc.
 
 ; This file is part of the GNU MP Library.
 
@@ -32,8 +32,8 @@
 ; trouble is the FFFFFFFF code that would need some hacking.
 
 	.code
-	.export		__udiv_qrnnd
-__udiv_qrnnd
+	.export		__gmpn_udiv_qrnnd
+__gmpn_udiv_qrnnd
 	.proc
 	.callinfo	frame=0,no_calls
 	.entry

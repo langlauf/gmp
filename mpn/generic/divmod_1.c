@@ -6,7 +6,7 @@
 
    QUOT_PTR and DIVIDEND_PTR might point to the same limb.
 
-Copyright (C) 1991, 1993, 1994, 1996 Free Software Foundation, Inc.
+Copyright (C) 1991, 1993, 1994, 1996, 1999 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -36,9 +36,6 @@ MA 02111-1307, USA. */
 #ifndef UDIV_TIME
 #define UDIV_TIME UMUL_TIME
 #endif
-
-/* FIXME: We should be using invert_limb (or invert_normalized_limb)
-   here (not udiv_qrnnd).  */
 
 mp_limb_t
 #if __STDC__
@@ -79,17 +76,7 @@ mpn_divmod_1 (quot_ptr, dividend_ptr, dividend_size, divisor_limb)
 	  mp_limb_t divisor_limb_inverted;
 
 	  divisor_limb <<= normalization_steps;
-
-	  /* Compute (2**2N - 2**N * DIVISOR_LIMB) / DIVISOR_LIMB.  The
-	     result is a (N+1)-bit approximation to 1/DIVISOR_LIMB, with the
-	     most significant bit (with weight 2**N) implicit.  */
-
-	  /* Special case for DIVISOR_LIMB == 100...000.  */
-	  if (divisor_limb << 1 == 0)
-	    divisor_limb_inverted = ~(mp_limb_t) 0;
-	  else
-	    udiv_qrnnd (divisor_limb_inverted, dummy,
-			-divisor_limb, 0, divisor_limb);
+	  invert_limb (divisor_limb_inverted, divisor_limb);
 
 	  n1 = dividend_ptr[dividend_size - 1];
 	  r = n1 >> (BITS_PER_MP_LIMB - normalization_steps);
@@ -118,16 +105,7 @@ mpn_divmod_1 (quot_ptr, dividend_ptr, dividend_size, divisor_limb)
 	{
 	  mp_limb_t divisor_limb_inverted;
 
-	  /* Compute (2**2N - 2**N * DIVISOR_LIMB) / DIVISOR_LIMB.  The
-	     result is a (N+1)-bit approximation to 1/DIVISOR_LIMB, with the
-	     most significant bit (with weight 2**N) implicit.  */
-
-	  /* Special case for DIVISOR_LIMB == 100...000.  */
-	  if (divisor_limb << 1 == 0)
-	    divisor_limb_inverted = ~(mp_limb_t) 0;
-	  else
-	    udiv_qrnnd (divisor_limb_inverted, dummy,
-			-divisor_limb, 0, divisor_limb);
+	  invert_limb (divisor_limb_inverted, divisor_limb);
 
 	  i = dividend_size - 1;
 	  r = dividend_ptr[i];

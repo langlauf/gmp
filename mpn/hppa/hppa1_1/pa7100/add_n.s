@@ -1,8 +1,8 @@
-; HP-PA  __mpn_add_n -- Add two limb vectors of the same length > 0 and store
+; HP-PA  __gmpn_add_n -- Add two limb vectors of the same length > 0 and store
 ; sum in a third limb vector.
 ; This is optimized for the PA7100, where is runs at 4.25 cycles/limb
 
-; Copyright (C) 1992, 1994 Free Software Foundation, Inc.
+; Copyright (C) 1992, 1994, 2000 Free Software Foundation, Inc.
 
 ; This file is part of the GNU MP Library.
 
@@ -29,8 +29,8 @@
 ; size		gr23
 
 	.code
-	.export		__mpn_add_n
-__mpn_add_n
+	.export		__gmpn_add_n
+__gmpn_add_n
 	.proc
 	.callinfo	frame=0,no_calls
 	.entry

@@ -1,6 +1,6 @@
-# IBM POWER __mpn_lshift -- 
+# IBM POWER __gmpn_lshift -- 
 
-# Copyright (C) 1992, 1994 Free Software Foundation, Inc.
+# Copyright (C) 1992, 1994, 1999, 2000 Free Software Foundation, Inc.
 
 # This file is part of the GNU MP Library.
 
@@ -27,17 +27,14 @@
 # cnt		r6
 
 	.toc
-	.extern __mpn_lshift[DS]
-	.extern .__mpn_lshift
-.csect [PR]
-	.align 2
-	.globl __mpn_lshift
-	.globl .__mpn_lshift
-	.csect __mpn_lshift[DS]
-__mpn_lshift:
-	.long .__mpn_lshift, TOC[tc0], 0
-	.csect [PR]
-.__mpn_lshift:
+	.globl	__gmpn_lshift
+	.globl	.__gmpn_lshift
+	.csect	__gmpn_lshift[DS]
+__gmpn_lshift:
+	.long	.__gmpn_lshift, TOC[tc0], 0
+	.csect	.text[PR]
+	.align	2
+.__gmpn_lshift:
 	sli	0,5,2
 	cax	9,3,0
 	cax	4,4,0

@@ -1,7 +1,8 @@
-/* i80386 __mpn_add_n -- Add two limb vectors of the same length > 0 and store
+/* i80386 __gmpn_add_n -- Add two limb vectors of the same length > 0 and store
 sum in a third limb vector.
 
-Copyright (C) 1992, 1994, 1995 Free Software Foundation, Inc.
+Copyright (C) 1992, 1994, 1995, 1996, 1999, 2000 Free Software Foundation,
+Inc.
 
 This file is part of the GNU MP Library.
 
@@ -28,13 +29,57 @@ MA 02111-1307, USA. */
   size		(sp + 16)
 */
 
-#include "sysdep.h"
 #include "asm-syntax.h"
 
 .text
 	ALIGN (3)
-	.globl C_SYMBOL_NAME(__mpn_add_n)
-C_SYMBOL_NAME(__mpn_add_n:)
+	.globl C_SYMBOL_NAME(__gmpn_add_nc)
+C_SYMBOL_NAME(__gmpn_add_nc:)
+	PROLOGUE(C_SYMBOL_NAME(__gmpn_add_nc))
+	pushl %edi
+	pushl %esi
+
+	movl 12(%esp),%edi		/* res_ptr */
+	movl 16(%esp),%esi		/* s1_ptr */
+	movl 20(%esp),%edx		/* s2_ptr */
+	movl 24(%esp),%ecx		/* size */
+
+	movl	%ecx,%eax
+	shrl	$3,%ecx			/* compute count for unrolled loop */
+	negl	%eax
+	andl	$7,%eax			/* get index where to start loop */
+	jz	Loopgo			/* necessary special case for 0 */
+	incl	%ecx			/* adjust loop count */
+	shll	$2,%eax			/* adjustment for pointers... */
+	subl	%eax,%edi		/* ... since they are offset ... */
+	subl	%eax,%esi		/* ... by a constant when we ... */
+	subl	%eax,%edx		/* ... enter the loop */
+	shrl	$2,%eax			/* restore previous value */
+#ifdef PIC
+/* Calculate start address in loop for PIC.  Due to limitations in some
+   assemblers, Loop-L0a-3 cannot be put into the leal */
+	call	L0a
+L0a:	leal	(%eax,%eax,8),%eax
+	addl	(%esp),%eax
+	addl	$(Loop-L0a-3),%eax
+	addl	$4,%esp
+#else
+/* Calculate start address in loop for non-PIC.  */
+ 	leal	Loop-3(%eax,%eax,8),%eax
+#endif
+/* These lines initialize carry from the 5th parameter.  Should be possible to
+   simplify.  */
+	pushl	%ebp
+	movl	32(%esp),%ebp
+	shrl	$1,%ebp			/* shift bit 0 into carry */
+	popl	%ebp
+
+	jmp	*%eax			/* jump into loop */
+
+	ALIGN (3)
+	.globl C_SYMBOL_NAME(__gmpn_add_n)
+C_SYMBOL_NAME(__gmpn_add_n:)
+	PROLOGUE(C_SYMBOL_NAME(__gmpn_add_n))
 	pushl %edi
 	pushl %esi
 
@@ -56,17 +101,23 @@ C_SYMBOL_NAME(__mpn_add_n:)
 	shrl	$2,%eax			/* restore previous value */
 #ifdef PIC
 /* Calculate start address in loop for PIC.  Due to limitations in some
-   assemblers, Loop-L0-3 cannot be put into the leal */
-	call	L0
-L0:	leal	(%eax,%eax,8),%eax
+   assemblers, Loop-L0b-3 cannot be put into the leal */
+	call	L0b
+L0b:	leal	(%eax,%eax,8),%eax
 	addl	(%esp),%eax
-	addl	$(Loop-L0-3),%eax
+	addl	$(Loop-L0b-3),%eax
 	addl	$4,%esp
 #else
 /* Calculate start address in loop for non-PIC.  */
- 	leal	(Loop - 3)(%eax,%eax,8),%eax
+ 	leal	Loop-3(%eax,%eax,8),%eax
 #endif
 	jmp	*%eax			/* jump into loop */
+
+Loopgo:	pushl	%ebp
+	movl	32(%esp),%ebp
+	shrl	$1,%ebp			/* shift bit 0 into carry */
+	popl	%ebp
+
 	ALIGN (3)
 Loop:	movl	(%esi),%eax
 	adcl	(%edx),%eax
@@ -104,3 +155,5 @@ Loop:	movl	(%esi),%eax
 	popl %esi
 	popl %edi
 	ret
+	EPILOGUE(C_SYMBOL_NAME(__gmpn_add_nc))
+	EPILOGUE(C_SYMBOL_NAME(__gmpn_add_n))

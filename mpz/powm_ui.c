@@ -1,6 +1,6 @@
 /* mpz_powm_ui(res,base,exp,mod) -- Set RES to (base**exp) mod MOD.
 
-Copyright (C) 1991, 1993, 1994, 1996 Free Software Foundation, Inc.
+Copyright (C) 1991, 1993, 1994, 1996, 1997 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -53,6 +53,8 @@ mpz_powm_ui (res, base, exp, mod)
 
   if (exp == 0)
     {
+      /* Exponent is zero, result is 1 mod MOD, i.e., 1 or 0
+	 depending on if MOD equals 1.  */
       rp[0] = 1;
       res->_mp_size = (msize == 1 && (mod->_mp_d)[0] == 1) ? 0 : 1;
       return;
@@ -166,6 +168,7 @@ mpz_powm_ui (res, base, exp, mod)
 
 	mpn_mul_n (xp, rp, rp, rsize);
 	xsize = 2 * rsize;
+	xsize -= xp[xsize - 1] == 0;
 	if (xsize > msize)
 	  {
 	    mpn_divmod (xp + msize, xp, xsize, mp, msize);
@@ -179,6 +182,7 @@ mpz_powm_ui (res, base, exp, mod)
 	  {
 	    mpn_mul (xp, rp, rsize, bp, bsize);
 	    xsize = rsize + bsize;
+	    xsize -= xp[xsize - 1] == 0;
 	    if (xsize > msize)
 	      {
 		mpn_divmod (xp + msize, xp, xsize, mp, msize);
@@ -226,7 +230,15 @@ mpz_powm_ui (res, base, exp, mod)
     MPN_NORMALIZE (rp, rsize);
   }
 
-  res->_mp_size = negative_result == 0 ? rsize : -rsize;
+  if (negative_result && rsize != 0)
+    {
+      if (mod_shift_cnt != 0)
+	mpn_rshift (mp, mp, msize, mod_shift_cnt);
+      mpn_sub (rp, mp, msize, rp, rsize);
+      rsize = msize;
+      MPN_NORMALIZE (rp, rsize);
+    }
+  res->_mp_size = rsize;
 
   if (free_me != NULL)
     (*_mp_free_func) (free_me, free_me_size * BYTES_PER_MP_LIMB);

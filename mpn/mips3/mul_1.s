@@ -1,7 +1,7 @@
- # MIPS3 __mpn_mul_1 -- Multiply a limb vector with a single limb and
+ # MIPS3 __gmpn_mul_1 -- Multiply a limb vector with a single limb and
  # store the product in a second limb vector.
 
- # Copyright (C) 1992, 1994, 1995 Free Software Foundation, Inc.
+ # Copyright (C) 1992, 1994, 1995, 2000 Free Software Foundation, Inc.
 
  # This file is part of the GNU MP Library.
 
@@ -29,9 +29,9 @@
 
 	.text
 	.align	4
-	.globl	__mpn_mul_1
-	.ent	__mpn_mul_1
-__mpn_mul_1:
+	.globl	__gmpn_mul_1
+	.ent	__gmpn_mul_1
+__gmpn_mul_1:
 	.set    noreorder
 	.set    nomacro
 
@@ -82,4 +82,4 @@ $LC0:	mflo	$10
 	j	$31
 	daddu	$2,$9,$2	# add high product limb and carry from addition
 
-	.end	__mpn_mul_1
+	.end	__gmpn_mul_1

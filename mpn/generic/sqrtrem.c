@@ -12,7 +12,8 @@
    the function is 0 if OP is a perfect square, and *any* non-zero number
    otherwise.
 
-Copyright (C) 1993, 1994, 1996 Free Software Foundation, Inc.
+Copyright (C) 1993, 1994, 1996, 1997, 1998, 1999 Free Software Foundation,
+Inc.
 
 This file is part of the GNU MP Library.
 
@@ -59,7 +60,7 @@ MA 02111-1307, USA. */
 /* Define this macro for IEEE P854 machines with a fast sqrt instruction.  */
 #if defined __GNUC__ && ! defined __SOFT_FLOAT
 
-#if defined __sparc__
+#if defined (__sparc__) && BITS_PER_MP_LIMB == 32
 #define SQRT(a) \
   ({									\
     double __sqrt_res;							\
@@ -68,7 +69,7 @@ MA 02111-1307, USA. */
   })
 #endif
 
-#if defined __HAVE_68881__
+#if defined (__HAVE_68881__)
 #define SQRT(a) \
   ({									\
     double __sqrt_res;							\
@@ -77,7 +78,7 @@ MA 02111-1307, USA. */
   })
 #endif
 
-#if defined __hppa
+#if defined (__hppa) && BITS_PER_MP_LIMB == 32
 #define SQRT(a) \
   ({									\
     double __sqrt_res;							\
@@ -86,13 +87,24 @@ MA 02111-1307, USA. */
   })
 #endif
 
-#if defined _ARCH_PWR2
+#if defined (_ARCH_PWR2) && BITS_PER_MP_LIMB == 32
 #define SQRT(a) \
   ({									\
     double __sqrt_res;							\
     asm ("fsqrt %0,%1" : "=f" (__sqrt_res) : "f" (a));			\
     __sqrt_res;								\
   })
+#endif
+
+#if 0
+#if defined (__i386__) || defined (__i486__)
+#define SQRT(a) \
+  ({									\
+    double __sqrt_res;							\
+    asm ("fsqrt" : "=t" (__sqrt_res) : "0" (a));			\
+    __sqrt_res;								\
+  })
+#endif
 #endif
 
 #endif
@@ -112,7 +124,7 @@ MA 02111-1307, USA. */
    square root of numbers with the same initial digits and an even
    difference in the total number of digits.  Consider the square root
    of 1, 10, 100, 1000, ...)  */
-static unsigned char even_approx_tab[256] =
+static const unsigned char even_approx_tab[256] =
 {
   0x6a, 0x6a, 0x6b, 0x6c, 0x6c, 0x6d, 0x6e, 0x6e,
   0x6f, 0x70, 0x71, 0x71, 0x72, 0x73, 0x73, 0x74,
@@ -150,7 +162,7 @@ static unsigned char even_approx_tab[256] =
 
 /* Table to be used for operands with an odd total number of bits.
    (Further comments before previous table.)  */
-static unsigned char odd_approx_tab[256] =
+static const unsigned char odd_approx_tab[256] =
 {
   0x00, 0x00, 0x00, 0x01, 0x01, 0x02, 0x02, 0x03,
   0x03, 0x04, 0x04, 0x05, 0x05, 0x06, 0x06, 0x07,
@@ -272,9 +284,7 @@ mpn_sqrtrem (root_ptr, rem_ptr, op_ptr, op_size)
 /* Is there a fast sqrt instruction defined for this machine?  */
 #ifdef SQRT
   {
-    initial_approx = SQRT (t_high0 * 2.0
-			   * ((mp_limb_t) 1 << (BITS_PER_MP_LIMB - 1))
-			   + t_high1);
+    initial_approx = SQRT (t_high0 * MP_BASE_AS_DOUBLE + t_high1);
     /* If t_high0,,t_high1 is big, the result in INITIAL_APPROX might have
        become incorrect due to overflow in the conversion from double to
        mp_limb_t above.  It will typically be zero in that case, but might be
@@ -293,14 +303,14 @@ mpn_sqrtrem (root_ptr, rem_ptr, op_ptr, op_size)
 
   if ((cnt & 1) == 0)
     {
-      /* The most sign bit of t_high0 is set.  */
+      /* The most significant bit of t_high0 is set.  */
       initial_approx = t_high0 >> (BITS_PER_MP_LIMB - 8 - 1);
       initial_approx &= 0xff;
       initial_approx = even_approx_tab[initial_approx];
     }
   else
     {
-      /* The most significant bit of T_HIGH0 is unset,
+      /* The most significant bit of t_high0 is unset,
 	 the second most significant is set.  */
       initial_approx = t_high0 >> (BITS_PER_MP_LIMB - 8 - 2);
       initial_approx &= 0xff;
@@ -310,7 +320,7 @@ mpn_sqrtrem (root_ptr, rem_ptr, op_ptr, op_size)
   initial_approx <<= BITS_PER_MP_LIMB - 8 - 1;
 
   /* Perform small precision Newtonian iterations to get a full word
-     approximation.  For small operands, these iteration will make the
+     approximation.  For small operands, these iterations will do the
      entire job.  */
   if (t_high0 == ~(mp_limb_t)0)
     initial_approx = t_high0;
@@ -328,7 +338,7 @@ mpn_sqrtrem (root_ptr, rem_ptr, op_ptr, op_size)
 
       /* Now get a full word by one (or for > 36 bit machines) several
 	 iterations.  */
-      for (i = 16; i < BITS_PER_MP_LIMB; i <<= 1)
+      for (i = 18; i < BITS_PER_MP_LIMB; i <<= 1)
 	{
 	  mp_limb_t ignored_remainder;
 
@@ -373,7 +383,7 @@ mpn_sqrtrem (root_ptr, rem_ptr, op_ptr, op_size)
 	 time is spent here.  */
 
       /* It is possible to do a great optimization here.  The successive
-	 divisors in the mpn_divmod call below has more and more leading
+	 divisors in the mpn_divmod call below have more and more leading
 	 words equal to its predecessor.  Therefore the beginning of
 	 each division will repeat the same work as did the last
 	 division.  If we could guarantee that the leading words of two
@@ -470,10 +480,10 @@ mpn_sqrtrem (root_ptr, rem_ptr, op_ptr, op_size)
       /* These operations can't overflow.  */
       cy_limb  = mpn_sub_n (tp, tp, rp, rsize);
       cy_limb += mpn_sub_n (tp, tp, rp, rsize);
-      mpn_sub_1 (tp + rsize, tp + rsize, tsize - rsize, cy_limb);
-      mpn_add_1 (tp, tp, tsize, (mp_limb_t) 1);
+      mpn_decr_u (tp + rsize, cy_limb);
+      mpn_incr_u (tp, (mp_limb_t) 1);
 
-      mpn_sub_1 (rp, rp, rsize, (mp_limb_t) 1);
+      mpn_decr_u (rp, (mp_limb_t) 1);
 
 #ifdef DEBUG
       printf ("(adjusted) R = ");
