@@ -6,7 +6,7 @@
    INTERFACES.  IT IS ALMOST GUARANTEED THAT THEY'LL CHANGE OR DISAPPEAR IN
    A FUTURE GNU MP RELEASE.
 
-Copyright 1998, 1999, 2000, 2001, 2002 Free Software Foundation, Inc.
+Copyright 1998, 1999, 2000, 2001, 2002, 2004 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -184,10 +184,10 @@ mpn_fft_add_modF (mp_ptr ap, mp_ptr bp, int n)
   mp_limb_t c;
 
   c = ap[n] + bp[n] + mpn_add_n (ap, ap, bp, n);
-  if (c > 1)
+  if (c > 1) /* subtract c-1 to both ap[0] and ap[n] */
     {
-      ap[n] = c - 1;
-      mpn_decr_u (ap, 1);
+      ap[n] = 1;
+      mpn_decr_u (ap, c - 1);
     }
   else
     ap[n] = c;
