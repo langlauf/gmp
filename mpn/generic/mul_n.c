@@ -12,16 +12,16 @@ Foundation, Inc.
 This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
-it under the terms of the GNU Library General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at your
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
-You should have received a copy of the GNU Library General Public License
+You should have received a copy of the GNU Lesser General Public License
 along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA. */
@@ -30,7 +30,6 @@ MA 02111-1307, USA. */
 #include "gmp-impl.h"
 #include "longlong.h"
 
-#define MP_LIMB_T_MAX  (~((mp_limb_t) 0))
 
 /* Multiplicative inverse of 3, modulo 2^BITS_PER_MP_LIMB.
    0xAAAAAAAB for 32 bits, 0xAAAAAAAAAAAAAAAB for 64 bits. */
@@ -54,8 +53,6 @@ static void interpolate3 _PROTO ((mp_srcptr,
                                   mp_ptr, mp_ptr, mp_ptr,
                                   mp_size_t, mp_size_t));
 static mp_limb_t add2Times _PROTO ((mp_ptr, mp_srcptr, mp_srcptr, mp_size_t));
-void mpn_toom3_mul_n _PROTO ((mp_ptr, mp_srcptr, mp_srcptr, mp_limb_t,
-                              mp_ptr));
 
 
 /*-- mpn_kara_mul_n ---------------------------------------------------------------*/
@@ -78,7 +75,8 @@ mpn_kara_mul_n(p, a, b, n, ws)
      mp_ptr    ws;
 #endif
 {
-  mp_limb_t i, n2, sign, w, w0, w1;
+  mp_limb_t i, sign, w, w0, w1;
+  mp_size_t n2;
   mp_srcptr x, y;
 
   n2 = n >> 1;
@@ -194,7 +192,6 @@ mpn_kara_mul_n(p, a, b, n, ws)
 	      ++i;
 	    } while (x == 0);
 	}
-
     }
   else
     {
@@ -296,7 +293,8 @@ mpn_kara_sqr_n (p, a, n, ws)
      mp_ptr    ws;
 #endif
 {
-  mp_limb_t i, n2, sign, w, w0, w1;
+  mp_limb_t i, sign, w, w0, w1;
+  mp_size_t n2;
   mp_srcptr x, y;
 
   n2 = n >> 1;
@@ -412,7 +410,6 @@ mpn_kara_sqr_n (p, a, n, ws)
 	      ++i;
 	    } while (x == 0);
 	}
-
     }
   else
     {
@@ -1106,18 +1103,19 @@ interpolate3 (A, B, C, D, E,
 
 void
 #if __STDC__
-mpn_toom3_mul_n (mp_ptr p, mp_srcptr a, mp_srcptr b, mp_limb_t n, mp_ptr ws)
+mpn_toom3_mul_n (mp_ptr p, mp_srcptr a, mp_srcptr b, mp_size_t n, mp_ptr ws)
 #else
 mpn_toom3_mul_n (p, a, b, n, ws)
      mp_ptr    p;
      mp_srcptr a;
      mp_srcptr b;
-     mp_limb_t n;
+     mp_size_t n;
      mp_ptr    ws;
 #endif
 {
-  mp_limb_t cB,cC,cD, dB,dC,dD, l,l2,l3,l4,l5,ls, tB,tC,tD;
+  mp_limb_t cB,cC,cD, dB,dC,dD, tB,tC,tD;
   mp_limb_t *A,*B,*C,*D,*E, *W;
+  mp_size_t l,l2,l3,l4,l5,ls;
 
   /* Break n words into chunks of size l, l and ls.
    * n = 3*k   => l = k,   ls = k
@@ -1192,28 +1190,9 @@ mpn_toom3_mul_n (p, a, b, n, ws)
     mp_limb_t i, x, y;
     tB += mpn_add_n (p + l, p + l, B, l2);
     tD += mpn_add_n (p + l3, p + l3, D, l2);
-    y = tB;
-    for (i = 0; y && i < l; ++i)
-      {
-	x = p[l3 + i] + y;
-	p[l3 + i] = x;
-	y = x < y;
-      }
-    y += tC;
-    for (i = 0; y && i < ls; ++i)
-      {
-	x = p[l4 + i] + y;
-	p[l4 + i] = x;
-	y = x < y;
-      }
-    y += tD;
-    for (i = 0; y && i < ls; ++i)
-      {
-	x = p[l5 + i] + y;
-	p[l5 + i] = x;
-	y = x < y;
-      }
-    ASSERT (!y);
+    mpn_incr_u (p + l3, tB);
+    mpn_incr_u (p + l4, tC);
+    mpn_incr_u (p + l5, tD);
   }
 }
 
@@ -1233,18 +1212,18 @@ mpn_toom3_mul_n (p, a, b, n, ws)
 
 void
 #if __STDC__
-mpn_toom3_sqr_n (mp_ptr p, mp_srcptr a, mp_limb_t n, mp_ptr ws)
+mpn_toom3_sqr_n (mp_ptr p, mp_srcptr a, mp_size_t n, mp_ptr ws)
 #else
 mpn_toom3_sqr_n (p, a, n, ws)
      mp_ptr    p;
      mp_srcptr a;
-     mp_limb_t n;
+     mp_size_t n;
      mp_ptr    ws;
 #endif
 {
-  mp_limb_t cB,cC,cD, l,l2,l3,l4,l5,ls, tB,tC,tD;
+  mp_limb_t cB,cC,cD, tB,tC,tD;
   mp_limb_t *A,*B,*C,*D,*E, *W;
-  mp_srcptr b = a;
+  mp_size_t l,l2,l3,l4,l5,ls;
 
   /* Break n words into chunks of size l, l and ls.
    * n = 3*k   => l = k,   ls = k
@@ -1311,28 +1290,9 @@ mpn_toom3_sqr_n (p, a, n, ws)
     mp_limb_t i, x, y;
     tB += mpn_add_n (p + l, p + l, B, l2);
     tD += mpn_add_n (p + l3, p + l3, D, l2);
-    y = tB;
-    for (i = 0; y && i < l; ++i)
-      {
-	x = p[l3 + i] + y;
-	p[l3 + i] = x;
-	y = x < y;
-      }
-    y += tC;
-    for (i = 0; y && i < ls; ++i)
-      {
-	x = p[l4 + i] + y;
-	p[l4 + i] = x;
-	y = x < y;
-      }
-    y += tD;
-    for (i = 0; y && i < ls; ++i)
-      {
-	x = p[l5 + i] + y;
-	p[l5 + i] = x;
-	y = x < y;
-      }
-    ASSERT (!y);
+    mpn_incr_u (p + l3, tB);
+    mpn_incr_u (p + l4, tC);
+    mpn_incr_u (p + l5, tD);
   }
 }
 
@@ -1352,10 +1312,18 @@ mpn_mul_n (p, a, b, n)
   else if (n < TOOM3_MUL_THRESHOLD)
     {
       /* Allocate workspace of fixed size on stack: fast! */
+#if TUNE_PROGRAM_BUILD
+      mp_limb_t ws[2 * (TOOM3_MUL_THRESHOLD_LIMIT-1) + 2 * BITS_PER_MP_LIMB];
+#else
       mp_limb_t ws[2 * (TOOM3_MUL_THRESHOLD-1) + 2 * BITS_PER_MP_LIMB];
+#endif
       mpn_kara_mul_n (p, a, b, n, ws);
     }
+#if WANT_FFT || TUNE_PROGRAM_BUILD
+  else if (n < FFT_MUL_THRESHOLD)
+#else
   else
+#endif
     {
       /* Use workspace of unknown size in heap, as stack space may
        * be limited.  Since n is at least TOOM3_MUL_THRESHOLD, the
@@ -1366,4 +1334,10 @@ mpn_mul_n (p, a, b, n)
       mpn_toom3_mul_n (p, a, b, n, ws);
       (*_mp_free_func) (ws, (size_t) wsLen * sizeof (mp_limb_t));
     }
+#if WANT_FFT || TUNE_PROGRAM_BUILD
+  else
+    {
+      mpn_mul_fft_full (p, a, n, b, n);      
+    }
+#endif
 }

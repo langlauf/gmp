@@ -1,20 +1,20 @@
 /* Test mpf_mul, mpf_div, mpf_ui_div, and mpf_div_ui.
 
-Copyright (C) 1996 Free Software Foundation, Inc.
+Copyright (C) 1996, 2000 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
-it under the terms of the GNU Library General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at your
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
-You should have received a copy of the GNU Library General Public License
+You should have received a copy of the GNU Lesser General Public License
 along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA. */
@@ -37,7 +37,7 @@ main (argc, argv)
   int reps = 100000;
   int i;
   mpf_t u, v, w, x;
-  mp_size_t bprec = 100;
+  mp_size_t bprec = SIZE * BITS_PER_MP_LIMB;
   mpf_t rerr, limit_rerr;
   mp_limb_t ulimb, vlimb;
   int single_flag;
@@ -63,12 +63,12 @@ main (argc, argv)
     {
       mp_size_t res_prec;
 
-      res_prec = urandom () % (bprec + 100);
+      res_prec = urandom () % bprec + 1;
       mpf_set_prec (w, res_prec);
       mpf_set_prec (x, res_prec);
 
       mpf_set_ui (limit_rerr, 1);
-      mpf_div_2exp (limit_rerr, limit_rerr, res_prec);
+      mpf_div_2exp (limit_rerr, limit_rerr, res_prec - 1);
 
       single_flag = 0;
 

@@ -5,16 +5,16 @@ Copyright (C) 2000 Free Software Foundation, Inc.
 This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
-it under the terms of the GNU Library General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at your
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
-You should have received a copy of the GNU Library General Public License
+You should have received a copy of the GNU Lesser General Public License
 along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA. */
@@ -57,6 +57,14 @@ mpq_set_d (dest, d)
   if (exp <= 1)
 #endif
     {
+      if (d == 0.0)
+	{
+	  SIZ(&(dest->_mp_num)) = 0;
+	  SIZ(&(dest->_mp_den)) = 1;
+	  PTR(&(dest->_mp_den))[0] = 1;
+	  return;
+	}
+
       dn = -exp;
       if (dest->_mp_num._mp_alloc < 3)
 	_mpz_realloc (&(dest->_mp_num), 3);
@@ -75,23 +83,27 @@ mpq_set_d (dest, d)
 	np[1] = tp[1], np[0] = tp[0], nn = 2;
 #endif
       dn += nn + 1;
-      ASSERT_ALWAYS (dn > 0);
       if (dest->_mp_den._mp_alloc < dn)
 	_mpz_realloc (&(dest->_mp_den), dn);
       dp = PTR(&(dest->_mp_den));
       MPN_ZERO (dp, dn - 1);
       dp[dn - 1] = 1;
+      count_trailing_zeros (c, np[0] | dp[0]);
+      if (c != 0)
+	{
+	  mpn_rshift (np, np, nn, c);
+	  nn -= np[nn - 1] == 0;
+	  mpn_rshift (dp, dp, dn, c);
+	  dn -= dp[dn - 1] == 0;
+	}
       SIZ(&(dest->_mp_den)) = dn;
       SIZ(&(dest->_mp_num)) = negative ? -nn : nn;
-      count_trailing_zeros (c, np[0] | dp[0]);
-      mpn_rshift (np, np, nn, c);
-      mpn_rshift (dp, dp, dn, c);
     }
   else
     {
       nn = exp;
-      if (dest->_mp_num._mp_alloc < 3)
-	_mpz_realloc (&(dest->_mp_num), 3);
+      if (dest->_mp_num._mp_alloc < nn)
+	_mpz_realloc (&(dest->_mp_num), nn);
       np = PTR(&(dest->_mp_num));
 #if BITS_PER_MP_LIMB == 32
       switch (nn)
@@ -106,8 +118,6 @@ mpq_set_d (dest, d)
 	case 2:
 	  np[1] = tp[2], np[0] = tp[1];
 	  break;
-	case 1:
-	  ASSERT_ALWAYS (1);
 	}
 #else
       switch (nn)
@@ -119,8 +129,6 @@ mpq_set_d (dest, d)
 	case 2:
 	  np[1] = tp[1], np[0] = tp[0];
 	  break;
-	case 1:
-	  ASSERT_ALWAYS (1);
 	}
 #endif
       dp = PTR(&(dest->_mp_den));

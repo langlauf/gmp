@@ -1,21 +1,21 @@
 /* mpz_divexact -- finds quotient when known that quot * den == num && den != 0.
 
-Copyright (C) 1991, 1993, 1994, 1995, 1996, 1997, 1998 Free Software
+Copyright (C) 1991, 1993, 1994, 1995, 1996, 1997, 1998, 2000 Free Software
 Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
-it under the terms of the GNU Library General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at your
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
-You should have received a copy of the GNU Library General Public License
+You should have received a copy of the GNU Lesser General Public License
 along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA.  */
@@ -47,16 +47,19 @@ mpz_divexact (quot, num, den)
 {
   mp_ptr qp, tp;
   mp_size_t qsize, tsize;
-
-  mp_srcptr np = num->_mp_d;
-  mp_srcptr dp = den->_mp_d;
-  mp_size_t nsize = ABS (num->_mp_size);
-  mp_size_t dsize = ABS (den->_mp_size);
+  mp_srcptr np, dp;
+  mp_size_t nsize, dsize;
   TMP_DECL (marker);
+
+  nsize = ABS (num->_mp_size);
+  dsize = ABS (den->_mp_size);
 
   qsize = nsize - dsize + 1;
   if (quot->_mp_alloc < qsize)
     _mpz_realloc (quot, qsize);
+
+  np = num->_mp_d;
+  dp = den->_mp_d;
   qp = quot->_mp_d;
 
   if (nsize == 0)
@@ -89,20 +92,20 @@ mpz_divexact (quot, num, den)
   tsize = MIN (qsize, dsize);
   if ((dp[0] & 1) != 0)
     {
-      if (qp == dp)		/*  QUOT and DEN overlap.  */
+      if (quot == den)		/*  QUOT and DEN overlap.  */
 	{
-	  tp = (mp_ptr) TMP_ALLOC (sizeof (mp_limb_t) * tsize);
+	  tp = (mp_ptr) TMP_ALLOC (tsize * BYTES_PER_MP_LIMB);
 	  MPN_COPY (tp, dp, tsize);
 	}
       else
 	tp = (mp_ptr) dp;
       if (qp != np)
-	MPN_COPY (qp, np, qsize);
+	MPN_COPY_INCR (qp, np, qsize);
     }
   else
     {
       unsigned int r;
-      tp = (mp_ptr) TMP_ALLOC (sizeof (mp_limb_t) * tsize);
+      tp = (mp_ptr) TMP_ALLOC (tsize * BYTES_PER_MP_LIMB);
       count_trailing_zeros (r, dp[0]);
       mpn_rshift (tp, dp, tsize, r);
       if (dsize > tsize)

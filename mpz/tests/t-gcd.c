@@ -1,21 +1,21 @@
 /* Test mpz_gcd, mpz_gcdext, mpz_mul, mpz_tdiv_r, mpz_add, mpz_cmp,
    mpz_cmp_ui, mpz_init_set, mpz_set, mpz_clear.
 
-Copyright (C) 1991, 1993, 1994, 1996, 1997 Free Software Foundation, Inc.
+Copyright (C) 1991, 1993, 1994, 1996, 1997, 2000 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
-it under the terms of the GNU Library General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at your
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
-You should have received a copy of the GNU Library General Public License
+You should have received a copy of the GNU Lesser General Public License
 along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA. */
@@ -73,6 +73,10 @@ main (argc, argv)
 	dump_abort (op1, op2);
 
       mpz_gcdext (gcd2, s, t, op1, op2);
+      if (mpz_cmp (gcd, gcd2))
+	dump_abort (op1, op2);
+
+      mpz_gcdext (gcd2, s, NULL, op1, op2);
       if (mpz_cmp (gcd, gcd2))
 	dump_abort (op1, op2);
 

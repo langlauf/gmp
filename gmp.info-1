@@ -1,7 +1,8 @@
 This is gmp.info, produced by makeinfo version 4.0 from gmp.texi.
 
+INFO-DIR-SECTION GNU libraries
 START-INFO-DIR-ENTRY
-* gmp: (gmp.info).               GNU Multiple Precision Arithmetic Library.
+* gmp: (gmp).                   GNU Multiple Precision Arithmetic Library.
 END-INFO-DIR-ENTRY
 
    This file documents GNU MP, a library for arbitrary-precision
@@ -31,7 +32,7 @@ GNU MP
 ******
 
    This manual documents how to install and use the GNU multiple
-precision arithmetic library, version 3.0.1.
+precision arithmetic library, version 3.1.
 
 * Menu:
 
@@ -113,13 +114,13 @@ many different CPUs, and by a general emphasis on speed (as opposed to
 simplicity or elegance).
 
    There is carefully optimized assembly code for these CPUs: ARM, DEC
-Alpha 21064, 21164, and 21264, AMD 29000, K6 and Athlon, Hitachi SuperH
-and SH-2, HPPA 1.0, 1.1 and 2.0, Intel Pentium, Pentium Pro/Pentium II,
-generic x86, Intel i960, Motorola MC68000, MC68020, MC88100, and
-MC88110, Motorola/IBM PowerPC 32 and 64, National NS32000, IBM POWER,
-MIPS R3000, R4000, SPARCv7, SuperSPARC, generic SPARCv8, UltraSPARC,
-DEC VAX, and Zilog Z8000.  Some optimizations also for Clipper, IBM
-ROMP (RT), and Pyramid AP/XP.
+Alpha 21064, 21164, and 21264, AMD 29000, AMD K6 and Athlon, Hitachi
+SuperH and SH-2, HPPA 1.0, 1.1 and 2.0, Intel Pentium, Pentium
+Pro/Pentium II, generic x86, Intel i960, Motorola MC68000, MC68020,
+MC88100, and MC88110, Motorola/IBM PowerPC 32 and 64, National NS32000,
+IBM POWER, MIPS R3000, R4000, SPARCv7, SuperSPARC, generic SPARCv8,
+UltraSPARC, DEC VAX, and Zilog Z8000.  Some optimizations also for
+Clipper, IBM ROMP (RT), and Pyramid AP/XP.
 
    There is a mailing list for GMP users.  To join it, send a mail to
 <gmp-request@swox.com> with the word `subscribe' in the message *body*
@@ -143,43 +144,55 @@ File: gmp.info,  Node: Installing GMP,  Next: GMP Basics,  Prev: Introduction to
 Installing GMP
 **************
 
-   GMP has an autoconf/automake/libtool based configuration system.  On
-a Unix-like system a basic build can be done with
+GMP has an autoconf/automake/libtool based configuration system.  On a
+Unix-like system a basic build can be done with
 
      ./configure
      make
 
-   Some self-tests can be run with
+Some self-tests can be run with
 
      make check
 
-   And you can install (under `/usr/local' by default) with
+And you can install (under `/usr/local' by default) with
 
      make install
 
-   If you experience problems, please report them to <bug-gmp@gnu.org>.
+If you experience problems, please report them to <bug-gmp@gnu.org>.
 (*Note Reporting Bugs::, for information on what to include in useful
 bug reports.)
+
+* Menu:
+
+* Build Options::
+* ABI and ISA::
+* Notes for Package Builds::
+* Notes for Particular Systems::
+* Known Build Problems::
+
+
+File: gmp.info,  Node: Build Options,  Next: ABI and ISA,  Prev: Installing GMP,  Up: Installing GMP
 
 Build Options
 =============
 
-   All the usual autoconf configure options are available, run
-`./configure --help' for a summary.
+All the usual autoconf configure options are available, run `./configure
+--help' for a summary.
 
 Non-Unix Systems
      `configure' needs various Unix-like tools installed.  On an MS-DOS
      system cygwin or djgpp should work.  It might be possible to build
      without the help of `configure', certainly all the code is there,
-     but you'll be on your own.
+     but unfortunately you'll be on your own.
 
 Object Directory
      To compile in a separate object directory, `cd' to that directory,
      and prefix the configure command with the path to the GMP source
-     directory.  Not all `make' programs have the necessary features
-     (`VPATH') to support this.  In particular, SunOS and Slowaris
-     `make' have bugs that make them unable to build from a separate
-     object directory.  Use GNU `make' instead.
+     directory.  For example `../src/gmp/configure'.  Not all `make'
+     programs have the necessary features (`VPATH') to support this.
+     In particular, SunOS and Slowaris `make' have bugs that make them
+     unable to build from a separate object directory.  Use GNU `make'
+     instead.
 
 `--disable-shared', `--disable-static'
      By default both shared and static libraries are built (where
@@ -190,11 +203,14 @@ Object Directory
 
 `--target=CPU-VENDOR-OS'
      The build target can be specified in the usual way, for either
-     native or cross compilation.  If `--target' isn't given,
-     `./configure' builds for the host system.  On some systems
-     `./configure' can't distinguish between different CPUs in a
-     family, and you should check its guess (run `./config.guess' to
-     see it).
+     native or cross compilation.
+
+     If `--target' isn't given, `./configure' builds for the host
+     system as determined by `./config.guess'.  On some systems this
+     can't distinguish between different CPUs in a family, and you
+     should check the guess.  Running `./config.guess' on the target
+     system will also show the relevant `VENDOR-OS', if you don't
+     already know what it should be.
 
      In general, if you want a library that runs as fast as possible,
      you should configure GMP for the exact CPU type your system uses.
@@ -203,19 +219,14 @@ Object Directory
      The best idea is always to build GMP for the exact machine type
      you intend to run it on.
 
-     If you need to create binaries that will run on several processors
-     in a family, GMP should be configured for the lowest common
-     denominator among them, something with which all the desired
-     processors are upwardly compatible.
-
-     The following CPUs have specific assembly code support.  See
+     The following CPU targets have specific assembly code support.  See
      `configure.in' for which `mpn' subdirectories get used by each.
 
         * Alpha: `alpha', `alphaev5', `alphaev6'
 
         * Hitachi: `sh', `sh2'
 
-        * HPPA: `hppa1.0', `hppa1.1', `hppa2.0'
+        * HPPA: `hppa1.0', `hppa1.1', `hppa2.0', `hppa2.0w'
 
         * MIPS: `mips', `mips3',
 
@@ -223,7 +234,7 @@ Object Directory
 
         * POWER: `power1', `power2', `power2sc', `powerpc', `powerpc64'
 
-        * Sparc: `sparc', `sparcv8', `microsparc', `supersparc',
+        * SPARC: `sparc', `sparcv8', `microsparc', `supersparc',
           `sparcv9', `ultrasparc', `sparc64'
 
         * 80x86 family: `i386', `i486', `i586', `pentium', `pentiummmx',
@@ -245,7 +256,11 @@ Object Directory
 
      For some configurations specific compiler flags are set based on
      the target CPU and compiler, for others `CFLAGS="-whatever"' can
-     be used to choose the best flags.
+     be used to set the best flags.
+
+     If `CC' is set then `CFLAGS' must also be set.  This applies even
+     if `CC' is merely one of the choices GMP would make itself.  This
+     may change in a future release.
 
 `--disable-alloca'
      By default, GMP allocates temporary workspace using `alloca' if
@@ -259,14 +274,32 @@ Object Directory
      `malloc' by default.  *Note Custom Allocation::.
 
      Depending on your system, the only indication of stack overflow
-     might be a segmentation violation.  `limit', `ulimit' or
-     `setrlimit' might be able to increase the stack space available to
-     programs.
+     might be a segmentation violation.  It might be possible to
+     increase available stack space with `limit', `ulimit' or
+     `setrlimit', or under DJGPP with `stubedit' or `_stklen'.
+
+`--enable-fft'
+     By default multiplications are done using Karatsuba and 3-way
+     Toom-Cook algorithms, but a Fermat FFT can be enabled, for use on
+     large to very large operands.  Currently the FFT is recommended
+     only for knowledgeable users who check the algorithm thresholds
+     for their CPU.
 
 `--enable-mpbsd'
      The Berkeley MP compatibility library (`libmp.a') and header file
      (`mp.h') are built and installed only if `--enable-mpbsd' is used.
      *Note BSD Compatible Functions::.
+
+`MPN_PATH'
+     Various assembler versions of mpn subroutines are provided, and,
+     for a given CPU target, a search is made though a path to choose a
+     version of each.  For example `sparcv8' has path `"sparc32/v8
+     sparc32 generic"', which means it looks first for v8 code, falls
+     back on plain sparc32, and finally falls back on generic C.
+     Knowledgeable users with special requirements can specify a path
+     with `MPN_PATH="dir list"'.  This will normally be unnecessary
+     because all sensible paths should be available under one or other
+     CPU target.
 
 Demonstration Programs
      The `demos' subdirectory has some sample programs using GMP.  These
@@ -275,29 +308,151 @@ Demonstration Programs
 
 Documentation
      The document you're now reading is `gmp.texi'.  The usual automake
-     targets are available to make `gmp.ps' and/or `gmp.dvi'.
+     targets are available to make `gmp.ps' and/or `gmp.dvi'.  Some
+     supplementary notes can be found in the `doc' subdirectory.
+
+
+File: gmp.info,  Node: ABI and ISA,  Next: Notes for Package Builds,  Prev: Build Options,  Up: Installing GMP
+
+ABI and ISA
+===========
+
+   ABI (Application Binary Interface) refers to the calling conventions
+between functions, meaning what registers are used and what sizes the
+various C data types are.  ISA (Instruction Set Architecture) refers to
+the instructions and registers a CPU has available.
+
+   Some 64-bit ISA CPUs have both a 64-bit ABI and a 32-bit ABI
+defined, the latter for compatibility with older CPUs in the family.
+GMP chooses the best ABI available for a given target system, and this
+generally gives significantly greater speed.
+
+   The burden is on application programs and cooperating libraries to
+ensure they match the ABI chosen by GMP.  Fortunately this presents a
+difficulty only on a few systems, and if you have one of them then the
+performance gains are enough to make it worth the trouble.
+
+   Some of what's described in this section may change in future
+releases of GMP.
+
+HPPA 2.0
+     CPU target `hppa2.0' uses the hppa2.0n 32-bit ABI, but either a
+     32-bit or 64-bit limb.
+
+     A 64-bit limb is available on HP-UX 10 or up when using `c89'.  No
+     `gcc' support is planned for 64-bit operations in this ABI.
+     Applications must be compiled with the same options as GMP, which
+     means
+
+          c89  +DA2.0 +e -D_LONG_LONG_LIMB
+
+     A 32-bit limb is used in other cases, and no special compiler
+     options are needed.
+
+     CPU target `hppa2.0w' uses the hppa2.0w 64-bit ABI, which is
+     available on HP-UX 11 or up when using `c89'.  `gcc' support for
+     this is in progress.  Applications must be compiled for the same
+     ABI, which means
+
+          c89  +DD64
+
+MIPS 3 and 4 under IRIX 6
+     Targets `mips*-*-irix6*' use the n32 ABI and a 64-bit limb.
+     Applications must be compiled for the same ABI, which means either
+
+          gcc  -mabi=n32
+          cc   -n32
+
+PowerPC 64
+     CPU target `powerpc64' uses either the 32-bit ABI or the AIX
+     64-bit ABI.  The latter is used on targets `powerpc64-*-aix*' and
+     applications must be compiled using either
+
+          gcc  -maix64
+          xlc  -q64
+
+     On other systems the 32-bit ABI is used, but with 64-bit limbs
+     provided by `long long' in `gcc'.  Applications must be compiled
+     using
+
+          gcc  -D_LONG_LONG_LIMB
+
+Sparc V9
+     On a sparc v9 CPU, either the v8plus 32-bit ABI or v9 64-bit ABI
+     is used.  Targets `ultrasparc*-*-solaris2.[7-9]',
+     `sparcv9-*-solaris2.[7-9]' and `sparc64-*-linux*' use the v9 ABI,
+     if the compiler supports it.  Other targets use the v8plus ABI
+     (but with as much of the v9 ISA as possible in the circumstances).
+     Note that Solaris prior to 2.7 doesn't save all registers
+     properly, and hence uses the v8plus ABI.
+
+     For the v8plus ABI, applications can be compiled with either
+
+          gcc  -mv8plus
+          cc   -xarch=v8plus
+
+     For the v9 ABI, applications must be compiled with either
+
+          gcc  -m64 -mptr64 -Wa,-xarch=v9 -mcpu=v9
+          cc   -xarch=v9
+
+     Don't be confused by the names of these options, they're called
+     `arch' but they effectively control the ABI.
+
+
+File: gmp.info,  Node: Notes for Package Builds,  Next: Notes for Particular Systems,  Prev: ABI and ISA,  Up: Installing GMP
+
+Notes for Package Builds
+========================
+
+   GMP should present no great difficulties for packaging in a binary
+distribution.
+
+   Libtool is used to build the library and `-version-info' is set
+appropriately, having started from `3:0:0' in GMP 3.0.  The GMP 3 series
+will be upwardly binary compatible in each release, but may be adding
+additional function interfaces.  On systems where libtool versioning is
+not fully checked by the loader, an auxiliary mechanism may be needed
+to express that a dynamic linked application depends on a new enough
+minor version of GMP.
+
+   When building a package for a CPU family, care should be taken to use
+`--target' to choose the least common denominator among the CPUs which
+might use the package.  For example this might necessitate `i386' for
+x86s, or plain `sparc' (meaning V7) for SPARCs.
+
+   Users who care about speed will want GMP built for their exact CPU
+type, to make use of the available optimizations.  Providing a way to
+suitably rebuild a package may be useful.  This could be as simple as
+making it possible for a user to omit `--target' in a build so
+`./config.guess' will detect the CPU.  But a way to manually specify a
+`--target' will be wanted for systems where `./config.guess' is inexact.
+
+
+File: gmp.info,  Node: Notes for Particular Systems,  Next: Known Build Problems,  Prev: Notes for Package Builds,  Up: Installing GMP
 
 Notes for Particular Systems
 ============================
 
-AIX
-     Targets `*-*-aix*' have shared libraries disabled since they seem
-     to fail on AIX 4.3.
+AIX 4.3
+     Targets `*-*-aix4.[3-9]*' have shared libraries disabled since
+     they seem to fail on AIX 4.3.
 
-AIX with PowerPC 64
-     Currently only a 64-bit version of the GMP library is built, and
-     when linking your application you need to pass `-maix64' to `gcc'
-     or `-q64' to `xlc'.  We hope this will change in a future version
-     of GMP.
+OpenBSD 2.6
+     `m4' in this release of OpenBSD has a bug in `eval' that makes it
+     unsuitable for `.asm' file processing.  `./configure' will detect
+     the problem and either abort or choose another m4 in the `PATH'.
+     The bug is fixed in OpenBSD 2.7, so either upgrade or use GNU m4.
 
-HPPA
-     The GMP assembly code for HPPA is not currently
-     position-independent, so shared libraries are disabled for targets
-     `hppa*-*-*'.
+Sparc V8
+     Using CPU target `sparcv8' or `supersparc' on relevant systems will
+     give a significant performance increase over the V7 code.
 
-Sparc
-     Using `sparcv8' or `supersparc' for the target CPU will give a
-     significant performance increase on relevant systems.
+SunOS 4
+     `/usr/bin/m4' lacks various features needed to process `.asm'
+     files, and instead `./configure' will automatically use
+     `/usr/5bin/m4', which we believe is always available (if not then
+     use GNU m4).
 
 x86 Pentium and PentiumPro
      The Intel Pentium P5 code is good for its intended P5, but quite
@@ -315,18 +470,33 @@ x86 MMX and old GAS
      there because it's faster than the corresponding plain integer
      code.
 
+x86 GCC 2.95.2 `-march=pentiumpro'
+     GCC 2.95.2 miscompiles `mpz/powm.c' when `-march=pentiumpro' is
+     used, so that option is omitted from the `CFLAGS' chosen for
+     relevant CPUs.  The problem is believed to be fixed in GCC 2.96.
+
+
+File: gmp.info,  Node: Known Build Problems,  Prev: Notes for Particular Systems,  Up: Installing GMP
+
 Known Build Problems
 ====================
 
    You might find more up-to-date information at
 `http://www.swox.com/gmp/'.
 
+Generic C on a 64-bit system
+     When making a generic C build using `--target=none' on a 64-bit
+     system (meaning where `unsigned long' is 64 bits),
+     `BITS_PER_MP_LIMB', `BITS_PER_LONGINT' and `BYTES_PER_MP_LIMB' in
+     `mpn/generic/gmp-mparam.h' need to be changed to 64 and 8.  This
+     will hopefully be automated in a future version of GMP.
+
 NeXT prior to 3.3
      The system compiler on old versions of NeXT was a massacred and
-     old GCC, even if the compiler called itself `cc'.  This compiler
-     cannot be used to build GMP, you need to get a real GCC, and
-     install that before you compile GMP.  (NeXT may have fixed this in
-     release 3.3 of their system.)
+     old GCC, even if it called itself `cc'.  This compiler cannot be
+     used to build GMP, you need to get a real GCC, and install that
+     before you compile GMP.  (NeXT may have fixed this in release 3.3
+     of their system.)
 
 POWER and PowerPC
      Bugs in GCC 2.7.2 (and 2.6.3) mean it can't be used to compile GMP
@@ -337,18 +507,24 @@ Sequent Symmetry
      Use the GNU assembler instead of the system assembler, since the
      latter has serious bugs.
 
-SunOS 4
-     The system C compiler has a bug that makes it miscompile
-     `mpq/get_d.c' and `mpf/get_d.c', and causes two corresponding
-     tests to fail.  (You can `cd' to the `mpz' directory to run `make
-     check' there to test the rest of the build.)  Use GCC instead if
-     you plan to use the function `mpq_get_d'.
+Stripped Libraries
+     GNU binutils `strip' should not be used on the static libraries
+     `libgmp.a' and `libmp.a', neither directly nor via `make
+     install-strip'.  It can be used on the shared libraries
+     `libgmp.so' and `libmp.so' though.
 
-     `/usr/bin/m4' lacks features needed to process `.asm' files.
-     Either the SysV `/usr/5bin/m4' or GNU `m4' should be used instead.
-     On the `./configure' command line use `M4=/usr/5bin/m4', or the
-     equivalent for wherever GNU `m4' is installed.
+     Currently (binutils 2.10.0), `strip' extracts archives into a
+     single directory, but GMP contains multiple object files of the
+     same name (eg. three versions of `init.o'), and they overwrite
+     each other, leaving only the one that happens to be last.
 
+     If stripped static libraries are wanted, the suggested workaround
+     is to build normally, strip the separate object files, and do
+     another `make all' to rebuild.  Alternately `CFLAGS' with `-g'
+     omitted can always be used if it's just debugging which is
+     unwanted.
+
+SunOS 4 Native Tools
      The setting for `GSYM_PREFIX' in `config.m4' may be incorrectly
      determined when using the native `grep', leading at link-time to
      undefined symbols like `___gmpn_add_n'.  To fix this, after running
@@ -383,7 +559,7 @@ guaranteed to be incompatible with future versions of GMP.*
 * Nomenclature and Types::      	Which data types are there?
 * Function Classes::            	How the functions are organized.
 * GMP Variable Conventions::     	Some rules and hints about variables.
-* GMP and reentrancy::           	What about reentrancy?
+* GMP and Reentrancy::           	What about reentrancy?
 * Useful Macros and Constants::  	Convenient helpers.
 * Compatibility with older versions::	Compatibility issues.
 * Getting the Latest Version of GMP::  	How to get the software.
@@ -456,7 +632,7 @@ Function Classes
      allocation and functions for generating random numbers.
 
 
-File: gmp.info,  Node: GMP Variable Conventions,  Next: GMP and reentrancy,  Prev: Function Classes,  Up: GMP Basics
+File: gmp.info,  Node: GMP Variable Conventions,  Next: GMP and Reentrancy,  Prev: Function Classes,  Up: GMP Basics
 
 GMP Variable Conventions
 ========================
@@ -466,12 +642,13 @@ input arguments.  This notation is based on an analogy with the
 assignment operator.  (The BSD MP compatibility functions disobey this
 rule, having the output argument(s) last.)
 
-   GMP allows you to use the same variable for both input and output in
-the same expression.  For example, the main function for integer
-multiplication, `mpz_mul', can be used like this: `mpz_mul (x, x, x)'.
-This computes the square of X and puts the result back in X.
+   GMP lets you use the same variable for both input and output in one
+call.  For example, the main function for integer multiplication,
+`mpz_mul', can be used to square `x' and put the result back in `x' with
 
-   Before you can assign to an GMP variable, you need to initialize it
+     mpz_mul (x, x, x);
+
+   Before you can assign to a GMP variable, you need to initialize it
 by calling one of the special initialization functions.  When you're
 done with a variable, you need to clear it out, using one of the
 functions for that purpose.  Which function to use depends on the type
@@ -482,21 +659,70 @@ functions, and floating-point functions for details.
 between each initialization.  After a variable has been initialized, it
 may be assigned to any number of times.
 
-   For efficiency reasons, avoid initializing and clearing out an GMP
+   For efficiency reasons, avoid initializing and clearing out a GMP
 variable in a loop.  Instead, initialize it before entering the loop,
-and clear it out after the loop has exited
+and clear it out after the loop has exited.
 
-   Once you have initialized an GMP variable, you don't need to worry
-about space allocation for that variable.  All functions in GMP
+   GMP variables are small, containing only a couple of sizes, and
+pointers to allocated data.  Once you have initialized a GMP variable,
+you don't need to worry about space allocation.  All functions in GMP
 automatically allocate additional space when a variable does not
-already have enough space.  They do not, however, reduce the space when
-a smaller number is stored in the object.  Most of the time, this
-policy is best, since it avoids frequent re-allocation.
+already have enough.  They do not, however, reduce the space when a
+smaller value is stored.  Most of the time this policy is best, since
+it avoids frequent re-allocation.
+
+   When a variable of type `mpz_t' is used as a function parameter, it's
+effectively a call-by-reference, meaning anything the function does to
+it will be be done to the original in the caller.  When a function is
+going to return an `mpz_t' result, it should provide a separate
+parameter or parameters that it sets, like the GMP library functions
+do.  A `return' of an `mpz_t' doesn't return the object, only a pointer
+to it, and this is almost certainly not what you want.  All this
+applies to `mpq_t' and `mpf_t' too.
+
+   Here's an example function accepting an `mpz_t' parameter, doing a
+certain calculation, and returning a result.
+
+     void
+     myfunction (mpz_t result, mpz_t param, unsigned long n)
+     {
+       unsigned long  i;
+     
+       mpz_mul_ui (result, param, n);
+       for (i = 1; i < n; i++)
+         mpz_add_ui (result, result, i*7);
+     }
+     
+     int
+     main (void)
+     {
+       mpz_t  r, n;
+       mpz_init (r);
+       mpz_init_set_str (n, "123456", 0);
+     
+       myfunction (r, n, 20L);
+       mpz_out_str (stdout, 10, r); printf ("\n");
+     
+       return 0;
+     }
+
+   This example will work if `result' and `param' are the same
+variable, just like the library functions.  But sometimes this is
+tricky to arrange, and an application might not want to bother for its
+own subroutines.
+
+   `mpz_t' is actually implemented as a one-element array of a certain
+structure type.  This is why using it to declare a variable gives an
+object with the fields GMP needs, but then using it as a parameter
+passes a pointer to the object.  Note that the actual contents of an
+`mpz_t' are for internal use only and you should not access them
+directly if you want your code to be compatible with future GMP
+releases.
 
 
-File: gmp.info,  Node: GMP and reentrancy,  Next: Useful Macros and Constants,  Prev: GMP Variable Conventions,  Up: GMP Basics
+File: gmp.info,  Node: GMP and Reentrancy,  Next: Useful Macros and Constants,  Prev: GMP Variable Conventions,  Up: GMP Basics
 
-GMP and reentrancy
+GMP and Reentrancy
 ==================
 
    The GMP code is reentrant and thread-safe, with some exceptions:
@@ -507,22 +733,18 @@ GMP and reentrancy
    * The function `mp_set_memory_functions' uses several global
      variables for storing the selected memory allocation functions.
 
-   * The memory allocation functions, `malloc' and friends, that GMP
-     uses unless directed to use custom allocation, may not be
-     reentrant.
+   * If the memory allocation functions set by a call to
+     `mp_set_memory_functions' (or `malloc' and friends by default) are
+     not reentrant, GMP will not be reentrant either.
 
-   * The old random number functions (`mpz_random', etc) use an
-     underlying random number generator from the C library, typically
-     `mrand48' or `random'.  These routines are not reentrant, since
-     they rely on global state.  (The newer random number functions
-     that accept a `gmp_randstate_t' parameter are however reentrant.)
-
-   If the memory allocation functions (`malloc' and friends, or
-whatever functions set by a call to `mp_set_memory_functions'), are not
-reentrant, GMP will not be reentrant either.
+   * The old random number functions (`mpz_random', etc) use a random
+     number generator from the C library, usually `mrand48' or
+     `random'.  These routines are not reentrant, since they rely on
+     global state.  (However the newer random number functions that
+     accept a `gmp_randstate_t' parameter are reentrant.)
 
 
-File: gmp.info,  Node: Useful Macros and Constants,  Next: Compatibility with older versions,  Prev: GMP and reentrancy,  Up: GMP Basics
+File: gmp.info,  Node: Useful Macros and Constants,  Next: Compatibility with older versions,  Prev: GMP and Reentrancy,  Up: GMP Basics
 
 Useful Macros and Constants
 ===========================
@@ -544,9 +766,16 @@ File: gmp.info,  Node: Compatibility with older versions,  Next: Getting the Lat
 Compatibility with older versions
 =================================
 
-   This version of GMP is upward compatible with version 2.0, 2.0.1,
-and 2.0.2 at the source level, with the exception of `mpn_gcd' which
-has had its source arguments swapped.
+   This version of GMP is upwardly binary compatible with versions 3.0
+and 3.0.1, and upwardly compatible at the source level with versions
+2.0, 2.0.1, and 2.0.2, with the following exceptions.
+
+   * `mpn_gcd' had its source arguments swapped as of GMP 3.0 for
+     consistency with other `mpn' functions.
+
+   * `mpf_get_prec' counted precision slightly differently in GMP 3.0
+     and 3.0.1, but in 3.1 has reverted to the 2.0.x style.
+
 
    There are a number of compatibility issues between GMP 1 and GMP 2
 that of course also apply when porting applications from GMP 1 to GMP
@@ -558,7 +787,7 @@ File: gmp.info,  Node: Getting the Latest Version of GMP,  Prev: Compatibility w
 Getting the Latest Version of GMP
 =================================
 
-   The latest version of the GMP library is available by at
+   The latest version of the GMP library is available at
 `ftp://ftp.gnu.org/pub/gnu/gmp'.  Many sites around the world mirror
 `ftp.gnu.org'; please use a mirror site near you, see
 `http://www.gnu.org/order/ftp.html'.
@@ -577,36 +806,44 @@ Before you report a bug, you may want to check
 
    Please include the following in any report,
 
+   * The GMP version number, and if pre-packaged or patched then say so.
+
    * A test program that makes it possible for us to reproduce the bug.
      Include instructions on how to run the program.
 
    * A description of what is wrong.  If the results are incorrect, in
-     what way.  If you get a crash, say so.  If a stack backtrace from
-     the debugger is informative (`where' in `gdb'), include that.
+     what way.  If you get a crash, say so.
 
-   * *Don't send core dumps, executables or `strace's.*
+   * If you get a crash, include a stack backtrace from the debugger if
+     it's informative (`where' in `gdb', or `$C' in `adb').
+
+   * *Please do not send core dumps, executables or `strace's.*
 
    * The configuration options you used when building GMP, if any.
 
-   * The name of the compiler you're using, and its version.  If this is
-     `gcc' then get the version with `gcc -v', otherwise `what `which
-     cc`', or similar.  (It is not uncommon that an observed problem is
-     actually due to a bug in the compiler; the GMP code tends to
-     explore interesting corners in compilers.)
+   * The name of the compiler and its version.  For `gcc', get the
+     version with `gcc -v', otherwise perhaps `what `which cc`', or
+     similar.
 
-   * The output from `uname -a'.
+   * The output from running `uname -a'.
 
-   * The output from `./config.guess'.
+   * The output from running `./config.guess'.
 
-   * If the bug is related to `configure', include the file
+   * If the bug is related to `configure', then the contents of
      `config.log'.
 
+   * If the bug is related to an `asm' file not assembling, then the
+     contents of `config.m4'.
+
+   It is not uncommon that an observed problem is actually due to a bug
+in the compiler; the GMP code tends to explore interesting corners in
+compilers.
 
    If your bug report is good, we will do our best to help you get a
 corrected version of the library; if the bug report is poor, we won't
-do anything about it (except maybe to ask you to send a better report).
+do anything about it (except maybe ask you to send a better report).
 
-   Send your bug report to: <bug-gmp@gnu.org>.
+   Send your report to: <bug-gmp@gnu.org>.
 
    If you think something in this manual is unclear, or downright
 incorrect, or if the language needs to be improved, please send a note
@@ -630,16 +867,21 @@ arithmetic.  These functions start with the prefix `mpz_'.
 * Simultaneous Integer Init & Assign::
 * Converting Integers::
 * Integer Arithmetic::
-* Comparison Functions::
+* Integer Division::
+* Integer Exponentiation::
+* Integer Roots::
+* Number Theoretic Functions::
+* Integer Comparisons::
 * Integer Logic and Bit Fiddling::
 * I/O of Integers::
+* Integer Random Numbers::
 * Miscellaneous Integer Functions::
 
 
-File: gmp.info,  Node: Initializing Integers,  Next: Assigning Integers,  Up: Integer Functions
+File: gmp.info,  Node: Initializing Integers,  Next: Assigning Integers,  Prev: Integer Functions,  Up: Integer Functions
 
-Initialization and Assignment Functions
-=======================================
+Initialization Functions
+========================
 
    The functions for integer arithmetic assume that all integer objects
 are initialized.  You do that by calling the function `mpz_init'.
@@ -695,7 +937,7 @@ object is initialized.
 File: gmp.info,  Node: Assigning Integers,  Next: Simultaneous Integer Init & Assign,  Prev: Initializing Integers,  Up: Integer Functions
 
 Assignment Functions
---------------------
+====================
 
    These functions assign new values to already initialized integers
 (*note Initializing Integers::).
@@ -720,6 +962,14 @@ Assignment Functions
      This function returns 0 if the entire string up to the '\0' is a
      valid number in base BASE.  Otherwise it returns -1.
 
+     [It turns out that it is not entirely true that this function
+     ignores white-space.  It does ignore it between digits, but not
+     after a minus sign or within or after "0x".  We are considering
+     changing the definition of this function, making it fail when
+     there is any white-space in the input, since that makes a lot of
+     sense.  Please tell us your opinion about this change.  Do you
+     really want it to accept "3 14" as meaning 314 as it does now?]
+
  - Function: void mpz_swap (mpz_t ROP1, mpz_t ROP2)
      Swap the values ROP1 and ROP2 efficiently.
 
@@ -727,7 +977,7 @@ Assignment Functions
 File: gmp.info,  Node: Simultaneous Integer Init & Assign,  Next: Converting Integers,  Prev: Assigning Integers,  Up: Integer Functions
 
 Combined Initialization and Assignment Functions
-------------------------------------------------
+================================================
 
    For convenience, GMP provides a parallel series of
 initialize-and-set functions which initialize the output and then store
@@ -803,21 +1053,21 @@ described in *Note Assigning Integers:: and *Note I/O of Integers::.
      Convert OP to a string of digits in base BASE.  The base may vary
      from 2 to 36.
 
-     If STR is NULL, space for the result string is allocated using the
-     default allocation function.
+     If STR is `NULL', space for the result string is allocated using
+     the default allocation function.
 
-     If STR is not NULL, it should point to a block of storage enough
+     If STR is not `NULL', it should point to a block of storage enough
      large for the result.  To find out the right amount of space to
      provide for STR, use `mpz_sizeinbase (OP, BASE) + 2'.  The two
      extra bytes are for a possible minus sign, and for the terminating
      null character.
 
      A pointer to the result string is returned.  This pointer will
-     will either equal STR, or if that is NULL, will point to the
+     will either equal STR, or if that is `NULL', will point to the
      allocated storage.
 
 
-File: gmp.info,  Node: Integer Arithmetic,  Next: Comparison Functions,  Prev: Converting Integers,  Up: Integer Functions
+File: gmp.info,  Node: Integer Arithmetic,  Next: Integer Division,  Prev: Converting Integers,  Up: Integer Functions
 
 Arithmetic Functions
 ====================
@@ -833,6 +1083,7 @@ Arithmetic Functions
      Set ROP to OP1 - OP2.
 
  - Function: void mpz_mul (mpz_t ROP, mpz_t OP1, mpz_t OP2)
+ - Function: void mpz_mul_si (mpz_t ROP, mpz_t OP1, long int OP2)
  - Function: void mpz_mul_ui (mpz_t ROP, mpz_t OP1, unsigned long int
           OP2)
      Set ROP to OP1 times OP2.
@@ -852,8 +1103,11 @@ Arithmetic Functions
  - Function: void mpz_abs (mpz_t ROP, mpz_t OP)
      Set ROP to the absolute value of OP.
 
-Division and mod functions
---------------------------
+
+File: gmp.info,  Node: Integer Division,  Next: Integer Exponentiation,  Prev: Integer Arithmetic,  Up: Integer Functions
+
+Division Functions
+==================
 
    Division is undefined if the divisor is zero, and passing a zero
 divisor to the divide or modulo functions, as well passing a zero mod
@@ -995,271 +1249,20 @@ have `qr' in the name.
 
  - Function: void mpz_tdiv_r_2exp (mpz_t R, mpz_t N, unsigned long int
           D)
-     Divide N by (2 raised to D) and put the remainder in R.  Unless it
-     is zero, R will have the same sign as N.
+     Divide N by (2 raised to D), rounding the quotient towards 0, and
+     put the remainder in R.  Unless it is zero, R will have the same
+     sign as N.
 
  - Function: void mpz_fdiv_q_2exp (mpz_t Q, mpz_t N, unsigned long int
           D)
      Set Q to N divided by 2 raised to D, rounded towards -infinity.
+     This operation can also be defined as arithmetic right shift D bit
+     positions.
 
  - Function: void mpz_fdiv_r_2exp (mpz_t R, mpz_t N, unsigned long int
           D)
-     Divide N by (2 raised to D) and put the remainder in R.  The sign
-     of R will always be positive.
-
-     This operation can also be defined as masking of the D least
-     significant bits.
-
-Exponentiation Functions
-------------------------
-
- - Function: void mpz_powm (mpz_t ROP, mpz_t BASE, mpz_t EXP, mpz_t MOD)
- - Function: void mpz_powm_ui (mpz_t ROP, mpz_t BASE, unsigned long int
-          EXP, mpz_t MOD)
-     Set ROP to (BASE raised to EXP) `mod' MOD.  If EXP is negative,
-     the result is undefined.
-
- - Function: void mpz_pow_ui (mpz_t ROP, mpz_t BASE, unsigned long int
-          EXP)
- - Function: void mpz_ui_pow_ui (mpz_t ROP, unsigned long int BASE,
-          unsigned long int EXP)
-     Set ROP to BASE raised to EXP.  The case of 0^0 yields 1.
-
-Root Functions
---------------
-
- - Function: int mpz_root (mpz_t ROP, mpz_t OP, unsigned long int N)
-     Set ROP to the truncated integer part of the Nth root of OP.
-     Return non-zero if the computation was exact, i.e., if OP is ROP
-     to the Nth power.
-
- - Function: void mpz_sqrt (mpz_t ROP, mpz_t OP)
-     Set ROP to the truncated integer part of the square root of OP.
-
- - Function: void mpz_sqrtrem (mpz_t ROP1, mpz_t ROP2, mpz_t OP)
-     Set ROP1 to the truncated integer part of the square root of OP,
-     like `mpz_sqrt'.  Set ROP2 to OP-ROP1*ROP1, (i.e., zero if OP is a
-     perfect square).
-
-     If ROP1 and ROP2 are the same variable, the results are undefined.
-
- - Function: int mpz_perfect_power_p (mpz_t OP)
-     Return non-zero if OP is a perfect power, i.e., if there exist
-     integers A and B, with B > 1, such that OP equals a raised to b.
-     Return zero otherwise.
-
- - Function: int mpz_perfect_square_p (mpz_t OP)
-     Return non-zero if OP is a perfect square, i.e., if the square
-     root of OP is an integer.  Return zero otherwise.
-
-Number Theoretic Functions
---------------------------
-
- - Function: int mpz_probab_prime_p (mpz_t N, int REPS)
-     If this function returns 0, N is definitely not prime.  If it
-     returns 1, then N is `probably' prime.  If it returns 2, then N is
-     surely prime.  Reasonable values of reps vary from 5 to 10; a
-     higher value lowers the probability for a non-prime to pass as a
-     `probable' prime.
-
-     The function uses Miller-Rabin's probabilistic test.
-
- - Function: int mpz_nextprime (mpz_t ROP, mpz_t OP)
-     Set ROP to the next prime greater than OP.
-
-     This function uses a probabilistic algorithm to identify primes,
-     but for for practical purposes it's adequate, since the chance of
-     a composite passing will be extremely small.
-
- - Function: void mpz_gcd (mpz_t ROP, mpz_t OP1, mpz_t OP2)
-     Set ROP to the greatest common divisor of OP1 and OP2.  The result
-     is always positive even if either of or both input operands are
-     negative.
-
- - Function: unsigned long int mpz_gcd_ui (mpz_t ROP, mpz_t OP1,
-          unsigned long int OP2)
-     Compute the greatest common divisor of OP1 and OP2.  If ROP is not
-     NULL, store the result there.
-
-     If the result is small enough to fit in an `unsigned long int', it
-     is returned.  If the result does not fit, 0 is returned, and the
-     result is equal to the argument OP1.  Note that the result will
-     always fit if OP2 is non-zero.
-
- - Function: void mpz_gcdext (mpz_t G, mpz_t S, mpz_t T, mpz_t A, mpz_t
-          B)
-     Compute G, S, and T, such that AS + BT = G = `gcd'(A, B).  If T is
-     NULL, that argument is not computed.
-
- - Function: void mpz_lcm (mpz_t ROP, mpz_t OP1, mpz_t OP2)
-     Set ROP to the least common multiple of OP1 and OP2.
-
- - Function: int mpz_invert (mpz_t ROP, mpz_t OP1, mpz_t OP2)
-     Compute the inverse of OP1 modulo OP2 and put the result in ROP.
-     Return non-zero if an inverse exist, zero otherwise.  When the
-     function returns zero, ROP is undefined.
-
- - Function: int mpz_jacobi (mpz_t OP1, mpz_t OP2)
- - Function: int mpz_legendre (mpz_t OP1, mpz_t OP2)
-     Compute the Jacobi and Legendre symbols, respectively.
-
- - Function: unsigned long int mpz_remove (mpz_t ROP, mpz_t OP, mpz_t F)
-     Remove all occurrences of the factor F from OP and store the
-     result in ROP.  Return the multiplicity of F in OP.
-
- - Function: void mpz_fac_ui (mpz_t ROP, unsigned long int OP)
-     Set ROP to OP!, the factorial of OP.
-
- - Function: void mpz_bin_ui (mpz_t ROP, mpz_t N, unsigned long int K)
- - Function: void mpz_bin_uiui (mpz_t ROP, unsigned long int N,
-          unsigned long int K)
-     Compute the binomial coefficient N over K and store the result in
-     ROP.
-
- - Function: void mpz_fib_ui (mpz_t ROP, unsigned long int N)
-     Compute the Nth Fibonacci number and store the result in ROP.
-
-
-File: gmp.info,  Node: Comparison Functions,  Next: Integer Logic and Bit Fiddling,  Prev: Integer Arithmetic,  Up: Integer Functions
-
-Comparison Functions
-====================
-
- - Function: int mpz_cmp (mpz_t OP1, mpz_t OP2)
-     Compare OP1 and OP2.  Return a positive value if OP1 > OP2, zero
-     if OP1 = OP2, and a negative value if OP1 < OP2.
-
- - Macro: int mpz_cmp_ui (mpz_t OP1, unsigned long int OP2)
- - Macro: int mpz_cmp_si (mpz_t OP1, signed long int OP2)
-     Compare OP1 and OP2.  Return a positive value if OP1 > OP2, zero
-     if OP1 = OP2, and a negative value if OP1 < OP2.
-
-     These functions are actually implemented as macros.  They evaluate
-     their arguments multiple times.
-
- - Function: int mpz_cmpabs (mpz_t OP1, mpz_t OP2)
- - Function: int mpz_cmpabs_ui (mpz_t OP1, unsigned long int OP2)
-     Compare the absolute values of OP1 and OP2.  Return a positive
-     value if OP1 > OP2, zero if OP1 = OP2, and a negative value if OP1
-     < OP2.
-
- - Macro: int mpz_sgn (mpz_t OP)
-     Return +1 if OP > 0, 0 if OP = 0, and -1 if OP < 0.
-
-     This function is actually implemented as a macro.  It evaluates its
-     arguments multiple times.
-
-
-File: gmp.info,  Node: Integer Logic and Bit Fiddling,  Next: I/O of Integers,  Prev: Comparison Functions,  Up: Integer Functions
-
-Logical and Bit Manipulation Functions
-======================================
-
-   These functions behave as if two's complement arithmetic were used
-(although sign-magnitude is used by the actual implementation).
-
- - Function: void mpz_and (mpz_t ROP, mpz_t OP1, mpz_t OP2)
-     Set ROP to OP1 logical-and OP2.
-
- - Function: void mpz_ior (mpz_t ROP, mpz_t OP1, mpz_t OP2)
-     Set ROP to OP1 inclusive-or OP2.
-
- - Function: void mpz_xor (mpz_t ROP, mpz_t OP1, mpz_t OP2)
-     Set ROP to OP1 exclusive-or OP2.
-
- - Function: void mpz_com (mpz_t ROP, mpz_t OP)
-     Set ROP to the one's complement of OP.
-
- - Function: unsigned long int mpz_popcount (mpz_t OP)
-     For non-negative numbers, return the population count of OP.  For
-     negative numbers, return the largest possible value (MAX_ULONG).
-
- - Function: unsigned long int mpz_hamdist (mpz_t OP1, mpz_t OP2)
-     If OP1 and OP2 are both non-negative, return the hamming distance
-     between the two operands.  Otherwise, return the largest possible
-     value (MAX_ULONG).
-
-     It is possible to extend this function to return a useful value
-     when the operands are both negative, but the current
-     implementation returns MAX_ULONG in this case.  *Do not depend on
-     this behavior, since it will change in a future release.*
-
- - Function: unsigned long int mpz_scan0 (mpz_t OP, unsigned long int
-          STARTING_BIT)
-     Scan OP, starting with bit STARTING_BIT, towards more significant
-     bits, until the first clear bit is found.  Return the index of the
-     found bit.
-
- - Function: unsigned long int mpz_scan1 (mpz_t OP, unsigned long int
-          STARTING_BIT)
-     Scan OP, starting with bit STARTING_BIT, towards more significant
-     bits, until the first set bit is found.  Return the index of the
-     found bit.
-
- - Function: void mpz_setbit (mpz_t ROP, unsigned long int BIT_INDEX)
-     Set bit BIT_INDEX in ROP.
-
- - Function: void mpz_clrbit (mpz_t ROP, unsigned long int BIT_INDEX)
-     Clear bit BIT_INDEX in ROP.
-
- - Function: int mpz_tstbit (mpz_t OP, unsigned long int BIT_INDEX)
-     Check bit BIT_INDEX in OP and return 0 or 1 accordingly.
-
-
-File: gmp.info,  Node: I/O of Integers,  Next: Miscellaneous Integer Functions,  Prev: Integer Logic and Bit Fiddling,  Up: Integer Functions
-
-Input and Output Functions
-==========================
-
-   Functions that perform input from a stdio stream, and functions that
-output to a stdio stream.  Passing a NULL pointer for a STREAM argument
-to any of these functions will make them read from `stdin' and write to
-`stdout', respectively.
-
-   When using any of these functions, it is a good idea to include
-`stdio.h' before `gmp.h', since that will allow `gmp.h' to define
-prototypes for these functions.
-
- - Function: size_t mpz_out_str (FILE *STREAM, int BASE, mpz_t OP)
-     Output OP on stdio stream STREAM, as a string of digits in base
-     BASE.  The base may vary from 2 to 36.
-
-     Return the number of bytes written, or if an error occurred,
-     return 0.
-
- - Function: size_t mpz_inp_str (mpz_t ROP, FILE *STREAM, int BASE)
-     Input a possibly white-space preceded string in base BASE from
-     stdio stream STREAM, and put the read integer in ROP.  The base
-     may vary from 2 to 36.  If BASE is 0, the actual base is
-     determined from the leading characters: if the first two
-     characters are `0x' or `0X', hexadecimal is assumed, otherwise if
-     the first character is `0', octal is assumed, otherwise decimal is
-     assumed.
-
-     Return the number of bytes read, or if an error occurred, return 0.
-
- - Function: size_t mpz_out_raw (FILE *STREAM, mpz_t OP)
-     Output OP on stdio stream STREAM, in raw binary format.  The
-     integer is written in a portable format, with 4 bytes of size
-     information, and that many bytes of limbs.  Both the size and the
-     limbs are written in decreasing significance order (i.e., in
-     big-endian).
-
-     The output can be read with `mpz_inp_raw'.
-
-     Return the number of bytes written, or if an error occurred,
-     return 0.
-
-     The output of this can not be read by `mpz_inp_raw' from GMP 1,
-     because of changes necessary for compatibility between 32-bit and
-     64-bit machines.
-
- - Function: size_t mpz_inp_raw (mpz_t ROP, FILE *STREAM)
-     Input from stdio stream STREAM in the format written by
-     `mpz_out_raw', and put the result in ROP.  Return the number of
-     bytes read, or if an error occurred, return 0.
-
-     This routine can read the output from `mpz_out_raw' also from GMP
-     1, in spite of changes necessary for compatibility between 32-bit
-     and 64-bit machines.
+     Divide N by (2 raised to D), rounding the quotient towards
+     -infinity, and put the remainder in R.  The sign of R will always
+     be positive.  This operation can also be defined as masking of the
+     D least significant bits.
 

@@ -1,21 +1,21 @@
 /* mpf_trunc, mpf_floor, mpf_ceil -- Assign a float from another float while
    rounding it to an integer.
 
-Copyright (C) 1997, 1998 Free Software Foundation, Inc.
+Copyright (C) 1997, 1998, 2000 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
-it under the terms of the GNU Library General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at your
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
-You should have received a copy of the GNU Library General Public License
+You should have received a copy of the GNU Lesser General Public License
 along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA. */
@@ -23,32 +23,36 @@ MA 02111-1307, USA. */
 #include "gmp.h"
 #include "gmp-impl.h"
 
-#if MPF_FLOOR
+
+#if defined (OPERATION_floor)
 #define _MPF_FLOOR_OR_CEIL
 #define FUNC_NAME mpf_floor
-#undef MPF_FLOOR
 #define MPF_FLOOR 1
 #define MPF_CEIL 0
-#endif
 
-#if MPF_CEIL
+#elif defined (OPERATION_ceil)
 #define _MPF_FLOOR_OR_CEIL
 #define FUNC_NAME mpf_ceil
-#undef MPF_CEIL
 #define MPF_CEIL 1
 #define MPF_FLOOR 0
+
+#elif defined (OPERATION_trunc)
+#define FUNC_NAME mpf_trunc
+
+#else
+Error, error, unrecognised OPERATION
 #endif
 
-#if MPF_TRUNC
-#undef FUNC_NAME
-#define FUNC_NAME mpf_trunc
-#endif
 
 #ifdef _MPF_FLOOR_OR_CEIL
 static int
+#if __STDC__
+mpn_zero_p (mp_ptr p, mp_size_t n)
+#else
 mpn_zero_p (p, n)
      mp_ptr p;
      mp_size_t n;
+#endif
 {
   mp_size_t i;
 

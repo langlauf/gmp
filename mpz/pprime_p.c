@@ -12,16 +12,16 @@ Foundation, Inc.  Miller-Rabin code contributed by John Amanatides.
 This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
-it under the terms of the GNU Library General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at your
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
-You should have received a copy of the GNU Library General Public License
+You should have received a copy of the GNU Lesser General Public License
 along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA. */
@@ -30,13 +30,17 @@ MA 02111-1307, USA. */
 #include "gmp-impl.h"
 #include "longlong.h"
 
-static int isprime ();
-static int mpz_millerrabin ();
+static int isprime _PROTO ((unsigned long int t));
+static int mpz_millerrabin _PROTO ((mpz_srcptr n, int reps));
 
 int
+#if __STDC__
+mpz_probab_prime_p (mpz_srcptr n, int reps)
+#else
 mpz_probab_prime_p (n, reps)
      mpz_srcptr n;
      int reps;
+#endif
 {
   mp_limb_t r;
 
@@ -123,8 +127,12 @@ mpz_probab_prime_p (n, reps)
 }
 
 static int
+#if __STDC__
+isprime (unsigned long int t)
+#else
 isprime (t)
      unsigned long int t;
+#endif
 {
   unsigned long int q, r, d;
 
@@ -141,12 +149,18 @@ isprime (t)
   return 0;
 }
 
-static int millerrabin ();
+static int millerrabin _PROTO ((mpz_srcptr n, mpz_srcptr nm1,
+                                mpz_ptr x, mpz_ptr y,
+                                mpz_srcptr q, unsigned long int k));
 
 static int
+#if __STDC__
+mpz_millerrabin (mpz_srcptr n, int reps)
+#else
 mpz_millerrabin (n, reps)
      mpz_srcptr n;
      int reps;
+#endif
 {
   int r;
   mpz_t nm1, x, y, q;
@@ -196,6 +210,10 @@ mpz_millerrabin (n, reps)
 }
 
 static int
+#if __STDC__
+millerrabin (mpz_srcptr n, mpz_srcptr nm1, mpz_ptr x, mpz_ptr y,
+             mpz_srcptr q, unsigned long int k)
+#else
 millerrabin (n, nm1, x, y, q, k)
      mpz_srcptr n;
      mpz_srcptr nm1;
@@ -203,6 +221,7 @@ millerrabin (n, nm1, x, y, q, k)
      mpz_ptr y;
      mpz_srcptr q;
      unsigned long int k;
+#endif
 {
   unsigned long int i;
 

@@ -12,16 +12,16 @@ Foundation, Inc.
 This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
-it under the terms of the GNU Library General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at your
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
-You should have received a copy of the GNU Library General Public License
+You should have received a copy of the GNU Lesser General Public License
 along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA. */
@@ -67,9 +67,10 @@ mpn_sqr_n (prodp, up, un)
       mpn_kara_sqr_n (prodp, up, un, tspace);
       TMP_FREE (marker);
     }
+#if WANT_FFT || TUNE_PROGRAM_BUILD
+  else if (un < FFT_SQR_THRESHOLD)
+#else
   else
-#if 0
-  if (un < FFT_SQR_THRESHOLD)
 #endif
     { /* toom3 multiplication */
       mp_ptr tspace;
@@ -79,10 +80,11 @@ mpn_sqr_n (prodp, up, un)
       mpn_toom3_sqr_n (prodp, up, un, tspace);
       TMP_FREE (marker);
     }
-#if 0
+#if WANT_FFT || TUNE_PROGRAM_BUILD
   else
     {
       /* schoenhage multiplication */
+      mpn_mul_fft_full (prodp, up, un, up, un);
     }
 #endif
 }
@@ -101,8 +103,7 @@ mpn_mul (prodp, up, un, vp, vn)
      mp_size_t vn;
 #endif
 {
-  mp_srcptr wp;
-  mp_size_t l, wn;
+  mp_size_t l;
   mp_limb_t c;
 
   if (up == vp && un == vn)
@@ -132,8 +133,7 @@ mpn_mul (prodp, up, un, vp, vn)
       if (un < vn) 
 	{
 	  /* Swap u's and v's. */
-	  wp = up; up = vp; vp = wp;
-	  wn = un; un = vn; vn = wn;
+          MPN_SRCPTR_SWAP (up,un, vp,vn);
 	}
 
       ws = (mp_ptr) TMP_ALLOC (((vn >= KARATSUBA_MUL_THRESHOLD ? vn : un) + vn)
@@ -164,8 +164,7 @@ mpn_mul (prodp, up, un, vp, vn)
 	  if (un < vn) 
 	    {
 	      /* Swap u's and v's. */
-	      wp = up; up = vp; vp = wp;
-	      wn = un; un = vn; vn = wn;
+              MPN_SRCPTR_SWAP (up,un, vp,vn);
 	    }
 	}
 

@@ -6,16 +6,16 @@
 ; This file is part of the GNU MP Library.
 
 ; The GNU MP Library is free software; you can redistribute it and/or modify
-; it under the terms of the GNU Library General Public License as published by
-; the Free Software Foundation; either version 2 of the License, or (at your
+; it under the terms of the GNU Lesser General Public License as published by
+; the Free Software Foundation; either version 2.1 of the License, or (at your
 ; option) any later version.
 
 ; The GNU MP Library is distributed in the hope that it will be useful, but
 ; WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-; or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+; or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 ; License for more details.
 
-; You should have received a copy of the GNU Library General Public License
+; You should have received a copy of the GNU Lesser General Public License
 ; along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 ; the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 ; MA 02111-1307, USA.
@@ -28,7 +28,7 @@
 ; d		gr23
 
 	.code
-L$0000	.word		0x43f00000
+L$0000	.word		0x43f00000		; 2^64
 	.word		0x0
 	.export		__gmpn_udiv_qrnnd
 __gmpn_udiv_qrnnd
@@ -39,8 +39,13 @@ __gmpn_udiv_qrnnd
 
 	stws		%r25,-16(0,%r30)	; n_hi
 	stws		%r24,-12(0,%r30)	; n_lo
-	ldil		L'L$0000,%r19
-	ldo		R'L$0000(%r19),%r19
+#ifdef PIC
+	addil		LT%L$0000,%r19
+	ldo		RT%L$0000(%r1),%r19
+#else
+	ldil		L%L$0000,%r19
+	ldo		R%L$0000(%r19),%r19
+#endif	
 	fldds		-16(0,%r30),%fr5
 	stws		%r23,-12(0,%r30)
 	comib,<=	0,%r25,L$1

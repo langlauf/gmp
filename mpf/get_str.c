@@ -10,16 +10,16 @@ Inc.
 This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
-it under the terms of the GNU Library General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at your
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
-You should have received a copy of the GNU Library General Public License
+You should have received a copy of the GNU Lesser General Public License
 along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA. */
@@ -38,9 +38,6 @@ MA 02111-1307, USA. */
   3. Convert U' (by repeatedly multiplying it by base).  This process can
      easily be interrupted when the needed number of digits are generated.
 */
-
-#define swapptr(xp,yp) \
-do { mp_ptr _swapptr_tmp = (xp); (xp) = (yp); (yp) = _swapptr_tmp; } while (0)
 
 char *
 #if __STDC__
@@ -168,7 +165,7 @@ mpf_get_str (digit_ptr, exp, base, n_digits, u)
 	      rsize = prec;
 	    }
 	  else
-	    swapptr (rp, tp);
+	    MP_PTR_SWAP (rp, tp);
 
 	  if (((exp_in_base >> i) & 1) != 0)
 	    {
@@ -273,7 +270,7 @@ mpf_get_str (digit_ptr, exp, base, n_digits, u)
 		  rsize = prec;
 		}
 	      else
-		swapptr (rp, tp);
+		MP_PTR_SWAP (rp, tp);
 
 	      if (((exp_in_base >> i) & 1) != 0)
 		{
@@ -320,13 +317,18 @@ mpf_get_str (digit_ptr, exp, base, n_digits, u)
       /* fall out to general code... */
     }
 
+  /* Now that we have normalized the number, develop the digits, essentially by
+     multiplying it by BASE.  We initially develop at least 3 extra digits,
+     since the two leading digits might become zero, and we need one extra for
+     rounding the output properly.  */
+
   /* Allocate temporary digit space.  We can't put digits directly in the user
      area, since we generate more digits than requested.  (We allocate
-     BITS_PER_MP_LIMB + 1 extra bytes because of the digit block nature of the
+     BITS_PER_MP_LIMB extra bytes because of the digit block nature of the
      conversion.)  */
-  tstr = (unsigned char *) TMP_ALLOC (n_digits + BITS_PER_MP_LIMB + 1);
+  tstr = (unsigned char *) TMP_ALLOC (n_digits + BITS_PER_MP_LIMB + 3);
 
-  for (digits_computed_so_far = 0; digits_computed_so_far <= n_digits;
+  for (digits_computed_so_far = 0; digits_computed_so_far < n_digits + 3;
        digits_computed_so_far += dig_per_u)
     {
       mp_limb_t cy;

@@ -6,16 +6,16 @@ dnl  Copyright (C) 1993, 1994, 1996, 2000 Free Software Foundation, Inc.
 dnl  This file is part of the GNU MP Library.
 
 dnl  The GNU MP Library is free software; you can redistribute it and/or modify
-dnl  it under the terms of the GNU Library General Public License as published
-dnl  by the Free Software Foundation; either version 2 of the License, or (at
+dnl  it under the terms of the GNU Lesser General Public License as published
+dnl  by the Free Software Foundation; either version 2.1 of the License, or (at
 dnl  your option) any later version.
 
 dnl  The GNU MP Library is distributed in the hope that it will be useful, but
 dnl  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-dnl  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+dnl  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 dnl  License for more details.
 
-dnl  You should have received a copy of the GNU Library General Public License
+dnl  You should have received a copy of the GNU Lesser General Public License
 dnl  along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 dnl  the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 dnl  MA 02111-1307, USA.
@@ -42,7 +42,7 @@ L(getpc):
 L(C0):	.double	0r4294967296
 L(C1):	.double	0r2147483648
 
-PROLOGUE(MPN(udiv_qrnnd))
+PROLOGUE(mpn_udiv_qrnnd)
 	save	%sp,-104,%sp
 	st	%i1,[%fp-8]
 	ld	[%fp-8],%f10
@@ -155,4 +155,4 @@ L(246):
 	st	%o7,[%i5]
 	ret
 	restore
-EPILOGUE(MPN(udiv_qrnnd))
+EPILOGUE(mpn_udiv_qrnnd)

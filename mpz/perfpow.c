@@ -6,16 +6,16 @@ Copyright (C) 1998, 1999, 2000 Free Software Foundation, Inc.
 This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
-it under the terms of the GNU Library General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at your
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
-You should have received a copy of the GNU Library General Public License
+You should have received a copy of the GNU Lesser General Public License
 along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA. */
@@ -39,14 +39,15 @@ MA 02111-1307, USA. */
    Many things can be improved.  In particular, we should use p-adic
    arithmetic for computing possible roots.  */
 
+#include <stdio.h> /* for NULL */
 #include "gmp.h"
 #include "gmp-impl.h"
 #include "longlong.h"
 
-static unsigned long int gcd ();
-static int isprime ();
+static unsigned long int gcd _PROTO ((unsigned long int a, unsigned long int b));
+static int isprime _PROTO ((unsigned long int t));
 
-static unsigned short primes[] =
+static const unsigned short primes[] =
 {  2,  3,  5,  7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53,
   59, 61, 67, 71, 73, 79, 83, 89, 97,101,103,107,109,113,127,131,
  137,139,149,151,157,163,167,173,179,181,191,193,197,199,211,223,
@@ -63,8 +64,12 @@ static unsigned short primes[] =
 
 
 int
+#if __STDC__
+mpz_perfect_power_p (mpz_srcptr u)
+#else
 mpz_perfect_power_p (u)
      mpz_srcptr u;
+#endif
 {
   unsigned long int prime;
   unsigned long int n, n2;
@@ -72,6 +77,8 @@ mpz_perfect_power_p (u)
   unsigned long int rem;
   mpz_t u2, q;
   int exact;
+  mp_size_t uns;
+  TMP_DECL (marker);
 
   if (mpz_cmp_ui (u, 1) <= 0)
     return 0;
@@ -80,8 +87,11 @@ mpz_perfect_power_p (u)
   if (n2 == 1)
     return 0;
 
-  mpz_init (q);
-  mpz_init (u2);
+  TMP_MARK (marker);
+
+  uns = ABSIZ (u) - n2 / BITS_PER_MP_LIMB;
+  MPZ_TMP_INIT (q, uns);
+  MPZ_TMP_INIT (u2, uns);
 
   mpz_tdiv_q_2exp (u2, u, n2);
 
@@ -97,8 +107,7 @@ mpz_perfect_power_p (u)
 	  rem = mpz_tdiv_q_ui (q, u2, prime * prime);
 	  if (rem != 0)
 	    {
-	      mpz_clear (q);
-	      mpz_clear (u2);
+	      TMP_FREE (marker);
 	      return 0;
 	    }
 	  mpz_swap (q, u2);
@@ -114,8 +123,7 @@ mpz_perfect_power_p (u)
 	  n2 = gcd (n2, n);
 	  if (n2 == 1)
 	    {
-	      mpz_clear (q);
-	      mpz_clear (u2);
+	      TMP_FREE (marker);
 	      return 0;
 	    }
 
@@ -128,8 +136,7 @@ mpz_perfect_power_p (u)
 
   if (mpz_cmp_ui (u2, 1) == 0)
     {
-      mpz_clear (q);
-      mpz_clear (u2);
+      TMP_FREE (marker);
       return 1;
     }
 
@@ -149,14 +156,12 @@ mpz_perfect_power_p (u)
 	    exact = mpz_root (q, u2, nth);
 	  if (exact)
 	    {
-	      mpz_clear (q);
-	      mpz_clear (u2);
+	      TMP_FREE (marker);
 	      return 1;
 	    }
 	  if (mpz_cmp_ui (q, SMALLEST_OMITTED_PRIME) < 0)
 	    {
-	      mpz_clear (q);
-	      mpz_clear (u2);
+	      TMP_FREE (marker);
 	      return 0;
 	    }
 	}
@@ -179,33 +184,33 @@ mpz_perfect_power_p (u)
 	    exact = mpz_root (q, u2, nth);
 	  if (exact)
 	    {
-	      mpz_clear (q);
-	      mpz_clear (u2);
+	      TMP_FREE (marker);
 	      return 1;
 	    }
 	  if (mpz_cmp_ui (q, SMALLEST_OMITTED_PRIME) < 0)
 	    {
-	      mpz_clear (q);
-	      mpz_clear (u2);
+	      TMP_FREE (marker);
 	      return 0;
 	    }
 	}
 
-      mpz_clear (q);
-      mpz_clear (u2);
+      TMP_FREE (marker);
       return 0;
     }
 
 n2prime:
   exact = mpz_root (NULL, u2, n2);
-  mpz_clear (q);
-  mpz_clear (u2);
+  TMP_FREE (marker);
   return exact;
 }
 
 static unsigned long int
+#if __STDC__
+gcd (unsigned long int a, unsigned long int b)
+#else
 gcd (a, b)
      unsigned long int a, b;
+#endif
 {
   int an2, bn2, n2;
 
@@ -244,8 +249,12 @@ gcd (a, b)
 }
 
 static int
+#if __STDC__
+isprime (unsigned long int t)
+#else
 isprime (t)
      unsigned long int t;
+#endif
 {
   unsigned long int q, r, d;
 

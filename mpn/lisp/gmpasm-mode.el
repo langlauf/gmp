@@ -6,16 +6,16 @@
 ;; This file is part of the GNU MP Library.
 ;;
 ;; The GNU MP Library is free software; you can redistribute it and/or modify
-;; it under the terms of the GNU Library General Public License as published by
-;; the Free Software Foundation; either version 2 of the License, or (at your
+;; it under the terms of the GNU Lesser General Public License as published by
+;; the Free Software Foundation; either version 2.1 of the License, or (at your
 ;; option) any later version.
 ;;
 ;; The GNU MP Library is distributed in the hope that it will be useful, but
 ;; WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-;; or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+;; or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 ;; License for more details.
 ;;
-;; You should have received a copy of the GNU Library General Public License
+;; You should have received a copy of the GNU Lesser General Public License
 ;; along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 ;; MA 02111-1307, USA.
@@ -193,6 +193,7 @@ dnl too).")
 (defun gmpasm-mode ()
   "A major mode for editing GNU MP asm and m4 files.
 
+\\{gmpasm-mode-map}
 `comment-start' and `comment-end' are set buffer-local to assembler
 commenting appropriate for the CPU by looking for something matching
 `gmpasm-comment-start-regexp' at the start of a line, or \"#\" is used if
@@ -212,8 +213,7 @@ to start with `C'.  Also it's only the particular `comment-start' determined
 that's added for filling etc, not the whole `gmpasm-comment-start-regexp'.
 
 `gmpasm-mode-hook' is run after initializations are complete.
-
-\\{gmpasm-mode-map}"
+"
 
   (interactive)
   (kill-all-local-variables)

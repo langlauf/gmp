@@ -5,16 +5,16 @@ Copyright (C) 1998, 1999, 2000 Free Software Foundation, Inc.
 This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
-it under the terms of the GNU Library General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at your
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
-You should have received a copy of the GNU Library General Public License
+You should have received a copy of the GNU Lesser General Public License
 along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA. */
@@ -30,7 +30,7 @@ MA 02111-1307, USA. */
      2. Call mpn functions directly.  Straightforward for these functions.
      3. Merge the three functions into one.
 
-Said by Kevin Ryde:
+Said by Kevin:
    Consider using the Lucas numbers L[n] as an auxiliary sequence, making
    it possible to do the "doubling" operation in mpz_fib_bigcase with two
    squares rather than two multiplies.  The formulas are a little more
@@ -54,7 +54,10 @@ Said by Kevin Ryde:
 static void mpz_fib_bigcase _PROTO ((mpz_t, mpz_t, unsigned long int));
 static void mpz_fib_basecase _PROTO ((mpz_t, mpz_t, unsigned long int));
 
-#define FIB_THRES 60
+
+#ifndef FIB_THRESHOLD
+#define FIB_THRESHOLD 60
+#endif
 
 void
 #if __STDC__
@@ -71,7 +74,7 @@ mpz_fib_ui (r, n)
     {
       mpz_t t1;
       mpz_init (t1);
-      if (n < FIB_THRES)
+      if (n < FIB_THRESHOLD)
 	mpz_fib_basecase (t1, r, n);
       else
 	mpz_fib_bigcase (t1, r, n);
@@ -121,7 +124,7 @@ mpz_fib_bigcase (t1, t2, n)
   mpz_t x1, x2, u1, u2;
 
   ni = 0;
-  for (n2 = n; n2 > FIB_THRES; n2 /= 2)
+  for (n2 = n; n2 >= FIB_THRESHOLD; n2 /= 2)
     ni++;
 
   mpz_fib_basecase (t1, t2, n2);

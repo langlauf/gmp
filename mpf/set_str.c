@@ -8,16 +8,16 @@ Inc.
 This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
-it under the terms of the GNU Library General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at your
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
-You should have received a copy of the GNU Library General Public License
+You should have received a copy of the GNU Lesser General Public License
 along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA. */
@@ -29,15 +29,16 @@ MA 02111-1307, USA. */
 #include "longlong.h"
 
 
-#define swapptr(xp,yp) \
-do { mp_ptr _swapptr_tmp = (xp); (xp) = (yp); (yp) = _swapptr_tmp; } while (0)
-
 long int strtol _PROTO ((const char *, char **ptr, int));
 
 static int
+#if __STDC__
+digit_value_in_base (int c, int base)
+#else
 digit_value_in_base (c, base)
      int c;
      int base;
+#endif
 {
   int digit;
 
@@ -238,7 +239,7 @@ mpf_set_str (x, str, base)
 	    rsize = prec;
 	  }
 	else
-	  swapptr (rp, tp);
+	  MP_PTR_SWAP (rp, tp);
 
 	if (((exp_in_base >> i) & 1) != 0)
 	  {

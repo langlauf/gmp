@@ -4,16 +4,16 @@ Copyright (C) 1991, 1992, 1993, 1994, 1996, 1997, 1999, 2000 Free Software
 Foundation, Inc.
 
 This file is free software; you can redistribute it and/or modify
-it under the terms of the GNU Library General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at your
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 This file is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
-You should have received a copy of the GNU Library General Public License
+You should have received a copy of the GNU Lesser General Public License
 along with this file; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA. */
@@ -138,6 +138,7 @@ long __MPN(count_leading_zeros) ();
 #if defined (__hppa) && W_TYPE_SIZE == 64
 /* We put the result pointer parameter last here, since it makes passing
    of the other parameters more efficient.  */
+#ifndef LONGLONG_STANDALONE
 #define umul_ppmm(wh, wl, u, v) \
   do {									\
     UDItype __p0;							\
@@ -153,6 +154,7 @@ extern UDItype __MPN(umul_ppmm) _PROTO ((UDItype, UDItype, UDItype *));
 extern UDItype __MPN(udiv_qrnnd) _PROTO ((UDItype, UDItype, UDItype, UDItype *));
 #define UMUL_TIME 8
 #define UDIV_TIME 60
+#endif /* LONGLONG_STANDALONE */
 #endif /* hppa */
 
 #if defined (__ia64) && W_TYPE_SIZE == 64
@@ -1121,6 +1123,36 @@ extern USItype __MPN(udiv_qrnnd) _PROTO ((USItype *, USItype, USItype, USItype))
     ((UDWtype) __hi << W_TYPE_SIZE) | __lo; })
 #endif
 
+
+/* Note the prototypes are under !define(umul_ppmm) etc too, since the HPPA
+   versions above are different and we don't want to conflict.  */
+
+#if ! defined (umul_ppmm) && HAVE_NATIVE_mpn_umul_ppmm
+#define mpn_umul_ppmm  __MPN(umul_ppmm)
+extern mp_limb_t mpn_umul_ppmm _PROTO ((mp_limb_t *, mp_limb_t, mp_limb_t));
+#define umul_ppmm(wh, wl, u, v)                                 \
+  do {                                                          \
+    mp_limb_t __umul_ppmm__p0;                                  \
+    (wh) = __MPN(umul_ppmm) (&__umul_ppmm__p0,                  \
+                             (mp_limb_t) (u), (mp_limb_t) (v)); \
+    (wl) = __umul_ppmm__p0;                                     \
+  } while (0)
+#endif
+
+#if ! defined (udiv_qrnnd) && HAVE_NATIVE_mpn_udiv_qrnnd
+#define mpn_udiv_qrnnd  __MPN(udiv_qrnnd)
+extern mp_limb_t mpn_udiv_qrnnd _PROTO ((mp_limb_t *,
+                                         mp_limb_t, mp_limb_t, mp_limb_t));
+#define udiv_qrnnd(q, r, n1, n0, d)                                           \
+  do {                                                                        \
+    mp_limb_t __udiv_qrnnd__r;                                                \
+    (q) = mpn_udiv_qrnnd (&__udiv_qrnnd__r,                                   \
+                          (mp_limb_t) (n1), (mp_limb_t) (n0), (mp_limb_t) d); \
+    (r) = __udiv_qrnnd__r;                                                    \
+  } while (0)
+#endif
+
+
 /* If this machine has no inline assembler, use C macros.  */
 
 #if !defined (add_ssaaaa)
@@ -1306,3 +1338,10 @@ unsigned char __clz_tab[];
 #ifndef UDIV_TIME
 #define UDIV_TIME UMUL_TIME
 #endif
+
+/* count_trailing_zeros is often on the slow side, so make that the default */
+#ifndef COUNT_TRAILING_ZEROS_TIME
+#define COUNT_TRAILING_ZEROS_TIME  15  /* cycles */
+#endif
+
+

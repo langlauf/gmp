@@ -1,20 +1,21 @@
 /* Test mpz_powm, mpz_mul. mpz_mod, mpz_mod_ui, mpz_div_ui.
 
-Copyright (C) 1991, 1993, 1994, 1996, 1999 Free Software Foundation, Inc.
+Copyright (C) 1991, 1993, 1994, 1996, 1999, 2000 Free Software Foundation,
+Inc.
 
 This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
-it under the terms of the GNU Library General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at your
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
-You should have received a copy of the GNU Library General Public License
+You should have received a copy of the GNU Lesser General Public License
 along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA. */
@@ -58,20 +59,24 @@ main (argc, argv)
 
   for (i = 0; i < reps; i++)
     {
-      base_size = urandom () % 2 * SIZE - SIZE;
-      mpz_random2 (base, base_size);
+      do
+	{
+	  base_size = urandom () % 2 * SIZE - SIZE;
+	  mpz_random2 (base, base_size);
 
-      exp_size = urandom () % (EXP_SIZE + 1);
-      mpz_random2 (exp, exp_size);
+	  exp_size = urandom () % (EXP_SIZE + 1);
+	  mpz_random2 (exp, exp_size);
 
-      mod_size = urandom () % SIZE /* - SIZE/2 */;
-      mpz_random2 (mod, mod_size);
-      if (mpz_cmp_ui (mod, 0) == 0)
-	continue;
+      /* Loop until mathematically well-defined.  */
+	}
+      while (mpz_cmp_ui (base, 0) == 0 && mpz_cmp_ui (exp, 0) == 0);
 
-      /* This is mathematically undefined.  */
-      if (mpz_cmp_ui (base, 0) == 0 && mpz_cmp_ui (exp, 0) == 0)
-	continue;
+      do
+	{
+	  mod_size = urandom () % SIZE /* - SIZE/2 */;
+	  mpz_random2 (mod, mod_size);
+	}
+      while (mpz_cmp_ui (mod, 0) == 0);
 
 #if 0
       putc ('\n', stderr);

@@ -4,34 +4,43 @@
 
 
 These instructions are only for the impatient.  Others should read the install
-instructions in the manual, gmp.info.  Use "info -f gmp.info", or, if you
-don't have info, type "C-u C-h i gmp.info" in emacs.
+instructions in the manual, gmp.info.  Use
 
-Here are some brief instructions on how to install MP, and some examples to
-help you get started using MP.
+	info -f ./gmp.info
 
-First, you need to compile, and optionally install, MP.  Since you're
+or in emacs
+
+	C-u C-h i gmp.info
+
+
+Here are some brief instructions on how to install GMP, and some examples to
+help you get started using GMP.
+
+First, you need to compile, and optionally install, GMP.  Since you're
 impatient, try this:
 
 	./configure; make
 
-If that fails, or you care about the performance of MP, you need to read the
-full instructions in the chapter "Installing MP", in the manual.
+If that fails, or you care about the performance of GMP, you need to read the
+full instructions in the chapter "Installing GMP", in the manual.
 
-Next, you need to try some small test programs, for example the ones below.
+Next, try some small test programs, for example the ones below.
 
-In MP programs, all variables need to be initialized before they are assigned,
-and cleared out before program flow leaves the scope in which they were
-declared.  Here is an example of a program that reads two numbers from the
+In GMP programs, all variables need to be initialized before they are
+assigned, and cleared out before program flow leaves the scope in which they
+were declared.  Here is an example program that reads two numbers from the
 command line, multiplies them, and prints the result to stdout.
 
 
     #include <stdio.h>
-    #include <gmp.h>         /* All MP programs need to include gmp.h */
+    #include <gmp.h>         /* All GMP programs need to include gmp.h */
 
     main (int argc, char **argv)
     {
       mpz_t a, b, p;
+
+      if (argc != 3)
+        { printf ("Usage: %s <number> <number>\n", argv[0]); exit (1); }
 
       /* Initialize variables */
       mpz_init (a);
@@ -59,8 +68,7 @@ command line, multiplies them, and prints the result to stdout.
 
 This might look tedious, with all the initializing and clearing.  Fortunately
 some of these operations can be combined, and other operations can often be
-avoided.  The example above would be written differently by an experienced GNU
-MP user:
+avoided.  An experienced GMP user might write:
 
 
     #include <stdio.h>
@@ -69,6 +77,9 @@ MP user:
     main (int argc, char **argv)
     {
       mpz_t a, b, p;
+
+      if (argc != 3)
+        { printf ("Usage: %s <number> <number>\n", argv[0]); exit (1); }
 
       /* Initialize and assign a and b from base 10 strings in argv */
       mpz_init_set_str (a, argv[1], 10);
@@ -87,15 +98,15 @@ MP user:
       exit (0);
     }
 
-Now you have to compile your test program, and link it with the MP library.
+
+Now you have to compile your test program, and link it with the GMP library.
 Assuming your working directory is still the gmp source directory, and your
 source file is called example.c, enter:
 
-	gcc -g -I. example.c .libs/libgmp.a -lm
+	gcc -g -I. example.c .libs/libgmp.a
 
-The -lm is normally not needed, since only a few functions in MP use the math
-library.  After installing, the command becomes: gcc -g example.c -lgmp -lm
-MP is libtool based, and you can use that to link if you want.
+After installing, the command becomes: "gcc -g example.c -lgmp".  Also, GMP is
+libtool based so you can use that to link if you want.
 
 Now try to run the example:
 
@@ -107,22 +118,23 @@ starting with "mpz_".  There are many more such functions than used in these
 examples.  See the chapter "Integer Functions" in the manual, for a complete
 list.
 
-There are two other main classes of functions in MP.  They operate on rational
-numbers and floating-point numbers, respectively.  The chapters "Rational
-Number Functions", and "Floating-point Functions" document these classes.
+There are two other main classes of functions in GMP.  They operate on
+rational numbers and floating-point numbers, respectively.  The chapters
+"Rational Number Functions", and "Floating-point Functions" document these
+classes.
 
 To run a set of tests, do "make check".  This will take a while.
 
 To create the printable documentation from the texinfo source, type "make
 gmp.dvi" or "make gmp.ps".  This requires various "tex" commands.
 
-To install the library, do "make install" (you can then use -lgmp instead of
+To install the library, do "make install" (then you can use -lgmp instead of
 .libs/libgmp.a).
 
-If you decide to use MP, It is a good idea you read at least the chapter "MP
+If you decide to use GMP, it is a good idea you at least read the chapter "GMP
 Basics" in the manual.
 
-Some known build problems are noted in the "Installing MP" chapter of
+Some known build problems are noted in the "Installing GMP" chapter of
 the manual.  Please report other problems to bug-gmp@gnu.org.
 
 

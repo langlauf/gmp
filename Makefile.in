@@ -70,6 +70,7 @@ AMTAR = @AMTAR@
 AR = @AR@
 AS = @AS@
 AWK = @AWK@
+CALLING_CONVENTIONS_OBJS = @CALLING_CONVENTIONS_OBJS@
 CC = @CC@
 CCAS = @CCAS@
 CPP = @CPP@
@@ -83,12 +84,13 @@ LN_S = @LN_S@
 M4 = @M4@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
-NM = @NM@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
+SPEED_CYCLECOUNTER_OBJS = @SPEED_CYCLECOUNTER_OBJS@
 STRIP = @STRIP@
+U = @U@
 VERSION = @VERSION@
 gmp_srclinks = @gmp_srclinks@
 install_sh = @install_sh@
@@ -101,16 +103,16 @@ mpn_objs_in_libgmp = @mpn_objs_in_libgmp@
 # This file is part of the GNU MP Library.
 #
 # The GNU MP Library is free software; you can redistribute it and/or modify
-# it under the terms of the GNU Library General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or (at your
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or (at your
 # option) any later version.
 #
 # The GNU MP Library is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 # License for more details.
 #
-# You should have received a copy of the GNU Library General Public License
+# You should have received a copy of the GNU Lesser General Public License
 # along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 # MA 02111-1307, USA.
@@ -137,20 +139,22 @@ mpn_objs_in_libgmp = @mpn_objs_in_libgmp@
 
 # Libtool -version-info for libgmp.la and libmp.la.  See (libtool)Versioning
 #
-# No interfaces changed, only implementations (good): Increment REVISION.
+# 1. No interfaces changed, only implementations (good): Increment REVISION.
 #
-# Interfaces added, none removed (good): Increment CURRENT, increment AGE,
-# set REVISION to 0.
+# 2. Interfaces added, none removed (good): Increment CURRENT, increment
+#    AGE, set REVISION to 0.
 #
-# Interfaces removed (BAD!, breaks upward compatibility): Increment CURRENT,
-# set AGE and REVISION to 0.
+# 3. Interfaces removed (BAD, breaks upward compatibility): Increment
+#    CURRENT, set AGE and REVISION to 0.
 #
 # Do this separately for libgmp and libmp, only do it just before a release.
 #
-#	 GMP	    -version-info
-#	release  libgmp      libmp
-#	2.0.x      -           -
-#	3.0      3:0:0       3:0:0
+#	  GMP	   -version-info
+#	release   libgmp  libmp
+#	 2.0.x      -       -
+#	 3.0      3:0:0   3:0:0
+#        3.0.1    3:1:0   3:0:0
+#        3.1      4:0:1   4:0:1
 #
 #
 # Starting at 3:0:0 is a slight abuse of the versioning system, but it
@@ -159,25 +163,24 @@ mpn_objs_in_libgmp = @mpn_objs_in_libgmp@
 # interface changes for gmp 3 mean 3:0:0 is right.
 
 
-LIBGMP_LT_CURRENT = 3
-LIBGMP_LT_REVISION = 1
-LIBGMP_LT_AGE = 0
+LIBGMP_LT_CURRENT = 4
+LIBGMP_LT_REVISION = 0
+LIBGMP_LT_AGE = 1
 
-LIBMP_LT_CURRENT = 3
+LIBMP_LT_CURRENT = 4
 LIBMP_LT_REVISION = 0
-LIBMP_LT_AGE = 0
+LIBMP_LT_AGE = 1
 
-AUTOMAKE_OPTIONS = gnu check-news no-dependencies
+AUTOMAKE_OPTIONS = gnu check-news no-dependencies ansi2knr
 
-SUBDIRS = mpf mpz mpn mpq tests demos mpbsd
+SUBDIRS = mpn mpz mpq mpf mpbsd mpfr tests demos tune
 
-include_HEADERS = gmp.h $(MPBSD_HEADERS_OPTION)
+include_HEADERS = gmp.h $(MPBSD_HEADERS_OPTION) $(MPFR_HEADERS_OPTION)
 EXTRA_HEADERS = mp.h
 
 lib_LTLIBRARIES = libgmp.la $(MPBSD_LTLIBRARIES_OPTION)
 
-EXTRA_DIST = .gdbinit gmp-impl.h longlong.h stack-alloc.h urandom.h projects \
-  macos
+EXTRA_DIST = .gdbinit gmp-impl.h longlong.h stack-alloc.h urandom.h doc macos
 
 DISTCLEANFILES = asm-syntax.h config.m4 @gmp_srclinks@
 
@@ -191,7 +194,7 @@ MPF_OBJECTS = mpf/init.lo mpf/init2.lo mpf/set.lo mpf/set_ui.lo mpf/set_si.lo \
   mpf/div_2exp.lo mpf/abs.lo mpf/neg.lo mpf/set_q.lo mpf/get_d.lo \
   mpf/set_dfl_prec.lo mpf/set_prc.lo mpf/set_prc_raw.lo mpf/get_prc.lo \
   mpf/ui_div.lo mpf/sqrt_ui.lo mpf/floor.lo mpf/ceil.lo mpf/trunc.lo \
-  mpf/pow_ui.lo mpf/urandomb.lo
+  mpf/pow_ui.lo mpf/urandomb.lo mpf/swap.lo
 
 MPZ_OBJECTS = mpz/abs.lo mpz/add.lo mpz/add_ui.lo mpz/addmul_ui.lo mpz/and.lo \
   mpz/array_init.lo mpz/bin_ui.lo mpz/bin_uiui.lo mpz/cdiv_q.lo \
@@ -206,8 +209,10 @@ MPZ_OBJECTS = mpz/abs.lo mpz/add.lo mpz/add_ui.lo mpz/addmul_ui.lo mpz/and.lo \
   mpz/gcd_ui.lo mpz/gcdext.lo mpz/get_d.lo mpz/get_si.lo mpz/get_str.lo \
   mpz/get_ui.lo mpz/getlimbn.lo mpz/hamdist.lo mpz/init.lo mpz/inp_raw.lo \
   mpz/inp_str.lo mpz/invert.lo mpz/ior.lo mpz/iset.lo mpz/iset_d.lo \
-  mpz/iset_si.lo mpz/iset_str.lo mpz/iset_ui.lo mpz/jacobi.lo mpz/lcm.lo \
-  mpz/legendre.lo mpz/mod.lo mpz/mul.lo mpz/mul_2exp.lo mpz/mul_ui.lo \
+  mpz/iset_si.lo mpz/iset_str.lo mpz/iset_ui.lo mpz/jacobi.lo \
+  mpz/kronsz.lo mpz/kronuz.lo mpz/kronzs.lo mpz/kronzu.lo \
+  mpz/lcm.lo mpz/legendre.lo \
+  mpz/mod.lo mpz/mul.lo mpz/mul_2exp.lo mpz/mul_si.lo mpz/mul_ui.lo \
   mpz/neg.lo mpz/nextprime.lo mpz/out_raw.lo mpz/out_str.lo mpz/perfpow.lo mpz/perfsqr.lo \
   mpz/popcount.lo mpz/pow_ui.lo mpz/powm.lo mpz/powm_ui.lo mpz/pprime_p.lo \
   mpz/random.lo mpz/random2.lo mpz/realloc.lo mpz/remove.lo mpz/root.lo \
@@ -222,9 +227,10 @@ MPZ_OBJECTS = mpz/abs.lo mpz/add.lo mpz/add_ui.lo mpz/addmul_ui.lo mpz/and.lo \
 
 MPQ_OBJECTS = mpq/add.lo mpq/canonicalize.lo mpq/clear.lo mpq/cmp.lo \
   mpq/cmp_ui.lo mpq/div.lo mpq/get_d.lo mpq/get_den.lo mpq/get_num.lo \
-  mpq/init.lo mpq/inv.lo mpq/mul.lo mpq/neg.lo mpq/set.lo mpq/set_den.lo \
+  mpq/init.lo mpq/inv.lo mpq/mul.lo mpq/neg.lo mpq/out_str.lo \
+  mpq/set.lo mpq/set_den.lo \
   mpq/set_num.lo mpq/set_si.lo mpq/set_ui.lo mpq/sub.lo mpq/equal.lo \
-  mpq/set_z.lo mpq/set_d.lo
+  mpq/set_z.lo mpq/set_d.lo mpq/swap.lo
 
 MPN_OBJECTS = @mpn_objs_in_libgmp@
 
@@ -234,31 +240,49 @@ MPBSD_OBJECTS = mpbsd/add.lo mpbsd/tdiv_qr.lo mpbsd/move.lo mpbsd/powm.lo \
   mpbsd/pow_ui.lo mpbsd/sdiv.lo mpbsd/sqrtrem.lo mpbsd/xtom.lo 
 
 
-# libgmp needs -lm for floor() and sqrt() used by mpn/generic/sqrtrem.c.
-# Some compilers (eg. gcc on i386) might in-line these, making -lm
-# unnecessary, but we don't try to detect that.
-#
-libgmp_la_SOURCES = assert.c errno.c memory.c mp_set_fns.c mp_clz_tab.c \
-  rand.c randclr.c randlc.c randlc2x.c randraw.c randsd.c randsdui.c \
-  version.c stack-alloc.c mp_bpl.c extract-dbl.c insert-dbl.c
+# FIXME: Add mpfr/rnd_mode.lo when it's clean.
+MPFR_OBJECTS = mpfr/add.lo mpfr/div_2exp.lo mpfr/neg.lo mpfr/set_dfl_prec.lo \
+  mpfr/set_str_raw.lo mpfr/agm.lo mpfr/get_str.lo mpfr/print_raw.lo \
+  mpfr/set_dfl_rnd.lo mpfr/sqrt.lo mpfr/clear.lo mpfr/init.lo \
+  mpfr/set_f.lo mpfr/sub.lo mpfr/cmp.lo mpfr/mul.lo mpfr/round.lo \
+  mpfr/set_prec.lo mpfr/cmp_ui.lo mpfr/mul_2exp.lo mpfr/set.lo mpfr/set_si.lo \
+  mpfr/div.lo mpfr/mul_ui.lo mpfr/set_d.lo mpfr/pow.lo mpfr/out_str.lo \
+  mpfr/pi.lo mpfr/set_z.lo mpfr/add_ulp.lo mpfr/log2.lo mpfr/random.lo \
+  mpfr/log.lo mpfr/exp.lo mpfr/div_ui.lo mpfr/zeta.lo mpfr/karadiv.lo \
+  mpfr/karasqrt.lo mpfr/print_rnd_mode.lo
+
+
+@WANT_MPFR_TRUE@MPFR_HEADERS_OPTION = @WANT_MPFR_TRUE@mpfr/mpfr.h
+@WANT_MPFR_TRUE@MPFR_OBJECTS_OPTION = @WANT_MPFR_TRUE@$(MPFR_OBJECTS)
+@WANT_MPFR_TRUE@MPFR_LIBADD_OPTION = @WANT_MPFR_TRUE@-lm
+libgmp_la_SOURCES = assert.c compat.c errno.c memory.c mp_set_fns.c	 \
+  mp_clz_tab.c mp_minv_tab.c						 \
+  rand.c randclr.c randlc.c randlc2x.c randraw.c randsd.c		 \
+  randsdui.c version.c stack-alloc.c mp_bpl.c extract-dbl.c insert-dbl.c
 
 libgmp_la_DEPENDENCIES = \
-  $(MPF_OBJECTS) $(MPZ_OBJECTS) $(MPN_OBJECTS) $(MPQ_OBJECTS)
+  $(MPF_OBJECTS) $(MPZ_OBJECTS) $(MPN_OBJECTS) $(MPQ_OBJECTS) \
+  $(MPFR_OBJECTS_OPTION)
 
-libgmp_la_LIBADD = $(libgmp_la_DEPENDENCIES) -lm
-libgmp_la_LDFLAGS = -version-info $(LIBGMP_LT_CURRENT):$(LIBGMP_LT_REVISION):$(LIBGMP_LT_AGE)
+libgmp_la_LIBADD = $(libgmp_la_DEPENDENCIES) $(MPFR_LIBADD_OPTION)
+libgmp_la_LDFLAGS = \
+  -version-info $(LIBGMP_LT_CURRENT):$(LIBGMP_LT_REVISION):$(LIBGMP_LT_AGE)
 
-# -lm wanted on libmp_la_LIBADD for the same reason as libgmp
+
 @WANT_MPBSD_TRUE@MPBSD_HEADERS_OPTION = @WANT_MPBSD_TRUE@mp.h
 @WANT_MPBSD_TRUE@MPBSD_LTLIBRARIES_OPTION = @WANT_MPBSD_TRUE@libmp.la
-libmp_la_DEPENDENCIES = $(MPBSD_OBJECTS) $(MPN_OBJECTS)			    \
-  assert.lo errno.lo memory.lo mp_bpl.lo mp_clz_tab.lo stack-alloc.lo	    \
-  mpz/add.lo mpz/clear.lo mpz/init.lo mpz/mod.lo mpz/mul.lo mpz/mul_2exp.lo \
-  mpz/realloc.lo mpz/set.lo mpz/set_ui.lo mpz/tdiv_r.lo mpz/sub.lo
+libmp_la_SOURCES = assert.c errno.c memory.c mp_bpl.c mp_clz_tab.c	\
+  mp_minv_tab.c mp_set_fns.c stack-alloc.c
 
-libmp_la_LIBADD = $(libmp_la_DEPENDENCIES) -lm
-libmp_la_SOURCES = 
-libmp_la_LDFLAGS = -version-info $(LIBMP_LT_CURRENT):$(LIBMP_LT_REVISION):$(LIBMP_LT_AGE)
+libmp_la_DEPENDENCIES = $(MPBSD_OBJECTS) $(MPN_OBJECTS)			\
+  mpz/add.lo mpz/clear.lo mpz/cmp.lo mpz/init.lo mpz/mod.lo mpz/mul.lo	\
+  mpz/mul_2exp.lo mpz/realloc.lo mpz/set.lo mpz/set_ui.lo mpz/tdiv_r.lo	\
+  mpz/sub.lo
+
+libmp_la_LIBADD = $(libmp_la_DEPENDENCIES)
+libmp_la_LDFLAGS = \
+  -version-info $(LIBMP_LT_CURRENT):$(LIBMP_LT_REVISION):$(LIBMP_LT_AGE)
+
 
 info_TEXINFOS = gmp.texi
 subdir = .
@@ -273,11 +297,15 @@ DEFS = @DEFS@ -I. -I$(srcdir) -I.
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
-am_libgmp_la_OBJECTS =  assert.lo errno.lo memory.lo mp_set_fns.lo \
-mp_clz_tab.lo rand.lo randclr.lo randlc.lo randlc2x.lo randraw.lo \
-randsd.lo randsdui.lo version.lo stack-alloc.lo mp_bpl.lo \
-extract-dbl.lo insert-dbl.lo
+ANSI2KNR = @ANSI2KNR@
+am_libgmp_la_OBJECTS =  assert$U.lo compat$U.lo errno$U.lo memory$U.lo \
+mp_set_fns$U.lo mp_clz_tab$U.lo mp_minv_tab$U.lo rand$U.lo randclr$U.lo \
+randlc$U.lo randlc2x$U.lo randraw$U.lo randsd$U.lo randsdui$U.lo \
+version$U.lo stack-alloc$U.lo mp_bpl$U.lo extract-dbl$U.lo \
+insert-dbl$U.lo
 libgmp_la_OBJECTS =  $(am_libgmp_la_OBJECTS)
+am_libmp_la_OBJECTS =  assert$U.lo errno$U.lo memory$U.lo mp_bpl$U.lo \
+mp_clz_tab$U.lo mp_minv_tab$U.lo mp_set_fns$U.lo stack-alloc$U.lo
 libmp_la_OBJECTS =  $(am_libmp_la_OBJECTS)
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -293,9 +321,10 @@ HEADERS =  $(include_HEADERS)
 
 DIST_COMMON =  README $(EXTRA_HEADERS) $(include_HEADERS) ./stamp-h.in \
 AUTHORS COPYING COPYING.LIB ChangeLog INSTALL Makefile.am Makefile.in \
-NEWS acconfig.h acinclude.m4 aclocal.m4 config.guess config.in \
-config.sub configure configure.in depcomp install-sh ltconfig ltmain.sh \
-mdate-sh missing mkinstalldirs stamp-vti texinfo.tex version.texi
+NEWS acconfig.h acinclude.m4 aclocal.m4 ansi2knr.1 ansi2knr.c \
+config.guess config.in config.sub configure configure.in depcomp \
+install-sh ltconfig ltmain.sh mdate-sh missing mkinstalldirs stamp-vti \
+texinfo.tex version.texi
 
 
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -402,6 +431,28 @@ distclean-libtool:
 
 maintainer-clean-libtool:
 
+mostlyclean-krextra:
+
+clean-krextra:
+	-rm -f ansi2knr
+
+distclean-krextra:
+
+maintainer-clean-krextra:
+ansi2knr: ansi2knr.$(OBJEXT)
+	$(LINK) ansi2knr.$(OBJEXT) $(LIBS)
+ansi2knr.$(OBJEXT): $(CONFIG_HEADER)
+
+
+mostlyclean-kr:
+	-rm -f *_.c
+
+clean-kr:
+
+distclean-kr:
+
+maintainer-clean-kr:
+
 libgmp.la: $(libgmp_la_OBJECTS) $(libgmp_la_DEPENDENCIES)
 	$(LINK) -rpath $(libdir) $(libgmp_la_LDFLAGS) $(libgmp_la_OBJECTS) $(libgmp_la_LIBADD) $(LIBS)
 
@@ -413,6 +464,54 @@ libmp.la: $(libmp_la_OBJECTS) $(libmp_la_DEPENDENCIES)
 	$(COMPILE) -c `cygpath -w $<`
 .c.lo:
 	$(LTCOMPILE) -c -o $@ $<
+assert_.c: assert.c $(ANSI2KNR)
+	$(CPP) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/assert.c; then echo $(srcdir)/assert.c; else echo assert.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > assert_.c
+compat_.c: compat.c $(ANSI2KNR)
+	$(CPP) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/compat.c; then echo $(srcdir)/compat.c; else echo compat.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > compat_.c
+errno_.c: errno.c $(ANSI2KNR)
+	$(CPP) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/errno.c; then echo $(srcdir)/errno.c; else echo errno.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > errno_.c
+extract-dbl_.c: extract-dbl.c $(ANSI2KNR)
+	$(CPP) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/extract-dbl.c; then echo $(srcdir)/extract-dbl.c; else echo extract-dbl.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > extract-dbl_.c
+insert-dbl_.c: insert-dbl.c $(ANSI2KNR)
+	$(CPP) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/insert-dbl.c; then echo $(srcdir)/insert-dbl.c; else echo insert-dbl.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > insert-dbl_.c
+memory_.c: memory.c $(ANSI2KNR)
+	$(CPP) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/memory.c; then echo $(srcdir)/memory.c; else echo memory.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > memory_.c
+mp_bpl_.c: mp_bpl.c $(ANSI2KNR)
+	$(CPP) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/mp_bpl.c; then echo $(srcdir)/mp_bpl.c; else echo mp_bpl.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > mp_bpl_.c
+mp_clz_tab_.c: mp_clz_tab.c $(ANSI2KNR)
+	$(CPP) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/mp_clz_tab.c; then echo $(srcdir)/mp_clz_tab.c; else echo mp_clz_tab.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > mp_clz_tab_.c
+mp_minv_tab_.c: mp_minv_tab.c $(ANSI2KNR)
+	$(CPP) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/mp_minv_tab.c; then echo $(srcdir)/mp_minv_tab.c; else echo mp_minv_tab.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > mp_minv_tab_.c
+mp_set_fns_.c: mp_set_fns.c $(ANSI2KNR)
+	$(CPP) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/mp_set_fns.c; then echo $(srcdir)/mp_set_fns.c; else echo mp_set_fns.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > mp_set_fns_.c
+rand_.c: rand.c $(ANSI2KNR)
+	$(CPP) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/rand.c; then echo $(srcdir)/rand.c; else echo rand.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > rand_.c
+randclr_.c: randclr.c $(ANSI2KNR)
+	$(CPP) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/randclr.c; then echo $(srcdir)/randclr.c; else echo randclr.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > randclr_.c
+randlc_.c: randlc.c $(ANSI2KNR)
+	$(CPP) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/randlc.c; then echo $(srcdir)/randlc.c; else echo randlc.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > randlc_.c
+randlc2x_.c: randlc2x.c $(ANSI2KNR)
+	$(CPP) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/randlc2x.c; then echo $(srcdir)/randlc2x.c; else echo randlc2x.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > randlc2x_.c
+randraw_.c: randraw.c $(ANSI2KNR)
+	$(CPP) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/randraw.c; then echo $(srcdir)/randraw.c; else echo randraw.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > randraw_.c
+randsd_.c: randsd.c $(ANSI2KNR)
+	$(CPP) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/randsd.c; then echo $(srcdir)/randsd.c; else echo randsd.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > randsd_.c
+randsdui_.c: randsdui.c $(ANSI2KNR)
+	$(CPP) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/randsdui.c; then echo $(srcdir)/randsdui.c; else echo randsdui.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > randsdui_.c
+stack-alloc_.c: stack-alloc.c $(ANSI2KNR)
+	$(CPP) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/stack-alloc.c; then echo $(srcdir)/stack-alloc.c; else echo stack-alloc.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > stack-alloc_.c
+version_.c: version.c $(ANSI2KNR)
+	$(CPP) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/version.c; then echo $(srcdir)/version.c; else echo version.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > version_.c
+assert_.$(OBJEXT) assert_.lo compat_.$(OBJEXT) compat_.lo \
+errno_.$(OBJEXT) errno_.lo extract-dbl_.$(OBJEXT) extract-dbl_.lo \
+insert-dbl_.$(OBJEXT) insert-dbl_.lo memory_.$(OBJEXT) memory_.lo \
+mp_bpl_.$(OBJEXT) mp_bpl_.lo mp_clz_tab_.$(OBJEXT) mp_clz_tab_.lo \
+mp_minv_tab_.$(OBJEXT) mp_minv_tab_.lo mp_set_fns_.$(OBJEXT) \
+mp_set_fns_.lo rand_.$(OBJEXT) rand_.lo randclr_.$(OBJEXT) randclr_.lo \
+randlc_.$(OBJEXT) randlc_.lo randlc2x_.$(OBJEXT) randlc2x_.lo \
+randraw_.$(OBJEXT) randraw_.lo randsd_.$(OBJEXT) randsd_.lo \
+randsdui_.$(OBJEXT) randsdui_.lo stack-alloc_.$(OBJEXT) stack-alloc_.lo \
+version_.$(OBJEXT) version_.lo : $(ANSI2KNR)
 
 $(srcdir)/version.texi: @MAINTAINER_MODE_TRUE@stamp-vti
 	@:
@@ -720,6 +819,7 @@ distdir: $(DISTFILES)
 	fi
 	-chmod -R a+w $(distdir) > /dev/null 2>&1; rm -rf $(distdir)
 	mkdir $(distdir)
+	$(mkinstalldirs) $(distdir)/mpfr
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
@@ -763,7 +863,8 @@ install: install-recursive
 uninstall-am: uninstall-libLTLIBRARIES uninstall-info \
 		uninstall-includeHEADERS
 uninstall: uninstall-recursive
-all-am: Makefile $(INFO_DEPS) $(LTLIBRARIES) $(HEADERS) config.h
+all-am: Makefile $(INFO_DEPS) $(ANSI2KNR) $(LTLIBRARIES) $(HEADERS) \
+		config.h
 all-redirect: all-recursive-am
 install-strip:
 	$(MAKE) $(AM_MAKEFLAGS) INSTALL_STRIP_FLAG=-s install
@@ -785,20 +886,22 @@ distclean-generic:
 maintainer-clean-generic:
 	-rm -f Makefile.in
 mostlyclean-am:  mostlyclean-hdr mostlyclean-libLTLIBRARIES \
-		mostlyclean-compile mostlyclean-libtool mostlyclean-vti \
+		mostlyclean-compile mostlyclean-libtool \
+		mostlyclean-krextra mostlyclean-kr mostlyclean-vti \
 		mostlyclean-aminfo mostlyclean-tags mostlyclean-generic
 
 mostlyclean: mostlyclean-recursive
 
 clean-am:  clean-hdr clean-libLTLIBRARIES clean-compile clean-libtool \
-		clean-vti clean-aminfo clean-tags clean-generic \
-		mostlyclean-am
+		clean-krextra clean-kr clean-vti clean-aminfo \
+		clean-tags clean-generic mostlyclean-am
 
 clean: clean-recursive
 
 distclean-am:  distclean-hdr distclean-libLTLIBRARIES distclean-compile \
-		distclean-libtool distclean-vti distclean-aminfo \
-		distclean-tags distclean-generic clean-am
+		distclean-libtool distclean-krextra distclean-kr \
+		distclean-vti distclean-aminfo distclean-tags \
+		distclean-generic clean-am
 	-rm -f libtool
 
 distclean: distclean-recursive
@@ -807,6 +910,7 @@ distclean: distclean-recursive
 maintainer-clean-am:  maintainer-clean-hdr \
 		maintainer-clean-libLTLIBRARIES \
 		maintainer-clean-compile maintainer-clean-libtool \
+		maintainer-clean-krextra maintainer-clean-kr \
 		maintainer-clean-vti maintainer-clean-aminfo \
 		maintainer-clean-tags maintainer-clean-generic \
 		distclean-am
@@ -822,7 +926,9 @@ clean-libLTLIBRARIES maintainer-clean-libLTLIBRARIES \
 uninstall-libLTLIBRARIES install-libLTLIBRARIES mostlyclean-compile \
 distclean-compile clean-compile maintainer-clean-compile \
 mostlyclean-libtool distclean-libtool clean-libtool \
-maintainer-clean-libtool mostlyclean-vti distclean-vti clean-vti \
+maintainer-clean-libtool mostlyclean-krextra distclean-krextra \
+clean-krextra maintainer-clean-krextra mostlyclean-kr distclean-kr \
+clean-kr maintainer-clean-kr mostlyclean-vti distclean-vti clean-vti \
 maintainer-clean-vti install-info-am uninstall-info mostlyclean-aminfo \
 distclean-aminfo clean-aminfo maintainer-clean-aminfo \
 uninstall-includeHEADERS install-includeHEADERS install-recursive \
@@ -841,7 +947,7 @@ clean-generic maintainer-clean-generic clean mostlyclean distclean \
 maintainer-clean
 
 
-# Don't ship CVS directories.
+# Don't ship CVS directories or emacs backups.
 dist-hook:
 	-find $(distdir) \( -name CVS -type d \) -o -name "*.~*" \
 		| xargs rm -rf

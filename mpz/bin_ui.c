@@ -5,16 +5,16 @@ Copyright (C) 1998, 1999, 2000 Free Software Foundation, Inc.
 This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
-it under the terms of the GNU Library General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at your
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
-You should have received a copy of the GNU Library General Public License
+You should have received a copy of the GNU Lesser General Public License
 along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA. */
@@ -23,19 +23,21 @@ MA 02111-1307, USA. */
 #include "gmp-impl.h"
 #include "longlong.h"
 
-/*
-tege> Vilken är definitionen för negativa n?
-teke> Den rekursiva definitionen funkar där också dvs
-teke> 
-teke>   k < 0   => bin(n,k) = 0
-teke> 
-teke>   k == 0  => bin(n,k) = 1
-teke> 
-teke>   1       => bin(n,k) = bin(n-1,k-1)*n/k
-(teke=Torsten Ekedahl)
-*/
 
-/* This is a poor implementation.  Look at bin_uiui.c for improvement ideas.  */
+/* This is a poor implementation.  Look at bin_uiui.c for improvement ideas.
+   In fact consider calling mpz_bin_uiui() when the arguments fit, leaving
+   the code here only for big n.
+
+   The identity bin(n,k) = (-1)^k * bin(-n+k-1,k) can be found in Knuth vol
+   1 section 1.2.6 part G. */
+
+
+/* Enhancement: use mpn_divexact_1 when it exists */
+#define DIVIDE()                                        \
+  ASSERT (SIZ(r) > 0);                                  \
+  ASSERT_NOCARRY (mpn_divrem_1 (PTR(r), (mp_size_t) 0,  \
+                                PTR(r), SIZ(r), kacc)); \
+  SIZ(r) -= (PTR(r)[SIZ(r)-1] == 0);
 
 void
 #if __STDC__
@@ -47,22 +49,50 @@ mpz_bin_ui (r, n, k)
      unsigned long int k;
 #endif
 {
-  mpz_t ni;
-  unsigned long int i;
-  unsigned long int kacc;
-  mpz_t nacc;
-
-  mpz_init (ni);
-  mpz_sub_ui (ni, n, k);
-
-  /* Rewrite bin(n,k) as bin(n,n-k) if that is simpler to compute.  */
-  if (mpz_cmp_ui (ni, k) < 0)
+  mpz_t      ni;
+  mp_limb_t  i;
+  mpz_t      nacc;
+  mp_limb_t  kacc;
+  mp_size_t  negate;
+  
+  if (mpz_sgn (n) < 0)
     {
-      k = mpz_get_ui (ni);
+      /* bin(n,k) = (-1)^k * bin(-n+k-1,k), and set ni = -n+k-1 - k = -n-1 */
+      mpz_init (ni);
+      mpz_neg (ni, n);
+      mpz_sub_ui (ni, ni, 1L);
+      negate = (k & 1);   /* (-1)^k */
+    }
+  else
+    {
+      /* bin(n,k) == 0 if k>n
+         (no test for this under the n<0 case, since -n+k-1 >= k there) */
+      if (mpz_cmp_ui (n, k) < 0)
+        {
+          mpz_set_ui (r, 0L);
+          return;
+        }
+
+      /* set ni = n-k */
+      mpz_init (ni);
       mpz_sub_ui (ni, n, k);
+      negate = 0;
     }
 
-  mpz_set_ui (r, 1);
+  /* Now wanting bin(ni+k,k), with ni positive, and "negate" is the sign (0
+     for positive, 1 for negative). */
+  mpz_set_ui (r, 1L);
+
+  /* Rewrite bin(n,k) as bin(n,n-k) if that is smaller.  In this case it's
+     whether ni+k-k < k meaning ni<k, and if so change to denominator ni+k-k
+     = ni, and new ni of ni+k-ni = k.  */
+  if (mpz_cmp_ui (ni, k) < 0)
+    {
+      unsigned long  tmp;
+      tmp = k;
+      k = mpz_get_ui (ni);
+      mpz_set_ui (ni, tmp);
+    }
 
   kacc = 1;
   mpz_init_set_ui (nacc, 1);
@@ -92,7 +122,7 @@ mpz_bin_ui (r, n, k)
 	  /* Accumulator overflow.  Perform bignum step.  */
 	  mpz_mul (r, r, nacc);
 	  mpz_set_ui (nacc, 1);
-	  mpz_tdiv_q_ui (r, r, kacc);
+          DIVIDE ();
 	  kacc = i;
 	}
       else
@@ -103,8 +133,8 @@ mpz_bin_ui (r, n, k)
     }
 
   mpz_mul (r, r, nacc);
-  mpz_set_ui (nacc, 1);
-  mpz_tdiv_q_ui (r, r, kacc);
+  DIVIDE ();
+  SIZ(r) = (SIZ(r) ^ -negate) + negate;
 
   mpz_clear (nacc);
   mpz_clear (ni);

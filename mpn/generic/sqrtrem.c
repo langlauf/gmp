@@ -12,22 +12,22 @@
    the function is 0 if OP is a perfect square, and *any* non-zero number
    otherwise.
 
-Copyright (C) 1993, 1994, 1996, 1997, 1998, 1999 Free Software Foundation,
-Inc.
+Copyright (C) 1993, 1994, 1996, 1997, 1998, 1999, 2000 Free Software
+Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
-it under the terms of the GNU Library General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at your
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
-You should have received a copy of the GNU Library General Public License
+You should have received a copy of the GNU Lesser General Public License
 along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA. */
@@ -36,6 +36,7 @@ MA 02111-1307, USA. */
    doesn't help to use CHAR_BIT from limits.h, as the real problem is
    the static arrays.  */
 
+#include <stdio.h> /* for NULL */
 #include "gmp.h"
 #include "gmp-impl.h"
 #include "longlong.h"
@@ -353,7 +354,7 @@ mpn_sqrtrem (root_ptr, rem_ptr, op_ptr, op_size)
   rp[0] = initial_approx;
   rsize = 1;
 
-#ifdef DEBUG
+#ifdef SQRT_DEBUG
 	  printf ("\n\nT = ");
 	  mpn_dump (tp, tsize);
 #endif
@@ -402,7 +403,7 @@ mpn_sqrtrem (root_ptr, rem_ptr, op_ptr, op_size)
       while (--i >= 0)
 	{
 	  mp_limb_t cy;
-#ifdef DEBUG
+#ifdef SQRT_DEBUG
 	  mp_limb_t old_least_sign_r = rp[0];
 	  mp_size_t old_rsize = rsize;
 
@@ -418,7 +419,7 @@ mpn_sqrtrem (root_ptr, rem_ptr, op_ptr, op_size)
 	  cy = mpn_divmod (xp, ttp, tsize, rp, rsize);
 	  xsize = tsize - rsize;
 
-#ifdef DEBUG
+#ifdef SQRT_DEBUG
 	  printf ("X =%d ", cy);
 	  mpn_dump (xp, xsize);
 #endif
@@ -445,7 +446,7 @@ mpn_sqrtrem (root_ptr, rem_ptr, op_ptr, op_size)
 	  mpn_rshift (rp, xp, xsize, 1);
 	  rp[xsize - 1] |= ((mp_limb_t) 1 << (BITS_PER_MP_LIMB - 1));
 	  rsize = xsize;
-#ifdef DEBUG
+#ifdef SQRT_DEBUG
 	  if (old_least_sign_r != rp[rsize - old_rsize])
 	    printf (">>>>>>>> %d: %0*lX, %0*lX <<<<<<<<\n",
 		    i, 2 * BYTES_PER_MP_LIMB, old_least_sign_r,
@@ -454,7 +455,7 @@ mpn_sqrtrem (root_ptr, rem_ptr, op_ptr, op_size)
 	}
     }
 
-#ifdef DEBUG
+#ifdef SQRT_DEBUG
   printf ("(final) R = ");
   mpn_dump (rp, rsize);
 #endif
@@ -485,7 +486,7 @@ mpn_sqrtrem (root_ptr, rem_ptr, op_ptr, op_size)
 
       mpn_decr_u (rp, (mp_limb_t) 1);
 
-#ifdef DEBUG
+#ifdef SQRT_DEBUG
       printf ("(adjusted) R = ");
       mpn_dump (rp, rsize);
 #endif

@@ -4,16 +4,16 @@ Copyright (C) 1999, 2000 Free Software Foundation, Inc.
 This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
-it under the terms of the GNU Library General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at your
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
-You should have received a copy of the GNU Library General Public License
+You should have received a copy of the GNU Lesser General Public License
 along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA.
@@ -54,7 +54,7 @@ cputime ()
 #if defined (__m88k__)
 #define CLOCK 20 M
 #elif defined (__i386__)
-#define CLOCK (16.666667 M)
+#define CLOCK (16666667)
 #elif defined (__m68k__)
 #define CLOCK (20 M)
 #elif defined (_IBMR2)
@@ -90,9 +90,9 @@ cputime ()
 
 void
 #if __STDC__
-refmpn_copy (mp_ptr rptr, mp_srcptr sptr, mp_size_t n)
+refmpn_copyi (mp_ptr rptr, mp_srcptr sptr, mp_size_t n)
 #else
-refmpn_copy (rptr, sptr, n)
+refmpn_copyi (rptr, sptr, n)
      register mp_ptr rptr;
      register mp_srcptr sptr;
      mp_size_t n;
@@ -143,17 +143,17 @@ main (argc, argv)
 #ifndef NOCHECK
       t0 = cputime();
       for (i = 0; i < TIMES; i++)
-	refmpn_copy (dx+1, s1, size);
+	refmpn_copyi (dx+1, s1, size);
       t = cputime() - t0;
-      printf ("refmpn_copy:   %ldms (%.2f cycles/limb)\n",
+      printf ("refmpn_copyi:   %ldms (%.2f cycles/limb)\n",
 	      t, ((double) t * CLOCK) / (OPS * 1000.0));
 #endif
 
       t0 = cputime();
       for (i = 0; i < TIMES; i++)
-	__gmpn_copy (dx+1, s1, size);
+	MPN_COPY_INCR (dx+1, s1, size);
       t = cputime() - t0;
-      printf ("mpn_copy:   %ldms (%.2f cycles/limb)\n",
+      printf ("MPN_COPY_INCR:   %ldms (%.2f cycles/limb)\n",
 	      t, ((double) t * CLOCK) / (OPS * 1000.0));
 #endif
 
@@ -171,8 +171,8 @@ main (argc, argv)
 	  dy[i+1] = 0xbeef;
 	}
 
-      refmpn_copy (dx+1, s1, size);
-      __gmpn_copy (dy+1, s1, size);
+      refmpn_copyi (dx+1, s1, size);
+      MPN_COPY_INCR (dy+1, s1, size);
 #ifdef PRINT
       mpn_print (dx+1, size);
       mpn_print (dy+1, size);

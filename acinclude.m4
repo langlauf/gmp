@@ -1,4 +1,4 @@
-dnl  autoconf macros specific to gmp
+dnl  GMP specific autoconf macros
 
 
 dnl  Copyright (C) 2000 Free Software Foundation, Inc.
@@ -6,16 +6,16 @@ dnl
 dnl  This file is part of the GNU MP Library.
 dnl
 dnl  The GNU MP Library is free software; you can redistribute it and/or modify
-dnl  it under the terms of the GNU Library General Public License as published
-dnl  by the Free Software Foundation; either version 2 of the License, or (at
+dnl  it under the terms of the GNU Lesser General Public License as published
+dnl  by the Free Software Foundation; either version 2.1 of the License, or (at
 dnl  your option) any later version.
 dnl
 dnl  The GNU MP Library is distributed in the hope that it will be useful, but
 dnl  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-dnl  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+dnl  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 dnl  License for more details.
 dnl
-dnl  You should have received a copy of the GNU Library General Public License
+dnl  You should have received a copy of the GNU Lesser General Public License
 dnl  along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 dnl  the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 dnl  MA 02111-1307, USA.
@@ -34,6 +34,7 @@ esyscmd([grep "^#define $1 " $2 /dev/null 2>/dev/null]),
 [[
  	]*$],[])])
 
+
 dnl  GMP_VERSION
 dnl  -----------
 dnl  The gmp version number, extracted from the #defines in gmp.h.
@@ -45,6 +46,69 @@ define(GMP_VERSION,
 .GMP_HEADER_GETVAL(__GNU_MP_VERSION_MINOR,gmp.h)[]dnl
 ifelse(m4_eval(GMP_HEADER_GETVAL(__GNU_MP_VERSION_PATCHLEVEL,gmp.h) > 0),1,
 [.GMP_HEADER_GETVAL(__GNU_MP_VERSION_PATCHLEVEL,gmp.h)])])
+
+
+dnl  GMP_PROG_M4()
+dnl  -------------
+dnl
+dnl  Find a working m4, either in $PATH or likely locations, and setup $M4
+dnl  and an AC_SUBST accordingly.  If $M4 is already set then it's a user
+dnl  choice and is accepted with no checks.  GMP_PROG_M4 is like
+dnl  AC_PATH_PROG or AC_CHECK_PROG, but it tests each m4 found to see if
+dnl  it's good enough.
+dnl 
+dnl  See mpn/asm-defs.m4 for details on the known bad m4s.
+
+AC_DEFUN(GMP_PROG_M4,
+[AC_CACHE_CHECK([for suitable m4],
+                gmp_cv_prog_m4,
+[if test -n "$M4"; then
+  gmp_cv_prog_m4="$M4"
+else
+  cat >conftest.m4 <<\EOF
+dnl  must protect this against being expanded during autoconf m4!
+[define(dollarhash,``$][#'')dnl
+ifelse(dollarhash(x),1,`define(t1,Y)',
+``bad: $][# not supported (SunOS /usr/bin/m4)
+'')dnl
+ifelse(eval(89),89,`define(t2,Y)',
+`bad: eval() doesnt support 8 or 9 in a constant (OpenBSD 2.6 m4)
+')dnl
+ifelse(t1`'t2,YY,`good
+')dnl]
+EOF
+  echo "trying m4" 1>&AC_FD_CC
+  gmp_tmp_val="`(m4 conftest.m4) 2>&AC_FD_CC`"
+  echo "$gmp_tmp_val" 1>&AC_FD_CC
+  if test "$gmp_tmp_val" = good; then
+    gmp_cv_prog_m4="m4"
+  else
+    IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS=":"
+dnl $ac_dummy forces splitting on constant user-supplied paths.
+dnl POSIX.2 word splitting is done only on the output of word expansions,
+dnl not every word.  This closes a longstanding sh security hole.
+    ac_dummy="$PATH:/usr/5bin"
+    for ac_dir in $ac_dummy; do
+      test -z "$ac_dir" && ac_dir=.
+      echo "trying $ac_dir/m4" 1>&AC_FD_CC
+      gmp_tmp_val="`($ac_dir/m4 conftest.m4) 2>&AC_FD_CC`"
+      echo "$gmp_tmp_val" 1>&AC_FD_CC
+      if test "$gmp_tmp_val" = good; then
+        gmp_cv_prog_m4="$ac_dir/m4"
+        break
+      fi
+    done
+    IFS="$ac_save_ifs"
+    if test -z "$gmp_cv_prog_m4"; then
+      AC_MSG_ERROR([No usable m4 in \$PATH or /usr/5bin (see config.log for reasons).])
+    fi
+  fi
+  rm -f conftest.m4
+fi])
+M4="$gmp_cv_prog_m4"
+AC_SUBST(M4)
+])
+
 
 dnl  GMP_PROG_CC_FIND([CC_LIST], [REQ_64BIT_CC])
 dnl  Find first working compiler in CC_LIST.
@@ -89,12 +153,21 @@ for c in $gmp_cc_list; do
     fi
     if test "$gmp_req_64bit_cc" = "yes"; then
       eval c_flags=\$gmp_cflags64_$c
-      GMP_CHECK_CC_64BIT($c, $c_flags)
-      if test "$gmp_cv_cc_64bit" = "yes"; then
-        test -z "$CC64" && CC64="$c"
-        test -z "$CFLAGS64" && CFLAGS64="$c_flags"
-	# We have CC64 so we're done.
-        break
+
+      # Verify that the compiler works in 64-bit mode as well.
+      # /usr/ucb/cc on Solaris 7 can *compile* in 64-bit mode, but not link.
+      GMP_PROG_CC_WORKS($c, $c_flags,
+		      	gmp_prog_cc_works=yes, 
+		      	gmp_prog_cc_works=no)
+
+      if test "$gmp_prog_cc_works" = "yes"; then
+        GMP_CHECK_CC_64BIT($c, $c_flags)
+        if test "$gmp_cv_cc_64bit" = "yes"; then
+          test -z "$CC64" && CC64="$c"
+          test -z "$CFLAGS64" && CFLAGS64="$c_flags"
+	  # We have CC64 so we're done.
+          break
+        fi
       fi
     else
       # We have CC32, and we don't need a 64-bit compiler so we're done.
@@ -134,12 +207,17 @@ AC_PROVIDE([AC_PROG_CC])
 
 dnl  GMP_CHECK_CC_64BIT(cc, cflags64)
 dnl  Find out if `CC' can produce 64-bit code.
+dnl  Requires NM to be set to nm for target.
 dnl  FIXME: Cache result.
 AC_DEFUN(GMP_CHECK_CC_64BIT,
 [
   gmp_tmp_CC_save="$CC"
   CC="[$1]"
   AC_MSG_CHECKING([whether the C compiler ($CC) is 64-bit capable])
+  if test -z "$NM"; then
+    echo; echo ["configure: $0: fatal: need nm"]
+    exit 1
+  fi
   gmp_tmp_CFLAGS_save="$CFLAGS"
   CFLAGS="[$2]"
 
@@ -182,13 +260,29 @@ AC_DEFUN(GMP_CHECK_CC_64BIT,
                      gmp_cv_cc_64bit=no)
       ;;
     *-*-*)
-      # FIXME: Avoid running anything on target at configure time.  Someone
-      # may want to cross compile.  Instead, compile something like
-      # [int pre; char arr[sizeof (void *)]; int post;]
-      # and look at the distance between pre and post.
-      AC_TRY_RUN([
-        int main() { return (sizeof (void *) != 8); }
-      ], gmp_cv_cc_64bit=yes, gmp_cv_cc_64bit=no, gmp_cv_cc_64bit=no)
+      # Allocate an array of size sizeof (void *) and use nm to determine its 
+      # size.  We depend on the first declared variable being put at address 0.
+      cat >conftest.c <<EOF
+[char arr[sizeof (void *)]={0};
+char post=0;]
+EOF
+      gmp_compile="$CC $CFLAGS -c conftest.c 1>&AC_FD_CC"
+      if AC_TRY_EVAL(gmp_compile); then
+        changequote(<,>)dnl
+	gmp_tmp_val=`$NM conftest.o | grep post | sed -e 's;[[][0-9][]]\(.*\);\1;' \
+          -e 's;[^1-9]*\([0-9]*\).*;\1;'`
+        changequote([, ])dnl
+        if test "$gmp_tmp_val" = "8"; then
+	  gmp_cv_cc_64bit=yes
+	else
+	  gmp_cv_cc_64bit=no
+        fi
+      else
+        echo "configure: failed program was:" >&AC_FD_CC
+        cat conftest.$ac_ext >&AC_FD_CC
+        gmp_cv_cc_64bit=no
+      fi
+      rm -f conftest*
       ;;
   esac
 
@@ -210,17 +304,35 @@ test -f $gmp_tmpconfigm4p && rm $gmp_tmpconfigm4p
 ])dnl
 
 dnl  GMP_FINISH
-dnl  Create 
+dnl  ----------
+dnl  Create config.m4 from its accumulated parts.
+dnl
+dnl  __CONFIG_M4_INCLUDED__ is used so that a second or subsequent include
+dnl  of config.m4 is harmless.
+dnl
+dnl  A separate ifdef on the angle bracket quoted part ensures the quoting
+dnl  style there is respected.  The basic defines from gmp_tmpconfigm4 are
+dnl  fully quoted but are still put under an ifdef in case any have been
+dnl  redefined by one of the m4 include files.
+dnl
+dnl  Doing a big ifdef within asm-defs.m4 and/or other macro files wouldn't
+dnl  work, since it'd interpret parentheses and quotes in dnl comments, and
+dnl  having a whole file as a macro argument would overflow the string space
+dnl  on BSD m4.
+
 AC_DEFUN(GMP_FINISH,
 [AC_REQUIRE([GMP_INIT])
 echo "creating $gmp_configm4"
 echo ["dnl $gmp_configm4.  Generated automatically by configure."] > $gmp_configm4
 if test -f $gmp_tmpconfigm4; then
   echo ["changequote(<,>)dnl"] >> $gmp_configm4
+  echo ["ifdef(<__CONFIG_M4_INCLUDED__>,,<"] >> $gmp_configm4
   cat $gmp_tmpconfigm4 >> $gmp_configm4
+  echo [">)"] >> $gmp_configm4
   echo ["changequote(\`,')dnl"] >> $gmp_configm4
   rm $gmp_tmpconfigm4
 fi
+echo ["ifdef(\`__CONFIG_M4_INCLUDED__',,\`"] >> $gmp_configm4
 if test -f $gmp_tmpconfigm4i; then
   cat $gmp_tmpconfigm4i >> $gmp_configm4
   rm $gmp_tmpconfigm4i
@@ -229,6 +341,8 @@ if test -f $gmp_tmpconfigm4p; then
   cat $gmp_tmpconfigm4p >> $gmp_configm4
   rm $gmp_tmpconfigm4p
 fi
+echo ["')"] >> $gmp_configm4
+echo ["define(\`__CONFIG_M4_INCLUDED__')"] >> $gmp_configm4
 ])dnl
 
 dnl  GMP_INCLUDE(FILE)
@@ -351,14 +465,63 @@ else
 fi
 rm -f conftest*
 ])
+GMP_DEFINE_RAW(["define(<ALIGN_LOGARITHMIC>,<$gmp_cv_check_asm_align_log>)"])
 if test "$gmp_cv_check_asm_align_log" = "yes"; then
-  GMP_DEFINE(ALIGN, [.align m4_log2($][1)])
   ifelse([$1], , :, [$1])
 else
-  GMP_DEFINE(ALIGN, [.align $][1])
   ifelse([$2], , :, [$2])
 fi  
 ])dnl
+
+
+dnl  GMP_CHECK_ASM_ALIGN_FILL_0x90
+dnl  -----------------------------
+dnl  Determine whether a ",0x90" suffix works on a .align directive.
+dnl  This is only meant for use on x86, where 0x90 is a "nop".
+dnl
+dnl  Old gas, eg. 1.92.3 - needs ",0x90" or else the fill is an invalid 0x00.
+dnl  New gas, eg. 2.91 - generates the good multibyte nop fills even when
+dnl                      ",0x90" is given.
+dnl  Solaris 2.6 as - doesn't allow ",0x90", gives a fatal error.
+dnl  Solaris 2.8 as - gives a warning for ",0x90", no ill effect.
+dnl
+dnl  Note that both solaris "as"s only care about ",0x90" if they actually
+dnl  have to use it to fill something, hence the .byte in the sample.  It's
+dnl  only the second .align that provokes an error or warning.
+dnl
+dnl  We prefer to suppress the warning from solaris 2.8 to stop anyone
+dnl  worrying something might be wrong.
+
+AC_DEFUN(GMP_CHECK_ASM_ALIGN_FILL_0x90,
+[AC_CACHE_CHECK([if the .align directive accepts an 0x90 fill in .text],
+                gmp_cv_check_asm_align_fill_0x90,
+[AC_REQUIRE([GMP_CHECK_ASM_TEXT])
+cat > conftest.s <<EOF
+      	$gmp_cv_check_asm_text
+      	.align  4, 0x90
+	.byte   0
+      	.align  4, 0x90
+EOF
+gmp_tmp_val="`$CCAS $CFLAGS conftest.s 2>&1`"
+if test $? = 0; then
+  echo "$gmp_tmp_val" 1>&AC_FD_CC
+  if echo "$gmp_tmp_val" | grep "Warning: Fill parameter ignored for executable section"; then
+    echo "Supressing this warning by omitting 0x90" 1>&AC_FD_CC
+    gmp_cv_check_asm_align_fill_0x90=no
+  else
+    gmp_cv_check_asm_align_fill_0x90=yes
+  fi
+else
+  echo "Non-zero exit code" 1>&AC_FD_CC
+  echo "$gmp_tmp_val" 1>&AC_FD_CC
+  gmp_cv_check_asm_align_fill_0x90=no
+fi
+rm -f conftest*
+])
+GMP_DEFINE_RAW(
+["define(<ALIGN_FILL_0x90>,<$gmp_cv_check_asm_align_fill_0x90>)"])
+])
+
 
 dnl  GMP_CHECK_ASM_TEXT
 AC_DEFUN(GMP_CHECK_ASM_TEXT,
@@ -544,7 +707,7 @@ AC_DEFUN(GMP_CHECK_ASM_MMX,
 AC_CACHE_CHECK([if the assembler knows about MMX instructions],
 		gmp_cv_check_asm_mmx,
 [cat > conftest.s <<EOF
-	$gmp_check_asm_text
+	$gmp_cv_check_asm_text
 	por	%mm0, %mm0
 EOF
 ac_assemble="$CCAS $CFLAGS conftest.s 1>&AC_FD_CC"
@@ -575,7 +738,7 @@ AC_DEFUN(GMP_CHECK_ASM_SHLDL_CL,
 AC_CACHE_CHECK([if the assembler takes cl with shldl],
 		gmp_cv_check_asm_shldl_cl,
 [cat > conftest.s <<EOF
-	$gmp_check_asm_text
+	$gmp_cv_check_asm_text
 	shldl	%cl, %eax, %ebx
 EOF
 ac_assemble="$CCAS $CFLAGS conftest.s 1>&AC_FD_CC"
@@ -600,6 +763,7 @@ AC_DEFUN(GMP_PROG_CC_WORKS,
 [AC_LANG_C	dnl  Note: Destructive.
 CC="[$1]"
 CFLAGS="[$2]"
+AC_MSG_CHECKING([if the C compiler ($CC) works with flags $CFLAGS])
 
 # Simple test for all targets.
 AC_TRY_COMPILER([int main(){return(0);}],
@@ -609,10 +773,8 @@ AC_TRY_COMPILER([int main(){return(0);}],
 if test "$tmp_works" = "yes"; then
   case "$target" in 
     *-*-aix*)	# Returning a funcptr.
-      AC_MSG_CHECKING([if the C compiler ($CC $CFLAGS) works (returning a function pointer)])
       AC_TRY_COMPILE( , [} void *g(); void *f() { return g(); } int bar(){],
                       tmp_works=yes, tmp_works=no)
-      AC_MSG_RESULT($tmp_works)
       ;;
   esac
 fi
@@ -622,7 +784,51 @@ if test "$tmp_works" = "yes"; then
 else
   ifelse([$4], , :, [$4])
 fi
+
+AC_MSG_RESULT($tmp_works)
 ])dnl
+
+
+dnl  GMP_C_ANSI2KNR
+dnl  --------------
+dnl  Setup to use ansi2knr if necessary.
+dnl
+dnl  The test here is simply that if an ANSI style function works then
+dnl  ansi2knr isn't needed.  The normal tests for whether $CC works mean we
+dnl  don't need to worry here about anything badly broken.
+dnl
+dnl  AM_C_PROTOTYPES is the normal way to set up ansi2knr, but (in automake
+dnl  March 2000) it gives the wrong answer on a C++ compiler because its
+dnl  test requires that the compiler accept both ANSI and K&R, or otherwise
+dnl  ansi2knr is used.  A C++ compiler fails on the K&R part, which makes
+dnl  AM_C_PROTOTYPES think it needs ansi2knr!  GMP has no bare K&R so we
+dnl  only need ANSI or K&R to work, not both.
+
+AC_DEFUN(GMP_C_ANSI2KNR,
+[AC_CACHE_CHECK([if ansi2knr should be used],
+                gmp_cv_c_ansi2knr,
+[cat >conftest.c <<EOF
+int main (int argc, char *argv[]) { return 0; }
+EOF
+if AC_TRY_EVAL(ac_compile); then
+  gmp_cv_c_ansi2knr=no
+else
+  gmp_cv_c_ansi2knr=yes
+fi
+rm -f conftest.*
+])
+if test $gmp_cv_c_ansi2knr = no; then
+  U= ANSI2KNR=
+else
+  U=_ ANSI2KNR=./ansi2knr
+  # Ensure some checks needed by ansi2knr itself.
+  AC_HEADER_STDC
+  AC_CHECK_HEADERS(string.h)
+fi
+AC_SUBST(U)
+AC_SUBST(ANSI2KNR)
+])
+
 
 dnl  Deal with bad synchronization of Autoconf with Libtool.
 AC_DEFUN(AC_CANONICAL_BUILD, [_AC_CANONICAL_BUILD])

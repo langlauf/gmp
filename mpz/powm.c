@@ -6,16 +6,16 @@ Contributed by Paul Zimmermann.
 This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
-it under the terms of the GNU Library General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at your
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
-You should have received a copy of the GNU Library General Public License
+You should have received a copy of the GNU Lesser General Public License
 along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA. */
@@ -23,37 +23,28 @@ MA 02111-1307, USA. */
 #include "gmp.h"
 #include "gmp-impl.h"
 #include "longlong.h"
+#ifdef BERKELEY_MP
+#include "mp.h"
+#endif
 
-/* returns -1/m mod 2^BITS_PER_MP_LIMB, suppose m odd */
-static mp_limb_t
-mpz_dmprepare (m)
-     mpz_t m;
-{
-  mp_limb_t m0, x; int k;
-
-  m0 = PTR (m)[0];
-  ASSERT_ALWAYS (m0 % 2 != 0);
-
-  /* quadratic Hensel lifting (or Newton iteration) */
-  x = 1; k = 1; /* invariant: x * m0 = 1 mod 2^k */
-  while (k < BITS_PER_MP_LIMB)
-    {
-      x += x * (1 - x * m0);
-      k <<= 1;
-    }
-  return -x;
-}
 
 /* set c <- (a*b)/R^n mod m c has to have at least (2n) allocated limbs */
 static void
+#if __STDC__
+mpz_redc (mpz_ptr c, mpz_srcptr a, mpz_srcptr b, mpz_srcptr m, mp_limb_t Nprim)
+#else
 mpz_redc (c, a, b, m, Nprim)
-     mpz_t c, a, b, m;
+     mpz_ptr c;
+     mpz_srcptr a;
+     mpz_srcptr b;
+     mpz_srcptr m;
      mp_limb_t Nprim;
+#endif
 {
   mp_ptr cp, mp = PTR (m);
   mp_limb_t cy, cout = 0;
   mp_limb_t q;
-  size_t j, n = SIZ (m);
+  size_t j, n = ABSIZ (m);
 
   ASSERT (ALLOC (c) >= 2 * n);
 
@@ -124,12 +115,12 @@ pow (base, e, mod, res)
   int sh;
   int use_redc;
 
-#ifdef DEBUG
+#ifdef POWM_DEBUG
   mpz_t exp;
   mpz_init (exp);
 #endif
 
-  n = SIZ (mod);
+  n = ABSIZ (mod);
 
   if (n == 0)
     DIVIDE_BY_ZERO;
@@ -138,24 +129,32 @@ pow (base, e, mod, res)
     {
       /* Exponent is zero, result is 1 mod MOD, i.e., 1 or 0
          depending on if MOD equals 1.  */
-      PTR(res)[0] = 1;
       SIZ(res) = (ABSIZ (mod) == 1 && (PTR(mod))[0] == 1) ? 0 : 1;
+      PTR(res)[0] = 1;
       return;
     }
 
-  /* Use REDC instead of usual reduction for small sizes, more precisely using
-     REDC each modular multiplication cost about 2*n^2 limbs operations,
+  /* Use REDC instead of usual reduction for sizes < POWM_THRESHOLD.
+     In REDC each modular multiplication costs about 2*n^2 limbs operations,
      whereas using usual reduction it costs 3*K(n), where K(n) is the cost of a
      multiplication using Karatsuba, and a division is assumed to cost 2*K(n),
      for example using Burnikel-Ziegler's algorithm. This gives a theoretical
      threshold of a*KARATSUBA_SQR_THRESHOLD, with a=(3/2)^(1/(2-ln(3)/ln(2))) ~
      2.66.  */
-  /* For now, also disable REDC when MOD is even, as mpz_dmprepare cannot cope
-     with that.  */
+  /* For now, also disable REDC when MOD is even, as the inverse can't
+     handle that.  */
 
-  use_redc = (3 * n < 8 * KARATSUBA_SQR_THRESHOLD && PTR(mod)[0] % 2 != 0);
+#ifndef POWM_THRESHOLD
+#define POWM_THRESHOLD  ((8 * KARATSUBA_SQR_THRESHOLD) / 3)
+#endif
+
+  use_redc = (n < POWM_THRESHOLD && PTR(mod)[0] % 2 != 0);
   if (use_redc)
-    invm = mpz_dmprepare (mod);
+    {
+      /* invm = -1/m mod 2^BITS_PER_MP_LIMB, must have m odd */
+      modlimb_invert (invm, PTR(mod)[0]);
+      invm = -invm;
+    }
 
   /* determines optimal value of k */
   l = ABSIZ (e) * BITS_PER_MP_LIMB; /* number of bits of exponent */
@@ -167,7 +166,7 @@ pow (base, e, mod, res)
       K *= 2;
     }
 
-  g = (*_mp_allocate_func) (K / 2 * sizeof (mpz_t));
+  g = (mpz_t *) (*_mp_allocate_func) (K / 2 * sizeof (mpz_t));
   /* compute x*R^n where R=2^BITS_PER_MP_LIMB */
   mpz_init (g[0]);
   if (use_redc)
@@ -208,7 +207,7 @@ pow (base, e, mod, res)
   /* now starts the real stuff */
   mask = (mp_limb_t) ((1<<k) - 1);
   ep = PTR (e);
-  i = SIZ (e) - 1;			/* current index */
+  i = ABSIZ (e) - 1;			/* current index */
   c = ep[i];				/* current limb */
   count_leading_zeros (sh, c);
   sh = BITS_PER_MP_LIMB - sh;		/* significant bits in ep[i] */
@@ -224,7 +223,7 @@ pow (base, e, mod, res)
     }
   else
     c = c >> sh;
-#ifdef DEBUG
+#ifdef POWM_DEBUG
   printf ("-1/m mod 2^%u = %lu\n", BITS_PER_MP_LIMB, invm);
   mpz_set_ui (exp, c);
 #endif
@@ -246,7 +245,7 @@ pow (base, e, mod, res)
 	}
     }
 
-#ifdef DEBUG
+#ifdef POWM_DEBUG
   printf ("x^"); mpz_out_str (0, 10, exp);
   printf ("*2^%u mod m = ", n * BITS_PER_MP_LIMB); mpz_out_str (0, 10, xx);
   putchar ('\n');
@@ -297,7 +296,7 @@ pow (base, e, mod, res)
 	    }
 	}
 
-#ifdef DEBUG
+#ifdef POWM_DEBUG
       printf ("l=%u c=%lu\n", l, c);
       mpz_mul_2exp (exp, exp, k);
       mpz_add_ui (exp, exp, c);
@@ -341,7 +340,7 @@ pow (base, e, mod, res)
 	      mpz_mod (xx, xx, mod);
 	    }
 	}
-#ifdef DEBUG
+#ifdef POWM_DEBUG
       printf ("x^"); mpz_out_str (0, 10, exp);
       printf ("*2^%u mod m = ", n * BITS_PER_MP_LIMB); mpz_out_str (0, 10, xx);
       putchar ('\n');
@@ -353,6 +352,8 @@ pow (base, e, mod, res)
     {
       mpz_set_ui (g[0], 1);
       mpz_redc (xx, xx, g[0], mod, invm);
+      if (mpz_cmp (xx, mod) >= 0)
+	mpz_sub (xx, xx, mod);
     }
   mpz_set (res, xx);
 

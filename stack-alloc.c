@@ -6,16 +6,16 @@ Copyright (C) 1996, 1997, 1999, 2000 Free Software Foundation, Inc.
 This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
-it under the terms of the GNU Library General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at your
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
-You should have received a copy of the GNU Library General Public License
+You should have received a copy of the GNU Lesser General Public License
 along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA. */
@@ -50,10 +50,14 @@ static tmp_stack *current = &xxx;
 /* Allocate a block of exactly <size> bytes.  This should only be called
    through the TMP_ALLOC macro, which takes care of rounding/alignment.  */
 void *
+#if __STDC__
+__gmp_tmp_alloc (unsigned long size)
+#else
 __gmp_tmp_alloc (size)
      unsigned long size;
+#endif
 {
-  void *this;
+  void *that;
 
   if (size > (char *) current->end - (char *) current->alloc_point)
     {
@@ -83,24 +87,28 @@ __gmp_tmp_alloc (size)
 	}
 
       chunk = (*__gmp_allocate_func) (chunk_size);
-      header = chunk;
+      header = (tmp_stack *) chunk;
       header->end = (char *) chunk + chunk_size;
       header->alloc_point = (char *) chunk + HSIZ;
       header->prev = current;
       current = header;
     }
 
-  this = current->alloc_point;
-  current->alloc_point = (char *) this + size;
-  return this;
+  that = current->alloc_point;
+  current->alloc_point = (char *) that + size;
+  return that;
 }
 
 /* Typically called at function entry.  <mark> is assigned so that
    __gmp_tmp_free can later be used to reclaim all subsequently allocated
    storage.  */
 void
+#if __STDC__
+__gmp_tmp_mark (tmp_marker *mark)
+#else
 __gmp_tmp_mark (mark)
      tmp_marker *mark;
+#endif
 {
   mark->which_chunk = current;
   mark->alloc_point = current->alloc_point;
@@ -108,8 +116,12 @@ __gmp_tmp_mark (mark)
 
 /* Free everything allocated since <mark> was assigned by __gmp_tmp_mark */
 void
+#if __STDC__
+__gmp_tmp_free (tmp_marker *mark)
+#else
 __gmp_tmp_free (mark)
      tmp_marker *mark;
+#endif
 {
   while (mark->which_chunk != current)
     {

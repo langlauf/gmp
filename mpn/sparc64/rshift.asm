@@ -5,16 +5,16 @@
 ! This file is part of the GNU MP Library.
 
 ! The GNU MP Library is free software; you can redistribute it and/or modify
-! it under the terms of the GNU Library General Public License as published by
-! the Free Software Foundation; either version 2 of the License, or (at your
+! it under the terms of the GNU Lesser General Public License as published by
+! the Free Software Foundation; either version 2.1 of the License, or (at your
 ! option) any later version.
 
 ! The GNU MP Library is distributed in the hope that it will be useful, but
 ! WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-! or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+! or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 ! License for more details.
 
-! You should have received a copy of the GNU Library General Public License
+! You should have received a copy of the GNU Lesser General Public License
 ! along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 ! the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 ! MA 02111-1307, USA.
@@ -38,7 +38,7 @@ PROLOGUE(mpn_rshift)
 	and	%o2,4-1,%g4	! number of limbs in first loop
 	sllx	%g2,%o5,%g1	! compute function result
 	brz,pn	%g4,L(0)	! if multiple of 4 limbs, skip first loop
-	stx	%g1,[%sp+79]
+	mov	%g1,%g5
 
 	sub	%o2,%g4,%o2	! adjust count for main loop
 
@@ -90,5 +90,5 @@ L(loop1):
 L(end):	srlx	%g2,%o3,%g2
 	stx	%g2,[%o0-0]
 	retl
-	ldx	[%sp+79],%o0
+	mov	%g5,%o0
 EPILOGUE(mpn_rshift)

@@ -1,21 +1,21 @@
 /* mpn/bdivmod.c: mpn_bdivmod for computing U/V mod 2^d.
 
-Copyright (C) 1991, 1993, 1994, 1995, 1996, 1999 Free Software Foundation,
-Inc.
+Copyright (C) 1991, 1993, 1994, 1995, 1996, 1999, 2000 Free Software
+Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
-it under the terms of the GNU Library General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at your
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
-You should have received a copy of the GNU Library General Public License
+You should have received a copy of the GNU Lesser General Public License
 along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA. */
@@ -66,24 +66,13 @@ mpn_bdivmod (qp, up, usize, vp, vsize, d)
      unsigned long int d;
 #endif
 {
-  mp_limb_t v_inv = 0;		/* 1/V mod 2^BITS_PER_MP_LIMB.  */
+  mp_limb_t v_inv;
 
-  /* Compute v_inv.  */
-    {
-      mp_limb_t v = vp[0];
-      mp_limb_t make_zero = 1;
-      mp_limb_t two_i = 1;
-      do
-	{
-	  while ((two_i & make_zero) == 0)
-	    two_i <<= 1, v <<= 1;
-	  v_inv += two_i;
-	  make_zero -= v;
-	}
-      while (make_zero);
-    }
+  /* 1/V mod 2^BITS_PER_MP_LIMB. */
+  modlimb_invert (v_inv, vp[0]);
 
-  /* Need faster computation for some common cases in mpn_accelgcd.  */
+  /* Fast code for two cases previously used by the accel part of mpn_gcd.
+     (Could probably remove this now it's inlined there.) */
   if (usize == 2 && vsize == 2 &&
       (d == BITS_PER_MP_LIMB || d == 2*BITS_PER_MP_LIMB))
     {

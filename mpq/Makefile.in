@@ -70,6 +70,7 @@ AMTAR = @AMTAR@
 AR = @AR@
 AS = @AS@
 AWK = @AWK@
+CALLING_CONVENTIONS_OBJS = @CALLING_CONVENTIONS_OBJS@
 CC = @CC@
 CCAS = @CCAS@
 CPP = @CPP@
@@ -83,12 +84,13 @@ LN_S = @LN_S@
 M4 = @M4@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
-NM = @NM@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
+SPEED_CYCLECOUNTER_OBJS = @SPEED_CYCLECOUNTER_OBJS@
 STRIP = @STRIP@
+U = @U@
 VERSION = @VERSION@
 gmp_srclinks = @gmp_srclinks@
 install_sh = @install_sh@
@@ -100,16 +102,16 @@ mpn_objs_in_libgmp = @mpn_objs_in_libgmp@
 # This file is part of the GNU MP Library.
 #
 # The GNU MP Library is free software; you can redistribute it and/or modify
-# it under the terms of the GNU Library General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or (at your
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or (at your
 # option) any later version.
 #
 # The GNU MP Library is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 # License for more details.
 #
-# You should have received a copy of the GNU Library General Public License
+# You should have received a copy of the GNU Lesser General Public License
 # along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 # MA 02111-1307, USA.
@@ -124,8 +126,8 @@ INCLUDES = -I$(top_srcdir)
 noinst_LTLIBRARIES = libmpq.la
 libmpq_la_SOURCES = \
   add.c canonicalize.c clear.c cmp.c cmp_ui.c div.c get_d.c \
-  get_den.c get_num.c init.c inv.c mul.c neg.c set.c set_den.c \
-  set_num.c set_si.c set_ui.c sub.c equal.c set_z.c set_d.c
+  get_den.c get_num.c init.c inv.c mul.c neg.c out_str.c set.c set_den.c \
+  set_num.c set_si.c set_ui.c sub.c equal.c set_z.c set_d.c swap.c
 
 subdir = mpq
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -142,8 +144,8 @@ libmpq_la_LDFLAGS =
 libmpq_la_LIBADD = 
 am_libmpq_la_OBJECTS =  add.lo canonicalize.lo clear.lo cmp.lo cmp_ui.lo \
 div.lo get_d.lo get_den.lo get_num.lo init.lo inv.lo mul.lo neg.lo \
-set.lo set_den.lo set_num.lo set_si.lo set_ui.lo sub.lo equal.lo \
-set_z.lo set_d.lo
+out_str.lo set.lo set_den.lo set_num.lo set_si.lo set_ui.lo sub.lo \
+equal.lo set_z.lo set_d.lo swap.lo
 libmpq_la_OBJECTS =  $(am_libmpq_la_OBJECTS)
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
