@@ -15,8 +15,8 @@ License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
 along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
-the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-MA 02111-1307, USA.
+the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+MA 02110-1301, USA.
 */
 
 #include <stdio.h>
@@ -30,7 +30,7 @@ MA 02111-1307, USA.
 #define RCSID(msg) \
 static /**/const char *const rcsid[] = { (char *)rcsid, "\100(#)" msg }
 
-RCSID("$Id: findlc.c,v 1.4 2000/10/14 23:18:06 kevin Exp $");
+RCSID("$Id: findlc.c,v 1.1.1.1 2006/03/14 15:57:54 tege Exp $");
 
 int g_debug = 0;
 

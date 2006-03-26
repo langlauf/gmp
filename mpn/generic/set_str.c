@@ -19,7 +19,7 @@ for more details.
 
 You should have received a copy of the GNU Library General Public License along
 with the GNU MP Library; see the file COPYING.LIB.  If not, write to the Free
-Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
+Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
 USA. */
 
 #include "gmp.h"
@@ -34,9 +34,10 @@ static mp_size_t convert_blocks __GMP_PROTO ((mp_ptr, const unsigned char *, siz
 #endif
 
 /* Don't define this to anything but 1 for now.  In order to make other values
-   work well, either the convert_blocks function should be generazed to handle
-   larger blocks than chars_per_limb, or the basecase code should be broken out
-   of the main function.  Also note that this must be a power of 2.  */
+   work well, either the convert_blocks function should be generalized to
+   handle larger blocks than chars_per_limb, or the basecase code should be
+   broken out of the main function.  Also note that this must be a power of
+   2.  */
 #ifndef SET_STR_BLOCK_SIZE
 #define SET_STR_BLOCK_SIZE 1	/* Must be a power of 2. */
 #endif
@@ -224,12 +225,12 @@ mpn_set_str (mp_ptr rp, const unsigned char *str, size_t str_len, int base)
 	     ways:
 	     1. Only really need 2^ceil(log2(dsize)) bits for the largest
 		power.
-	     2. Only the variable to get the largest power need that much
-		memory.  The other variable needs half as much.  Need just
+	     2. Only the variable to get the largest power needs that much
+		memory.  The other variable needs half as much.  We need just
 		figure out which of xp and tp will hold the last one.
 	     Net space savings would be in the range 1/4 to 5/8 of current
-	     allocation, depending on how close to the next power of 2 that
-	     dsize is.  */
+	     allocation, depending on how close dsize is to the next greater
+	     power of 2.  */
 	  pow_mem = __GMP_ALLOCATE_FUNC_LIMBS (2 * alloc);
 	  xp = pow_mem;
 	  tp = pow_mem + alloc;
