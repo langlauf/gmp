@@ -1,7 +1,7 @@
 /* Stack allocation routines.  This is intended for machines without support
    for the `alloca' function.
 
-Copyright 1996, 1997, 1999, 2000, 2001 Free Software Foundation, Inc.
+Copyright 1996, 1997, 1999, 2000, 2001, 2006 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -98,7 +98,7 @@ __gmp_tmp_alloc (unsigned long size)
    __gmp_tmp_free can later be used to reclaim all subsequently allocated
    storage.  */
 void
-__gmp_tmp_mark (tmp_marker *mark)
+__gmp_tmp_mark (struct tmp_marker *mark)
 {
   mark->which_chunk = current;
   mark->alloc_point = current->alloc_point;
@@ -106,7 +106,7 @@ __gmp_tmp_mark (tmp_marker *mark)
 
 /* Free everything allocated since <mark> was assigned by __gmp_tmp_mark */
 void
-__gmp_tmp_free (tmp_marker *mark)
+__gmp_tmp_free (struct tmp_marker *mark)
 {
   while (mark->which_chunk != current)
     {

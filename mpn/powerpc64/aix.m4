@@ -1,7 +1,7 @@
 divert(-1)
 dnl  m4 macros for AIX 64-bit assembly.
 
-dnl  Copyright 2000, 2001, 2002, 2005 Free Software Foundation, Inc.
+dnl  Copyright 2000, 2001, 2002, 2005, 2006 Free Software Foundation, Inc.
 dnl
 dnl  This file is part of the GNU MP Library.
 dnl
@@ -45,6 +45,8 @@ define(`EPILOGUE_cpu',
 m4_assert_numargs(1)
 `')
 
+define(`TOC_ENTRY', `')
+
 define(`LEA',
 m4_assert_numargs(2)
 `define(`TOC_ENTRY',
@@ -70,6 +72,6 @@ define(`CALL',
 	`bl	.$1
 	nop')
 
-define(`ASM_END', TOC_ENTRY)
+define(`ASM_END', `TOC_ENTRY')
 
 divert

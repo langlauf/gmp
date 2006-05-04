@@ -1,6 +1,6 @@
 /* __gmp_extract_double -- convert from double to array of mp_limb_t.
 
-Copyright 1996, 1999, 2000, 2001, 2002 Free Software Foundation, Inc.
+Copyright 1996, 1999, 2000, 2001, 2002, 2006 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -85,7 +85,7 @@ __gmp_extract_double (mp_ptr rp, double d)
 	    manl = manl << 1;
 	    exp--;
 	  }
-	while ((mp_limb_signed_t) manl >= 0);
+	while ((manl & GMP_LIMB_HIGHBIT) == 0);
       }
 #endif
 #if BITS_PER_PART == 32
@@ -102,7 +102,7 @@ __gmp_extract_double (mp_ptr rp, double d)
 	    manl = manl << 1;
 	    exp--;
 	  }
-	while ((mp_limb_signed_t) manh >= 0);
+	while ((manh & GMP_LIMB_HIGHBIT) == 0);
       }
 #endif
 #if BITS_PER_PART != 32 && BITS_PER_PART != 64

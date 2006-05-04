@@ -1,6 +1,6 @@
 dnl  PowerPC-32 mpn_modexact_1_odd -- mpn by limb exact remainder.
 
-dnl  Copyright 2002, 2003, 2005 Free Software Foundation, Inc.
+dnl  Copyright 2002, 2003, 2005, 2006 Free Software Foundation, Inc.
 dnl
 dnl  This file is part of the GNU MP Library.
 dnl
@@ -53,6 +53,9 @@ C range above for 750 and 7400.
 
 
 ASM_START()
+
+EXTERN(modlimb_invert_table)
+
 PROLOGUE(mpn_modexact_1_odd)
 	li	r6, 0
 

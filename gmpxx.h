@@ -1,6 +1,6 @@
 /* gmpxx.h -- C++ class wrapper for GMP types.  -*- C++ -*-
 
-Copyright 2001, 2002, 2003 Free Software Foundation, Inc.
+Copyright 2001, 2002, 2003, 2006 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -3822,24 +3822,15 @@ public:
 #undef __GMPZZ_DEFINE_COMPOUND_OPERATOR
 #undef __GMPQ_DEFINE_COMPOUND_OPERATOR
 #undef __GMPF_DEFINE_COMPOUND_OPERATOR
-#ifdef __MPFR_H
-#undef __GMPFR_DEFINE_COMPOUND_OPERATOR
-#endif
 
 #undef __GMP_DEFINE_COMPOUND_OPERATOR_UI
 #undef __GMPZ_DEFINE_COMPOUND_OPERATOR_UI
 #undef __GMPQ_DEFINE_COMPOUND_OPERATOR_UI
 #undef __GMPF_DEFINE_COMPOUND_OPERATOR_UI
-#ifdef __MPFR_H
-#undef __GMPFR_DEFINE_COMPOUND_OPERATOR_UI
-#endif
 
 #undef __GMP_DEFINE_INCREMENT_OPERATOR
 #undef __GMPZ_DEFINE_INCREMENT_OPERATOR
 #undef __GMPQ_DEFINE_INCREMENT_OPERATOR
 #undef __GMPF_DEFINE_INCREMENT_OPERATOR
-#ifdef __MPFR_H
-#undef __GMPFR_DEFINE_INCREMENT_OPERATOR
-#endif
 
 #endif /* __GMP_PLUSPLUS__ */

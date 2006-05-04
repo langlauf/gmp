@@ -81,6 +81,9 @@ PROLOGUE(mpn_popcount)
 	oris	r0, r10, 0xfffc		C Set VRSAVE bit 0-13
 	mtspr	256, r0
 
+ifdef(`HAVE_ABI_mode32',
+`	rldicl	n, n, 0, 32')		C zero extend n
+
 C Load various constants into vector registers
 	LEA(	r11, cnsts)
 	li	r12, 16

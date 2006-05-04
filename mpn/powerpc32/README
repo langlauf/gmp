@@ -55,7 +55,7 @@ Also, Altivec isn't very well suited for the GMP multiplication needs.
 Using floating-point based multiplication has much better better performance
 potential for all current powerpcs, both the ones with slow integer multiply
 units (603, 740, 750, 7400, 7410) and those with fast (604, 604e, 744x,
-755x).  This is because all powerpcs do some level of pipelining in the FPU:
+745x).  This is because all powerpcs do some level of pipelining in the FPU:
 
 603 and 750 can sustain one fmadd every 2nd cycle.
 604 and 604e can sustain one fmadd per cycle.

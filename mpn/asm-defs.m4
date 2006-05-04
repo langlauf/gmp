@@ -2,7 +2,7 @@ divert(-1)
 dnl
 dnl  m4 macros for gmp assembly code, shared by all CPUs.
 
-dnl  Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Free Software
+dnl  Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006 Free Software
 dnl  Foundation, Inc.
 dnl
 dnl  This file is part of the GNU MP Library.
@@ -1414,6 +1414,14 @@ dnl  ".set noreorder" or whatever.  The default for this is nothing, but
 dnl  it's redefined by CPU specific m4 files.
 
 define(ASM_START)
+
+
+dnl  Usage: ASM_END()
+dnl
+dnl  Emit any directives needed once at the end of an assembler file.  The
+dnl  default for this is nothing, but it's redefined by CPU specific m4 files.
+
+define(ASM_END)
 
 
 dnl  Usage: PROLOGUE(foo[,param])

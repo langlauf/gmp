@@ -2,10 +2,10 @@ This is /home/tege/prec/gmp42/doc/gmp.info, produced by makeinfo
 version 4.6 from /home/tege/prec/gmp42/doc/gmp.texi.
 
 This manual describes how to install and use the GNU multiple precision
-arithmetic library, version 4.2.
+arithmetic library, version 4.2.1.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
-2001, 2002, 2003, 2004, 2005 Free Software Foundation, Inc.
+2001, 2002, 2003, 2004, 2005, 2006 Free Software Foundation, Inc.
 
    Permission is granted to copy, distribute and/or modify this
 document under the terms of the GNU Free Documentation License, Version
@@ -26,10 +26,10 @@ GNU MP
 ******
 
 This manual describes how to install and use the GNU multiple precision
-arithmetic library, version 4.2.
+arithmetic library, version 4.2.1.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
-2001, 2002, 2003, 2004, 2005 Free Software Foundation, Inc.
+2001, 2002, 2003, 2004, 2005, 2006 Free Software Foundation, Inc.
 
    Permission is granted to copy, distribute and/or modify this
 document under the terms of the GNU Free Documentation License, Version
@@ -200,6 +200,7 @@ what to include in useful bug reports.
 * Notes for Package Builds::
 * Notes for Particular Systems::
 * Known Build Problems::
+* Performance optimization::
 
 
 File: gmp.info,  Node: Build Options,  Next: ABI and ISA,  Prev: Installing GMP,  Up: Installing GMP
@@ -225,7 +226,7 @@ Build Directory
      directory.  For example
 
           cd /my/build/dir
-          /my/sources/gmp-4.2/configure
+          /my/sources/gmp-4.2.1/configure
 
      Not all `make' programs have the necessary features (`VPATH') to
      support this.  In particular, SunOS and Slowaris `make' have bugs
@@ -364,6 +365,13 @@ Generic C Build
      and should at least make it possible to get something running if
      all else fails.
 
+Fat binary, `--enable-fat'
+     Using `--enable-fat' selects a "fat binary" build on x86, where
+     optimized low level subroutines are chosen at runtime according to
+     the CPU detected.  This means more code, but gives good
+     performance on all x86 chips.  (This option might become available
+     for more architectures in the future.)
+
 `ABI'
      On some systems GMP supports multiple ABIs (application binary
      interfaces), meaning data type sizes and calling conventions.  By
@@ -496,8 +504,8 @@ Temporary Memory, `--enable-alloca=<choice>'
           `malloc-notreentrant'.
 
      `alloca' is reentrant and fast, and is recommended.  It actually
-     allocates just small blocks on the stack, and larger ones using
-     malloc-reentrant
+     allocates just small blocks on the stack; larger ones use
+     malloc-reentrant.
 
      `malloc-reentrant' is, as the name suggests, reentrant and thread
      safe, but `malloc-notreentrant' is faster and should be used if
@@ -831,10 +839,11 @@ unresolved symbols from the linker, or perhaps the loader.
    When building a package for a CPU family, care should be taken to use
 `--host' (or `--build') to choose the least common denominator among
 the CPUs which might use the package.  For example this might mean plain
-`sparc' (meaning V7) for SPARCs.  For x86s, `i386' is a fat binary
-build, making a runtime selection of optimized low level routines.
-This is a good choice for packaging to run on a range of x86 chips
-(*note Notes for Particular Systems::).
+`sparc' (meaning V7) for SPARCs.
+
+   For x86s, `--enable-fat' sets things up for a fat binary build,
+making a runtime selection of optimized low level routines.  This is a
+good choice for packaging to run on a range of x86 chips.
 
    Users who care about speed will want GMP built for their exact CPU
 type, to make best use of the available optimizations.  Providing a way
@@ -994,10 +1003,6 @@ SunOS 4
      use GNU m4).
 
 x86 CPU Types
-     `i386' selects a "fat binary" build, where optimized low level
-     subroutines are chosen at runtime according to the CPU detected.
-     This means more code, but gives good performance on all x86 chips.
-
      `i586', `pentium' or `pentiummmx' code is good for its intended P5
      Pentium chips, but quite slow when run on Intel P6 class chips
      (PPro, P-II, P-III).  `i386' is a better choice when making
@@ -1020,7 +1025,7 @@ x86 MMX and SSE2 Code
      systems.
 
 
-File: gmp.info,  Node: Known Build Problems,  Prev: Notes for Particular Systems,  Up: Installing GMP
+File: gmp.info,  Node: Known Build Problems,  Next: Performance optimization,  Prev: Notes for Particular Systems,  Up: Installing GMP
 
 Known Build Problems
 ====================
@@ -1101,6 +1106,37 @@ Sparc Solaris 2.7 with gcc 2.95.2 in `ABI=32'
      it builds but then fails the tests, apparently due to some
      incorrect data relocations within `gmp_randinit_lc_2exp_size'.
      The exact cause is unknown, `--disable-shared' is recommended.
+
+
+File: gmp.info,  Node: Performance optimization,  Prev: Known Build Problems,  Up: Installing GMP
+
+Performance optimization
+========================
+
+For optimal performance, build GMP for the exact CPU type of the target
+computer, see *Note Build Options::.
+
+   Unlike what is the case for most other programs, the compiler
+typically doesn't matter much, since GMP uses assembly language for the
+most critical operation.
+
+   In particular for long-running GMP applications, and applications
+demanding extremely large numbers, building and running the `tuneup'
+program in the `tune' subdirectory, can be important.  For example,
+
+     cd tune
+     make tuneup
+     ./tuneup
+
+   will generate better contents for the `gmp-mparam.h' parameter file.
+
+   To use the results, put the output in the file file indicated in the
+`Parameters for ...' header.  Then recompile from scratch.
+
+   The `tuneup' program takes one useful parameter, `-f NNN', which
+instructs the program how long to check FFT multiply parameters.  If
+you're going to use GMP for extremely large numbers, you may want to
+run `tuneup' with a large NNN value.
 
 
 File: gmp.info,  Node: GMP Basics,  Next: Reporting Bugs,  Prev: Installing GMP,  Up: Top
@@ -1445,7 +1481,7 @@ Useful Macros and Constants
 
  - Global Constant: const char * const gmp_version
      The GMP version number, as a null-terminated string, in the form
-     "i.j" or "i.j.k".  This release is "4.2".
+     "i.j" or "i.j.k".  This release is "4.2.1".
 
 
 File: gmp.info,  Node: Compatibility with older versions,  Next: Demonstration Programs,  Prev: Useful Macros and Constants,  Up: GMP Basics
@@ -1755,7 +1791,7 @@ Source File Paths
      path to the source directory.
 
           cd /my/build/dir
-          /my/source/dir/gmp-4.2/configure
+          /my/source/dir/gmp-4.2.1/configure
 
      This works via `VPATH', and might require GNU `make'.  Alternately
      it might be possible to change the `.c.lo' rules appropriately.
@@ -2736,6 +2772,9 @@ significant bit is number 0.
 
  - Function: void mpz_clrbit (mpz_t ROP, unsigned long int BIT_INDEX)
      Clear bit BIT_INDEX in ROP.
+
+ - Function: void mpz_combit (mpz_t ROP, unsigned long int BIT_INDEX)
+     Complement bit BIT_INDEX in ROP.
 
  - Function: int mpz_tstbit (mpz_t OP, unsigned long int BIT_INDEX)
      Test bit BIT_INDEX in OP and return 0 or 1 accordingly.
@@ -4655,7 +4694,7 @@ shouldn't normally occur.
      style.
 
  - Function: int gmp_asprintf (char **PP, const char *FMT, ...)
- - Function: int gmp_vasprintf (char *PP, const char *FMT, va_list AP)
+ - Function: int gmp_vasprintf (char **PP, const char *FMT, va_list AP)
      Form a null-terminated string in a block of memory obtained from
      the current memory allocation function (*note Custom
      Allocation::).  The block will be the size of the string and

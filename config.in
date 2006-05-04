@@ -233,6 +233,7 @@ MA 02110-1301, USA.
 #undef HAVE_NATIVE_mpn_invert_limb
 #undef HAVE_NATIVE_mpn_ior_n
 #undef HAVE_NATIVE_mpn_iorn_n
+#undef HAVE_NATIVE_mpn_lshiftc
 #undef HAVE_NATIVE_mpn_mod_1
 #undef HAVE_NATIVE_mpn_mod_1c
 #undef HAVE_NATIVE_mpn_modexact_1_odd
@@ -508,10 +509,6 @@ MA 02110-1301, USA.
 #ifndef __cplusplus
 #undef inline
 #endif
-
-/* Define to equivalent of C99 restrict keyword, or to nothing if this is not
-   supported. Do not define if restrict is supported directly. */
-#undef restrict
 
 /* Define to empty if the keyword `volatile' does not work. Warning: valid
    code using `volatile' can become incorrect without. Disable with care. */

@@ -14,7 +14,7 @@ This manual describes how to install and use the GNU multiple precision
 arithmetic library, version @value{VERSION}.
 
 Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002,
-2003, 2004, 2005 Free Software Foundation, Inc.
+2003, 2004, 2005, 2006 Free Software Foundation, Inc.
 
 Permission is granted to copy, distribute and/or modify this document under
 the terms of the GNU Free Documentation License, Version 1.2 or any later
@@ -582,6 +582,7 @@ reports.
 * Notes for Package Builds::
 * Notes for Particular Systems::
 * Known Build Problems::
+* Performance optimization::
 @end menu
 
 
@@ -866,6 +867,14 @@ generic C code can be selected with CPU @samp{none}.  For example,
 Note that this will run quite slowly, but it should be portable and should at
 least make it possible to get something running if all else fails.
 
+@item Fat binary, @option{--enable-fat}
+@cindex Fat binary
+@cindex @option{--enable-fat}
+Using @option{--enable-fat} selects a ``fat binary'' build on x86, where
+optimized low level subroutines are chosen at runtime according to the CPU
+detected.  This means more code, but gives good performance on all x86 chips.
+(This option might become available for more architectures in the future.)
+
 @item @option{ABI}
 @cindex ABI
 On some systems GMP supports multiple ABIs (application binary interfaces),
@@ -1013,7 +1022,7 @@ For convenience, the following choices are also available.
 @end itemize
 
 @code{alloca} is reentrant and fast, and is recommended.  It actually allocates
-just small blocks on the stack, and larger ones using malloc-reentrant
+just small blocks on the stack; larger ones use malloc-reentrant.
 
 @samp{malloc-reentrant} is, as the name suggests, reentrant and thread safe,
 but @samp{malloc-notreentrant} is faster and should be used if reentrancy is
@@ -1417,10 +1426,11 @@ or perhaps the loader.
 When building a package for a CPU family, care should be taken to use
 @samp{--host} (or @samp{--build}) to choose the least common denominator among
 the CPUs which might use the package.  For example this might mean plain
-@samp{sparc} (meaning V7) for SPARCs.  For x86s, @samp{i386} is a fat binary
-build, making a runtime selection of optimized low level routines.  This is a
-good choice for packaging to run on a range of x86 chips (@pxref{Notes for
-Particular Systems}).
+@samp{sparc} (meaning V7) for SPARCs.
+
+For x86s, @option{--enable-fat} sets things up for a fat binary build, making a
+runtime selection of optimized low level routines.  This is a good choice for
+packaging to run on a range of x86 chips.
 
 Users who care about speed will want GMP built for their exact CPU type, to
 make best use of the available optimizations.  Providing a way to suitably
@@ -1623,11 +1633,6 @@ GNU m4).
 @cindex x86
 @cindex 80x86
 @cindex i386
-@cindex Fat binary
-@samp{i386} selects a ``fat binary'' build, where optimized low level
-subroutines are chosen at runtime according to the CPU detected.  This means
-more code, but gives good performance on all x86 chips.
-
 @samp{i586}, @samp{pentium} or @samp{pentiummmx} code is good for its intended
 P5 Pentium chips, but quite slow when run on Intel P6 class chips (PPro, P-II,
 P-III)@.  @samp{i386} is a better choice when making binaries that must run on
@@ -1652,7 +1657,7 @@ Install a recent @command{gas} if MMX code is wanted on these systems.
 
 
 @need 2000
-@node Known Build Problems,  , Notes for Particular Systems, Installing GMP
+@node Known Build Problems, Performance optimization, Notes for Particular Systems, Installing GMP
 @section Known Build Problems
 @cindex Build problems known
 
@@ -1751,6 +1756,42 @@ then fails the tests, apparently due to some incorrect data relocations within
 @code{gmp_randinit_lc_2exp_size}.  The exact cause is unknown,
 @samp{--disable-shared} is recommended.
 @end table
+
+
+@need 2000
+@node Performance optimization, , Known Build Problems, Installing GMP
+@section Performance optimization
+@cindex Optimizing performance
+
+@c At some point, this should perhaps move to a separate chapter on optimizing
+@c performance.
+
+For optimal performance, build GMP for the exact CPU type of the target
+computer, see @ref{Build Options}.
+
+Unlike what is the case for most other programs, the compiler typically
+doesn't matter much, since GMP uses assembly language for the most critical
+operation.
+
+In particular for long-running GMP applications, and applications demanding
+extremely large numbers, building and running the @code{tuneup} program in the
+@file{tune} subdirectory, can be important.  For example,
+
+@example
+cd tune
+make tuneup
+./tuneup
+@end example
+
+will generate better contents for the @file{gmp-mparam.h} parameter file.
+
+To use the results, put the output in the file file indicated in the
+@samp{Parameters for ...} header.  Then recompile from scratch.
+
+The @code{tuneup} program takes one useful parameter, @samp{-f NNN}, which
+instructs the program how long to check FFT multiply parameters.  If you're
+going to use GMP for extremely large numbers, you may want to run @code{tuneup}
+with a large NNN value.
 
 
 @node GMP Basics, Reporting Bugs, Installing GMP, Top
@@ -3702,6 +3743,10 @@ Set bit @var{bit_index} in @var{rop}.
 
 @deftypefun void mpz_clrbit (mpz_t @var{rop}, unsigned long int @var{bit_index})
 Clear bit @var{bit_index} in @var{rop}.
+@end deftypefun
+
+@deftypefun void mpz_combit (mpz_t @var{rop}, unsigned long int @var{bit_index})
+Complement bit @var{bit_index} in @var{rop}.
 @end deftypefun
 
 @deftypefun int mpz_tstbit (mpz_t @var{op}, unsigned long int @var{bit_index})
@@ -5805,7 +5850,7 @@ if the C library @code{vsnprintf} is the older GLIBC 2.0.x style.
 @end deftypefun
 
 @deftypefun int gmp_asprintf (char **@var{pp}, const char *@var{fmt}, @dots{})
-@deftypefunx int gmp_vasprintf (char *@var{pp}, const char *@var{fmt}, va_list @var{ap})
+@deftypefunx int gmp_vasprintf (char **@var{pp}, const char *@var{fmt}, va_list @var{ap})
 Form a null-terminated string in a block of memory obtained from the current
 memory allocation function (@pxref{Custom Allocation}).  The block will be the
 size of the string and null-terminator.  The address of the block in stored to

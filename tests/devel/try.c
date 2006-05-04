@@ -3,7 +3,7 @@
    THIS IS A TEST PROGRAM USED ONLY FOR DEVELOPMENT.  IT'S ALMOST CERTAIN TO
    BE SUBJECT TO INCOMPATIBLE CHANGES IN FUTURE VERSIONS OF GMP.
 
-Copyright 2000, 2001, 2002, 2003, 2004, 2005 Free Software Foundation, Inc.
+Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -1317,6 +1317,13 @@ const struct choice_t choice_array[] = {
 #endif
 #if HAVE_NATIVE_mpn_sub_nc
   { TRY(mpn_sub_nc),    TYPE_SUB_NC },
+#endif
+
+#if HAVE_NATIVE_mpn_addsub_n
+  { TRY(mpn_addsub_n),  TYPE_ADDSUB_N  },
+#endif
+#if HAVE_NATIVE_mpn_addsub_nc
+  { TRY(mpn_addsub_nc), TYPE_ADDSUB_NC },
 #endif
 
   { TRY(mpn_addmul_1),  TYPE_ADDMUL_1  },

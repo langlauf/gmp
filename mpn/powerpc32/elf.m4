@@ -1,7 +1,7 @@
 divert(-1)
-dnl  m4 macros for powerpc64 GNU/Linux assembly.
+dnl  m4 macros for powerpc32 GNU/Linux assembly.
 
-dnl  Copyright 2003, 2005 Free Software Foundation, Inc.
+dnl  Copyright 2003, 2005, 2006 Free Software Foundation, Inc.
 dnl
 dnl  This file is part of the GNU MP Library.
 dnl
@@ -29,28 +29,28 @@ dnl
 define(`PROLOGUE_cpu',
 m4_assert_numargs(1)
 	`
-	.globl	$1
-	.globl	.$1
-	.section	".opd","aw"
-	.align	3
-$1:
-	.llong	.$1, .TOC.@tocbase, 0
-	.size	$1, 24
-	.type	.$1, @function
 	.section	".text"
-	.align	4
-.$1:')
+	.align	3
+	.globl	$1
+	.type	$1, @function
+$1:')
 
 define(`EPILOGUE_cpu',
 m4_assert_numargs(1)
-`	.size	.$1, .-.$1')
+`	.size	$1, .-$1')
 
 define(`LEA',
 m4_assert_numargs(2)
-`define(`TOC_ENTRY',
-`	.section	".toc", "aw"
-..$2:	.tc	$2[TC], $2')'
-	`ld	$1, ..$2@toc(2)')
+`ifdef(`PIC',`
+	mflr	r0
+	bl	_GLOBAL_OFFSET_TABLE_@local-4
+	mflr	$1
+	mtlr	r0
+	lwz	$1, $2@got($1)
+',`
+	lis	$1, $2@ha
+	la	$1, $2@l($1)
+')')
 
 define(`EXTERN',
 m4_assert_numargs(1)
@@ -69,10 +69,14 @@ define(`END_OBJECT',
 m4_assert_numargs(1)
 `	.size	$1, .-$1')
 
-define(`CALL',
-	`bl	GSYM_PREFIX`'$1
-	nop')
+define(`ASM_END', `dnl')
 
-define(`ASM_END', TOC_ENTRY)
+ifdef(`PIC',`
+define(`PIC_SLOW')')
+
+dnl  64-bit "long long" parameters are put in an even-odd pair, skipping an
+dnl  even register if that was in turn.  I wish somebody could explain why that
+dnl  is a good idea.
+define(`BROKEN_LONGLONG_PARAM')
 
 divert

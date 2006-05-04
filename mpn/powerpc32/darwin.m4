@@ -1,7 +1,7 @@
 divert(-1)
 dnl  m4 macros for Mac OS 32-bit assembly.
 
-dnl  Copyright 2005 Free Software Foundation, Inc.
+dnl  Copyright 2005, 2006 Free Software Foundation, Inc.
 dnl
 dnl  This file is part of the GNU MP Library.
 dnl
@@ -50,6 +50,10 @@ m4_assert_numargs(2)
 	lis	$1, ha16($2)
 	la	$1, lo16($2)($1)
 ')')
+
+define(`EXTERN',
+m4_assert_numargs(1)
+`dnl')
 
 define(`DEF_OBJECT',
 m4_assert_numargs_range(1,2)

@@ -1,6 +1,6 @@
 /* mpn_divexact_by3c -- mpn exact division by 3.
 
-Copyright 2000, 2001, 2002, 2003 Free Software Foundation, Inc.
+Copyright 2000, 2001, 2002, 2003, 2006 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -47,7 +47,7 @@ MA 02110-1301, USA. */
    "l=s-c".  See below for alternative code which avoids that.  */
 
 mp_limb_t
-mpn_divexact_by3c (mp_ptr restrict rp, mp_srcptr restrict up, mp_size_t un, mp_limb_t c)
+mpn_divexact_by3c (mp_ptr rp, mp_srcptr up, mp_size_t un, mp_limb_t c)
 {
   mp_limb_t  l, q, s;
   mp_size_t  i;
@@ -114,7 +114,7 @@ mpn_divexact_by3c (mp_ptr restrict rp, mp_srcptr restrict up, mp_size_t un, mp_l
    mpn/ia64/diveby3.asm.  */
 
 mp_limb_t
-mpn_divexact_by3c (mp_ptr restrict rp, mp_srcptr restrict up, mp_size_t un, mp_limb_t cy)
+mpn_divexact_by3c (mp_ptr rp, mp_srcptr up, mp_size_t un, mp_limb_t cy)
 {
   mp_limb_t  s, sm, cl, q, qx, c2, c3;
   mp_size_t  i;

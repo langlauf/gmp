@@ -18,13 +18,102 @@ along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 MA 02110-1301, USA.
 
+2006-05-04  Torbjorn Granlund  <tege@swox.com>
+
+	* Version 4.2.1 released.
+
+2006-05-03  Torbjorn Granlund  <tege@swox.com>
+
+	* mpn/powerpc64/vmx/popcount.asm: Conditionally zero extend n.
+
+2006-04-27  Torbjorn Granlund  <tege@swox.com>
+
+	* mpz/divexact.c: Call mpz_tdiv_q for large operands.
+
+	* configure.in (powerpc-*-darwin): Remove -fast, it affects PIC.
+
+2006-04-26  Torbjorn Granlund  <tege@swox.com>
+
+	* config.guess: Try to recognize Ultrasparc T1 (as ultrasparct1).
+	* config.sub: Handle ultrasparct1.
+
+2006-04-25  Torbjorn Granlund  <tege@swox.com>
+
+	* mpn/sparc64/gmp-mparam.h: Retune, without separation of GNUC and
+	non-GNUC data.
+
+2006-04-19  Torbjorn Granlund  <tege@swox.com>
+
+	* configure.in: Support powerpc eABI.
+	* mpn/powerpc32/eabi.m4: New file.
+
+	* configure.in: Support powerpc *bsd.
+	* mpn/powerpc64/elf.m4: New name for mpn/powerpc64/linux64.m4.
+	* mpn/powerpc32/elf.m4: New name for mpn/powerpc32/linux.m4.
+
+	* mpn/powerpc64/linux64.m4 (ASM_END): Quote TOC_ENTRY.
+
+2006-04-18  Torbjorn Granlund  <tege@swox.com>
+
+	* configure.in (gmp_mpn_functions_optional): Add lshiftc.
+	(HAVE_NATIVE): Add lshiftc.
+
+	* tune/speed.h (SPEED_ROUTINE_MPN_ADDSUB_N_CALL): New macro.
+	* tune/common.c (speed_mpn_addsub_n): New function.
+	* tune/speed.c (routine): Add measuring of mpn_addsub_n.
+
+	* mpn/powerpc64/linux64.m4 (TOC_ENTRY): Define to empty.
+	* mpn/powerpc64/aix.m4 (TOC_ENTRY): Likewise.
+	* mpn/powerpc32/aix.m4 (TOC_ENTRY): Likewise.
+
+	* mpn/powerpc32/aix.m4 (EXTERN): New, copied form powerpc64/aix.m4.
+	* mpn/powerpc32/mode1o.asm: Use EXTERN.
+	* mpn/powerpc32/linux.m4 (EXTERN): Provide dummy definition.
+	* mpn/powerpc32/darwin.m4 (EXTERN): Likewise.
+
+2006-04-13  Torbjorn Granlund  <tege@swox.com>
+
+	* tests/devel/try.c (choice_array): Add mpn_addsub_n[c].
+
+2006-04-12  Torbjorn Granlund  <tege@swox.com>
+
+	* extract-dbl.c: Don't rely on undefined casts to mp_limb_signed_t.
+
+	* configure.in: Disable AC_C_RESTRICT for now.
+	* mpn/generic/diveby3.c: Don't use restict keyword for now.
+
+2006-04-11  Torbjorn Granlund  <tege@swox.com>
+
+	* gmp-h.in (__GNU_MP_VERSION_PATCHLEVEL): Bump.
+
+	* aclocal.m4: Regenerate with patched libtool.
+
+	* mpn/asm-defs.m4 (ASM_END): Provide (empty) default.
+
+2006-04-08  Torbjorn Granlund  <tege@swox.com>
+
+	* configure.in (gmp_mpn_functions_optional): Add addsub.
+
+	* Makefile.am (LIBGMP_LT_*, LIBGMPXX_LT_*, LIBMP_LT_*):
+	Bump version info.
+
+	* gmpxx.h: Remove missed MPFR references.
+
+	* gmp-impl.h (TMP_*, WANT_TMP_DEBUG): Don't expect marker argument;
+	define TMP_SALLOC and TMP_BALLOC.
+
+2006-04-05  Torbjorn Granlund  <tege@swox.com>
+
+	* tal-notreent.c (__gmp_tmp_mark): Add "struct" tag for tmp_marker.
+	(__gmp_tmp_free): Likewise.
+
 2006-03-26  Torbjorn Granlund  <tege@swox.com>
 
 	* Version 4.2 released.
 
-	* aix.m4 (LEA): Renamed from LDSYM.
-	* darwin.m4: Likewise.
-	* linux64.m4: Likewise.
+	* mpn/powerpc64/aix.m4 (LEA): Renamed from LDSYM.
+	* mpn/powerpc64/darwin.m4: Likewise.
+	* mpn/powerpc64/linux64.m4: Likewise.
 	* mpn/powerpc64/vmx/popcount.asm: Use LEA, not LDSYM.
 
 2006-03-23  Torbjorn Granlund  <tege@swox.com>
@@ -55,6 +144,8 @@ MA 02110-1301, USA.
 
 	* configure.in (powerpc64, darwin): New optional, gcc_cflags_subtype.
 	Grab powerpc32/darwin.m4 for ABI=mode32.
+
+	* configure.in: Use host_cpu whenever just the cpu type is needed.
 
 2006-03-08  Torbjorn Granlund  <tege@swox.com>
 

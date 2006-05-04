@@ -27,7 +27,7 @@ MA 02110-1301, USA.
 AC_COPYRIGHT(GMP_COPYRIGHT)
 AH_TOP(/*GMP_COPYRIGHT*/)
 
-AC_REVISION($Revision: 1.5 $)
+AC_REVISION($Revision: 1.11 $)
 AC_PREREQ(2.59)
 AC_INIT(GNU MP, GMP_VERSION, gmp-bugs@swox.com, gmp)
 AC_CONFIG_SRCDIR(gmp-impl.h)
@@ -958,25 +958,28 @@ case $host in
 	    # mode to handle 64-bit instructions.  But for that, also
 	    # -force_cpusubtype_ALL is needed.
 	    #
+	    # Do not use -fast for Darwin, it actually adds options
+	    # incompatible with a shared library.
+	    #
 	    abilist="mode64 mode32 $abilist"
-	    gcc_cflags_opt="-fast -O3 -O2 -O1"	# will this become used?
+	    gcc_cflags_opt="-O3 -O2 -O1"	# will this become used?
 	    cclist_mode32="gcc"
 	    gcc_mode32_cflags="-mpowerpc64"
 	    gcc_mode32_cflags_optlist="subtype cpu opt"
 	    gcc_mode32_cflags_subtype="-force_cpusubtype_ALL"
-	    gcc_mode32_cflags_opt="-fast -O3 -O2 -O1"
+	    gcc_mode32_cflags_opt="-O3 -O2 -O1"
 	    path_mode32="powerpc64/mode32 $vmx_path powerpc64"
 	    limb_mode32=longlong
 	    cclist_mode64="gcc"
 	    gcc_mode64_cflags="-m64"
 	    gcc_mode64_cflags_optlist="cpu opt"
-	    gcc_mode64_cflags_opt="-fast -O3 -O2 -O1"
+	    gcc_mode64_cflags_opt="-O3 -O2 -O1"
 	    path_mode64="powerpc64/mode64 $vmx_path powerpc64"
             SPEED_CYCLECOUNTER_OBJ_mode64=powerpc64.lo
             cyclecounter_size_mode64=0
 	    any_mode64_testlist="sizeof-long-8"
 	    ;;
-	  *-*-linux*)
+	  *-*-linux* | *-*-*bsd*)
 	    # On GNU/Linux, assume the processor is in 64-bit mode.  Some
 	    # environments have a gcc that is always in 64-bit mode, while
 	    # others require -m64, hence the use of cflags_maybe.  The
@@ -2248,7 +2251,7 @@ AC_C_STRINGIZE
 # But we don't use it in C++ currently.
 AC_C_VOLATILE
 
-AC_C_RESTRICT
+# AC_C_RESTRICT
 
 GMP_C_STDARG
 GMP_C_ATTRIBUTE_CONST
@@ -2370,7 +2373,7 @@ gmp_mpn_functions_optional="umul udiv copyi copyd com_n
   gcd_finda invert_limb sqr_diagonal					\
   mul_2 mul_3 mul_4							\
   addmul_2 addmul_3 addmul_4 addmul_5 addmul_6 addmul_7 addmul_8	\
-  addlsh1_n sublsh1_n rsh1add_n rsh1sub_n"
+  addlsh1_n sublsh1_n rsh1add_n rsh1sub_n addsub_n lshiftc"
 
 gmp_mpn_functions="$extra_functions					   \
   add add_1 add_n sub sub_1 sub_n mul_1 addmul_1			   \
@@ -2841,6 +2844,7 @@ AH_VERBATIM([HAVE_NATIVE],
 #undef HAVE_NATIVE_mpn_invert_limb
 #undef HAVE_NATIVE_mpn_ior_n
 #undef HAVE_NATIVE_mpn_iorn_n
+#undef HAVE_NATIVE_mpn_lshiftc
 #undef HAVE_NATIVE_mpn_mod_1
 #undef HAVE_NATIVE_mpn_mod_1c
 #undef HAVE_NATIVE_mpn_modexact_1_odd
@@ -2920,10 +2924,10 @@ if test "$gmp_asm_syntax_testing" != no; then
             *)           GMP_INCLUDE_MPN(powerpc32/aix.m4) ;;
           esac
           ;;
-        *-*-linux*)
+        *-*-linux* | *-*-*bsd*)
 	  case $ABI in
-	    mode64)      GMP_INCLUDE_MPN(powerpc64/linux64.m4) ;;
-	    mode32 | 32) GMP_INCLUDE_MPN(powerpc32/linux.m4) ;;
+	    mode64)      GMP_INCLUDE_MPN(powerpc64/elf.m4) ;;
+	    mode32 | 32) GMP_INCLUDE_MPN(powerpc32/elf.m4) ;;
           esac
           ;;
         *-*-darwin*)
@@ -2932,6 +2936,10 @@ if test "$gmp_asm_syntax_testing" != no; then
 	    mode32 | 32) GMP_INCLUDE_MPN(powerpc32/darwin.m4) ;;
           esac
           ;;
+        *)
+	  # Assume unrecognized operating system is the powerpc eABI
+          GMP_INCLUDE_MPN(powerpc32/eabi.m4)
+	  ;;
       esac
       ;;
     power*-*-aix*)

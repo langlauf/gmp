@@ -1,6 +1,6 @@
 dnl  Intel Pentium mpn_com_n -- mpn ones complement.
 
-dnl  Copyright 1996, 2001, 2002 Free Software Foundation, Inc.
+dnl  Copyright 1996, 2001, 2002, 2006 Free Software Foundation, Inc.
 dnl
 dnl  This file is part of the GNU MP Library.
 dnl

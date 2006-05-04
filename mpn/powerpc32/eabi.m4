@@ -1,7 +1,7 @@
 divert(-1)
-dnl  m4 macros for powerpc32 GNU/Linux assembly.
+dnl  m4 macros for powerpc32 eABI assembly.
 
-dnl  Copyright 2003, 2005 Free Software Foundation, Inc.
+dnl  Copyright 2003, 2005, 2006 Free Software Foundation, Inc.
 dnl
 dnl  This file is part of the GNU MP Library.
 dnl
@@ -39,18 +39,17 @@ define(`EPILOGUE_cpu',
 m4_assert_numargs(1)
 `	.size	$1, .-$1')
 
+dnl  This ought to support PIC, but it is unclear how that is done for eABI
 define(`LEA',
 m4_assert_numargs(2)
-`ifdef(`PIC',`
-	mflr	r0
-	bl	_GLOBAL_OFFSET_TABLE_@local-4
-	mflr	$1
-	mtlr	r0
-	lwz	$1, $2@got($1)
-',`
+`
 	lis	$1, $2@ha
 	la	$1, $2@l($1)
-')')
+')
+
+define(`EXTERN',
+m4_assert_numargs(1)
+`dnl')
 
 define(`DEF_OBJECT',
 m4_assert_numargs_range(1,2)

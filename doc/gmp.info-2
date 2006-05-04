@@ -2,10 +2,10 @@ This is /home/tege/prec/gmp42/doc/gmp.info, produced by makeinfo
 version 4.6 from /home/tege/prec/gmp42/doc/gmp.texi.
 
 This manual describes how to install and use the GNU multiple precision
-arithmetic library, version 4.2.
+arithmetic library, version 4.2.1.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
-2001, 2002, 2003, 2004, 2005 Free Software Foundation, Inc.
+2001, 2002, 2003, 2004, 2005, 2006 Free Software Foundation, Inc.
 
    Permission is granted to copy, distribute and/or modify this
 document under the terms of the GNU Free Documentation License, Version
@@ -1768,6 +1768,7 @@ Concept Index
 * --enable-alloca:                       Build Options.
 * --enable-assert:                       Build Options.
 * --enable-cxx:                          Build Options.
+* --enable-fat:                          Build Options.
 * --enable-mpbsd:                        Build Options.
 * --enable-profiling <1>:                Build Options.
 * --enable-profiling:                    Profiling.
@@ -1782,8 +1783,7 @@ Concept Index
 * ABI:                                   ABI and ISA.
 * About this manual:                     Introduction to GMP.
 * AC_CHECK_LIB:                          Autoconf.
-* AIX <1>:                               ABI and ISA.
-* AIX <2>:                               Notes for Particular Systems.
+* AIX <1>:                               Notes for Particular Systems.
 * AIX:                                   ABI and ISA.
 * Algorithms:                            Algorithms.
 * alloca:                                Build Options.
@@ -1791,9 +1791,9 @@ Concept Index
 * AMD64:                                 ABI and ISA.
 * Anonymous FTP of latest version:       Introduction to GMP.
 * Application Binary Interface:          ABI and ISA.
-* Arithmetic functions <1>:              Integer Arithmetic.
-* Arithmetic functions <2>:              Rational Arithmetic.
-* Arithmetic functions:                  Float Arithmetic.
+* Arithmetic functions <1>:              Float Arithmetic.
+* Arithmetic functions <2>:              Integer Arithmetic.
+* Arithmetic functions:                  Rational Arithmetic.
 * ARM:                                   Notes for Particular Systems.
 * Assembler cache handling:              Assembler Cache Handling.
 * Assembler carry propagation:           Assembler Carry Propagation.
@@ -1806,11 +1806,11 @@ Concept Index
 * Assembler writing guide:               Assembler Writing Guide.
 * Assertion checking <1>:                Build Options.
 * Assertion checking:                    Debugging.
-* Assignment functions <1>:              Assigning Integers.
+* Assignment functions <1>:              Assigning Floats.
 * Assignment functions <2>:              Simultaneous Integer Init & Assign.
-* Assignment functions <3>:              Assigning Floats.
+* Assignment functions <3>:              Initializing Rationals.
 * Assignment functions <4>:              Simultaneous Float Init & Assign.
-* Assignment functions:                  Initializing Rationals.
+* Assignment functions:                  Assigning Integers.
 * Autoconf:                              Autoconf.
 * Basics:                                GMP Basics.
 * Berkeley MP compatible functions <1>:  BSD Compatible Functions.
@@ -1848,9 +1848,9 @@ Concept Index
 * checkergcc:                            Debugging.
 * Code organisation:                     Assembler Code Organisation.
 * Compaq C++:                            Notes for Particular Systems.
-* Comparison functions <1>:              Integer Comparisons.
-* Comparison functions <2>:              Float Comparison.
-* Comparison functions:                  Comparing Rationals.
+* Comparison functions <1>:              Float Comparison.
+* Comparison functions <2>:              Comparing Rationals.
+* Comparison functions:                  Integer Comparisons.
 * Compatibility with older versions:     Compatibility with older versions.
 * Conditions for copying GNU MP:         Copying.
 * Configuring GMP:                       Installing GMP.
@@ -1860,9 +1860,9 @@ Concept Index
 * Contributors:                          Contributors.
 * Conventions for parameters:            Parameter Conventions.
 * Conventions for variables:             Variable Conventions.
-* Conversion functions <1>:              Rational Conversions.
-* Conversion functions <2>:              Converting Integers.
-* Conversion functions:                  Converting Floats.
+* Conversion functions <1>:              Converting Floats.
+* Conversion functions <2>:              Rational Conversions.
+* Conversion functions:                  Converting Integers.
 * Copying conditions:                    Copying.
 * CPPFLAGS:                              Build Options.
 * CPU types <1>:                         Introduction to GMP.
@@ -1896,10 +1896,10 @@ Concept Index
 * Exact remainder:                       Exact Remainder.
 * Example programs:                      Demonstration Programs.
 * Exec prefix:                           Build Options.
-* Execution profiling <1>:               Build Options.
-* Execution profiling:                   Profiling.
-* Exponentiation functions <1>:          Integer Exponentiation.
-* Exponentiation functions:              Float Arithmetic.
+* Execution profiling <1>:               Profiling.
+* Execution profiling:                   Build Options.
+* Exponentiation functions <1>:          Float Arithmetic.
+* Exponentiation functions:              Integer Exponentiation.
 * Export:                                Integer Import and Export.
 * Expression parsing demo:               Demonstration Programs.
 * Extended GCD:                          Number Theoretic Functions.
@@ -1908,10 +1908,10 @@ Concept Index
 * Factorial functions:                   Number Theoretic Functions.
 * Factorization demo:                    Demonstration Programs.
 * Fast Fourier Transform:                FFT Multiplication.
-* Fat binary:                            Notes for Particular Systems.
+* Fat binary:                            Build Options.
 * FDL, GNU Free Documentation License:   GNU Free Documentation License.
-* FFT multiplication <1>:                Build Options.
-* FFT multiplication:                    FFT Multiplication.
+* FFT multiplication <1>:                FFT Multiplication.
+* FFT multiplication:                    Build Options.
 * Fibonacci number algorithm:            Fibonacci Numbers Algorithm.
 * Fibonacci sequence functions:          Number Theoretic Functions.
 * Float arithmetic functions:            Float Arithmetic.
@@ -1920,8 +1920,8 @@ Concept Index
 * Float comparison functions:            Float Comparison.
 * Float conversion functions:            Converting Floats.
 * Float functions:                       Floating-point Functions.
-* Float initialization functions <1>:    Simultaneous Float Init & Assign.
-* Float initialization functions:        Initializing Floats.
+* Float initialization functions <1>:    Initializing Floats.
+* Float initialization functions:        Simultaneous Float Init & Assign.
 * Float input and output functions:      I/O of Floats.
 * Float internals:                       Float Internals.
 * Float miscellaneous functions:         Miscellaneous Float Functions.
@@ -1935,8 +1935,8 @@ Concept Index
 * Formatted input:                       Formatted Input.
 * Formatted output:                      Formatted Output.
 * Free Documentation License:            GNU Free Documentation License.
-* frexp <1>:                             Converting Integers.
-* frexp:                                 Converting Floats.
+* frexp <1>:                             Converting Floats.
+* frexp:                                 Converting Integers.
 * FTP of latest version:                 Introduction to GMP.
 * Function classes:                      Function Classes.
 * FunctionCheck:                         Profiling.
@@ -1964,20 +1964,20 @@ Concept Index
 * HP-UX:                                 ABI and ISA.
 * HPPA:                                  ABI and ISA.
 * I/O functions <1>:                     I/O of Floats.
-* I/O functions <2>:                     I/O of Rationals.
-* I/O functions:                         I/O of Integers.
+* I/O functions <2>:                     I/O of Integers.
+* I/O functions:                         I/O of Rationals.
 * i386:                                  Notes for Particular Systems.
 * IA-64:                                 ABI and ISA.
 * Import:                                Integer Import and Export.
 * In-place operations:                   Efficiency.
 * Include files:                         Headers and Libraries.
 * info-lookup-symbol:                    Emacs.
-* Initialization functions <1>:          Initializing Rationals.
-* Initialization functions <2>:          Simultaneous Integer Init & Assign.
-* Initialization functions <3>:          Random State Initialization.
-* Initialization functions <4>:          Initializing Integers.
-* Initialization functions <5>:          Initializing Floats.
-* Initialization functions:              Simultaneous Float Init & Assign.
+* Initialization functions <1>:          Simultaneous Integer Init & Assign.
+* Initialization functions <2>:          Initializing Integers.
+* Initialization functions <3>:          Simultaneous Float Init & Assign.
+* Initialization functions <4>:          Initializing Floats.
+* Initialization functions <5>:          Initializing Rationals.
+* Initialization functions:              Random State Initialization.
 * Initializing and clearing:             Efficiency.
 * Input functions <1>:                   I/O of Integers.
 * Input functions <2>:                   Formatted Input Functions.
@@ -1989,8 +1989,8 @@ Concept Index
 * instrument-functions:                  Profiling.
 * Integer:                               Nomenclature and Types.
 * Integer arithmetic functions:          Integer Arithmetic.
-* Integer assignment functions <1>:      Simultaneous Integer Init & Assign.
-* Integer assignment functions:          Assigning Integers.
+* Integer assignment functions <1>:      Assigning Integers.
+* Integer assignment functions:          Simultaneous Integer Init & Assign.
 * Integer bit manipulation functions:    Integer Logic and Bit Fiddling.
 * Integer comparison functions:          Integer Comparisons.
 * Integer conversion functions:          Converting Integers.
@@ -2013,8 +2013,8 @@ Concept Index
 * Internals:                             Internals.
 * Introduction:                          Introduction to GMP.
 * Inverse modulo functions:              Number Theoretic Functions.
-* IRIX <1>:                              ABI and ISA.
-* IRIX:                                  Known Build Problems.
+* IRIX <1>:                              Known Build Problems.
+* IRIX:                                  ABI and ISA.
 * ISA:                                   ABI and ISA.
 * istream input:                         C++ Formatted Input.
 * Jacobi symbol algorithm:               Jacobi Symbol.
@@ -2076,12 +2076,13 @@ Concept Index
 * Numerator and denominator:             Applying Integer Functions.
 * obstack output:                        Formatted Output Functions.
 * OpenBSD:                               Notes for Particular Systems.
+* Optimizing performance:                Performance optimization.
 * ostream output:                        C++ Formatted Output.
 * Other languages:                       Language Bindings.
 * Output functions <1>:                  I/O of Floats.
 * Output functions <2>:                  I/O of Integers.
-* Output functions <3>:                  I/O of Rationals.
-* Output functions:                      Formatted Output Functions.
+* Output functions <3>:                  Formatted Output Functions.
+* Output functions:                      I/O of Rationals.
 * Packaged builds:                       Notes for Package Builds.
 * Parameter conventions:                 Parameter Conventions.
 * Parsing expressions demo:              Demonstration Programs.
@@ -2095,8 +2096,8 @@ Concept Index
 * perl:                                  Demonstration Programs.
 * Perl module:                           Demonstration Programs.
 * Postscript:                            Build Options.
-* Power/PowerPC <1>:                     Notes for Particular Systems.
-* Power/PowerPC:                         Known Build Problems.
+* Power/PowerPC <1>:                     Known Build Problems.
+* Power/PowerPC:                         Notes for Particular Systems.
 * Powering algorithms:                   Powering Algorithms.
 * Powering functions <1>:                Integer Exponentiation.
 * Powering functions:                    Float Arithmetic.
@@ -2156,7 +2157,8 @@ Concept Index
 * Sign tests:                            Float Comparison.
 * Size in digits:                        Miscellaneous Integer Functions.
 * Small operands:                        Efficiency.
-* Solaris <1>:                           ABI and ISA.
+* Solaris <1>:                           Known Build Problems.
+* Solaris <2>:                           ABI and ISA.
 * Solaris:                               Known Build Problems.
 * Sparc:                                 Notes for Particular Systems.
 * Sparc V9:                              ABI and ISA.
@@ -2487,6 +2489,7 @@ Function and Type Index
 * mpz_cmpabs_d:                          Integer Comparisons.
 * mpz_cmpabs_ui:                         Integer Comparisons.
 * mpz_com:                               Integer Logic and Bit Fiddling.
+* mpz_combit:                            Integer Logic and Bit Fiddling.
 * mpz_congruent_2exp_p:                  Integer Division.
 * mpz_congruent_p:                       Integer Division.
 * mpz_congruent_ui_p:                    Integer Division.

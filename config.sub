@@ -3,7 +3,7 @@
 # GMP config.sub wrapper.
 
 
-# Copyright 2000, 2001, 2002, 2003 Free Software Foundation, Inc.
+# Copyright 2000, 2001, 2002, 2003, 2006 Free Software Foundation, Inc.
 #
 # This file is part of the GNU MP Library.
 #
@@ -106,7 +106,7 @@ powerpc801 | powerpc821 | powerpc823  | powerpc860 | \
 powerpc64)
   test_cpu=powerpc ;;
 sparcv8 | supersparc | microsparc | \
-ultrasparc | ultrasparc2 | ultrasparc2i | ultrasparc3)
+ultrasparc | ultrasparc2 | ultrasparc2i | ultrasparc3 | ultrasparct1)
   test_cpu=sparc ;;
 sh2)
   test_cpu=sh ;;

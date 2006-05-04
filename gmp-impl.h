@@ -4,7 +4,7 @@
    BE SUBJECT TO INCOMPATIBLE CHANGES IN FUTURE GNU MP RELEASES.
 
 Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1999, 2000, 2001, 2002, 2003,
-2004, 2005 Free Software Foundation, Inc.
+2004, 2005, 2006 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -393,15 +393,12 @@ void *__gmp_tmp_debug_alloc _PROTO ((const char *, int, int,
 void  __gmp_tmp_debug_free  _PROTO ((const char *, int, int,
                                      struct tmp_debug_t **,
                                      const char *, const char *));
-#if HAVE_STRINGIZE
-#define TMP_DECL(marker) TMP_DECL_NAME(marker, #marker)
-#define TMP_MARK(marker) TMP_MARK_NAME(marker, #marker)
-#define TMP_FREE(marker) TMP_FREE_NAME(marker, #marker)
-#else
-#define TMP_DECL(marker) TMP_DECL_NAME(marker, "marker")
-#define TMP_MARK(marker) TMP_MARK_NAME(marker, "marker")
-#define TMP_FREE(marker) TMP_FREE_NAME(marker, "marker")
-#endif
+#define TMP_SDECL TMP_DECL_NAME(__tmp_xmarker, "__tmp_marker")
+#define TMP_DECL TMP_DECL_NAME(__tmp_xmarker, "__tmp_marker")
+#define TMP_SMARK TMP_MARK_NAME(__tmp_xmarker, "__tmp_marker")
+#define TMP_MARK TMP_MARK_NAME(__tmp_xmarker, "__tmp_marker")
+#define TMP_SFREE TMP_FREE_NAME(__tmp_xmarker, "__tmp_marker")
+#define TMP_FREE TMP_FREE_NAME(__tmp_xmarker, "__tmp_marker")
 /* The marker variable is designed to provoke an uninitialized varialble
    warning from the compiler if TMP_FREE is used without a TMP_MARK.
    __tmp_marker_inscope does the same for TMP_ALLOC.  Runtime tests pick
@@ -421,6 +418,8 @@ void  __gmp_tmp_debug_free  _PROTO ((const char *, int, int,
                            &__tmp_marker, &__tmp_marker_struct, \
                            __tmp_marker_name, marker_name);     \
   } while (0)
+#define TMP_SALLOC(n)		TMP_ALLOC(n)
+#define TMP_BALLOC(n)		TMP_ALLOC(n)
 #define TMP_ALLOC(size)                                                 \
   __gmp_tmp_debug_alloc (ASSERT_FILE, ASSERT_LINE,                      \
                          __tmp_marker_inscope,                          \
