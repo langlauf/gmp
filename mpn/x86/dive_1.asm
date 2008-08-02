@@ -71,7 +71,6 @@ ifdef(`PIC',`
 	LEA(	modlimb_invert_table, edx)
 	movzbl	(%eax,%edx), %eax			C inv 8 bits
 ',`
-dnl non-PIC
 	movzbl	modlimb_invert_table(%eax), %eax	C inv 8 bits
 ')
 

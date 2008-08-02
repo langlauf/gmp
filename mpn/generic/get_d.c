@@ -40,7 +40,7 @@ union ieee_double_extract {
 #endif
 
 /* To force use of the generic C code for testing, put
-   "#define _GMP_IEEE_FLOATS 0" at this point.	*/
+   "#define _GMP_IEEE_FLOATS 0" at this point.  */
 
 
 
@@ -49,7 +49,7 @@ union ieee_double_extract {
    wrong if that addition overflows.
 
    The workaround here avoids this bug by ensuring n is not a literal
-   constant.  Note that this is alpha specific.	 The offending transformation
+   constant.  Note that this is alpha specific.  The offending transformation
    is/was in alpha.c alpha_emit_conditional_branch() under "We want to use
    cmpcc/bcc".
 
@@ -81,7 +81,7 @@ static volatile const long CONST_NEG_1022_SUB_53 = -1022 - 53;
    In the past conversions had attempted (imperfectly) to let the hardware
    float rounding mode take effect, but that gets tricky since multiple
    roundings need to be avoided, or taken into account, and denorms mean the
-   effective precision of the mantissa is not constant.	 (For reference,
+   effective precision of the mantissa is not constant.  (For reference,
    mpz_get_d on IEEE systems was ok, except it operated on the absolute
    value.  mpf_get_d and mpq_get_d suffered from multiple roundings and from
    not always using enough bits to get the rounding right.)
@@ -104,7 +104,7 @@ static volatile const long CONST_NEG_1022_SUB_53 = -1022 - 53;
    Traps:
 
    Hardware traps for overflow to infinity, underflow to zero, or
-   unsupported denorms may or may not be taken.	 The IEEE code works bitwise
+   unsupported denorms may or may not be taken.  The IEEE code works bitwise
    and so probably won't trigger them, the generic code works by float
    operations and so probably will.  This difference might be thought less
    than ideal, but again its felt straightforward code is better than trying
@@ -131,18 +131,18 @@ static volatile const long CONST_NEG_1022_SUB_53 = -1022 - 53;
 
 
 double
-mpn_get_d (mp_srcptr ptr, mp_size_t size, mp_size_t sign, long exp)
+mpn_get_d (mp_srcptr up, mp_size_t size, mp_size_t sign, long exp)
 {
   ASSERT (size >= 0);
-  ASSERT_MPN (ptr, size);
-  ASSERT (size == 0 || ptr[size-1] != 0);
+  ASSERT_MPN (up, size);
+  ASSERT (size == 0 || up[size-1] != 0);
 
   if (size == 0)
     return 0.0;
 
-  /* Adjust exp to a radix point just above {ptr,size}, guarding against
-     overflow.	After this exp can of course be reduced to anywhere within
-     the {ptr,size} region without underflow.  */
+  /* Adjust exp to a radix point just above {up,size}, guarding against
+     overflow.  After this exp can of course be reduced to anywhere within
+     the {up,size} region without underflow.  */
   if (UNLIKELY ((unsigned long) (GMP_NUMB_BITS * size)
 		> (unsigned long) (LONG_MAX - exp)))
     {
@@ -166,8 +166,8 @@ mpn_get_d (mp_srcptr ptr, mp_size_t size, mp_size_t sign, long exp)
       mp_limb_t	 m0, m1, m2, rmask;
       int	 lshift, rshift;
 
-      m0 = ptr[size-1];			    /* high limb */
-      m1 = (size >= 2 ? ptr[size-2] : 0);   /* second highest limb */
+      m0 = up[size-1];			    /* high limb */
+      m1 = (size >= 2 ? up[size-2] : 0);   /* second highest limb */
       count_leading_zeros (lshift, m0);
 
       /* relative to just under high non-zero bit */
@@ -186,7 +186,7 @@ mpn_get_d (mp_srcptr ptr, mp_size_t size, mp_size_t sign, long exp)
 	}
       else /* TWO_LIMBS */
 	{
-	  m2 = (size >= 3 ? ptr[size-3] : 0);  /* third highest limb */
+	  m2 = (size >= 3 ? up[size-3] : 0);  /* third highest limb */
 
 	  /* collapse nails from m1 and m2 */
 #if GMP_NAIL_BITS != 0
@@ -265,10 +265,10 @@ mpn_get_d (mp_srcptr ptr, mp_size_t size, mp_size_t sign, long exp)
       int	     shift;
       double	     base, factor, prev_factor, d, new_d, diff;
 
-      /* "limb" is "ptr[i]" the limb being examined, "bit" is a mask for the
+      /* "limb" is "up[i]" the limb being examined, "bit" is a mask for the
 	 bit being examined, initially the highest non-zero bit.  */
       i = size-1;
-      limb = ptr[i];
+      limb = up[i];
       count_leading_zeros (shift, limb);
       bit = GMP_LIMB_HIGHBIT >> shift;
 
@@ -321,7 +321,7 @@ mpn_get_d (mp_srcptr ptr, mp_size_t size, mp_size_t sign, long exp)
 	      i--;
 	      if (i < 0)
 		break;
-	      limb = ptr[i];
+	      limb = up[i];
 	      bit = GMP_NUMB_HIGHBIT;
 	    }
 

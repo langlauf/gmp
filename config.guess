@@ -3,8 +3,8 @@
 # GMP config.guess wrapper.
 
 
-# Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006 Free Software Foundation,
-# Inc.
+# Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008 Free Software
+# Foundation, Inc.
 #
 # This file is part of the GNU MP Library.
 #
@@ -190,7 +190,8 @@ main ()
       /* "GenuineIntel" */
       switch ((getcpuid(3LL) >> 24) & 0xFF) {
       case 0x07: puts ("itanium");  break;
-      case 0x1F: puts ("itanium2"); break;
+      case 0x1F: puts ("itanium2"); break; /* McKinley, Madison */
+      case 0x20: puts ("itanium2"); break; /* Montecito */
       }
     }
   return 0;
@@ -704,9 +705,9 @@ main ()
 
   fms = cpuid (dummy_string, 1);
 
-  family = (fms >> 8) & 15;
-  model = (fms >> 4) & 15;
-  stepping = fms & 15;
+  family = ((fms >> 8) & 0xf) + ((fms >> 20) & 0xff);
+  model = ((fms >> 4) & 0xf) + ((fms >> 12) & 0xf0);
+  stepping = fms & 0xf;
 
   modelstr = "i486";
   if (strcmp (vendor_string, "GenuineIntel") == 0)
@@ -718,9 +719,12 @@ main ()
 	  else if (model >= 4)	modelstr = "pentiummmx";
 	  break;
 	case 6:
-	  if (model == 1)	modelstr = "pentiumpro";
+	  if (model <= 1)	modelstr = "pentiumpro";
 	  else if (model <= 6)	modelstr = "pentium2";
-	  else if (model <= 14)	modelstr = "pentium3";
+	  else if (model <= 8)	modelstr = "pentium3";
+	  else if (model <= 9)	modelstr = "pentiumm";
+	  else if (model <= 12)	modelstr = "pentium3";
+	  else if (model <= 14)	modelstr = "pentiumm";
 	  else			modelstr = "core2";
 	  break;
 	case 15:
@@ -735,8 +739,10 @@ main ()
 	case 5:
 	  if (model <= 3)	modelstr = "k5";
 	  else if (model <= 7)	modelstr = "k6";
-	  else if (model <= 8)	modelstr = "k62";
-	  else if (model <= 9)	modelstr = "k63";
+	  else if (model == 8)	modelstr = "k62";
+	  else if (model == 9)	modelstr = "k63";
+	  else if (model == 10) modelstr = "geode";
+	  else if (model == 13) modelstr = "k63";
 	  break;
 	case 6:
 	  modelstr = "athlon";

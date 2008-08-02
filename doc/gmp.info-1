@@ -1,11 +1,12 @@
 This is /home/tege/prec/gmp42/doc/gmp.info, produced by makeinfo
-version 4.8 from /home/tege/prec/gmp42/doc/gmp.texi.
+version 4.12 from /home/tege/prec/gmp42/doc/gmp.texi.
 
-   This manual describes how to install and use the GNU multiple
-precision arithmetic library, version 4.2.2.
+This manual describes how to install and use the GNU multiple precision
+arithmetic library, version 4.2.3.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
-2001, 2002, 2003, 2004, 2005, 2006, 2007 Free Software Foundation, Inc.
+2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 Free Software
+Foundation, Inc.
 
    Permission is granted to copy, distribute and/or modify this
 document under the terms of the GNU Free Documentation License, Version
@@ -13,7 +14,7 @@ document under the terms of the GNU Free Documentation License, Version
 with no Invariant Sections, with the Front-Cover Texts being "A GNU
 Manual", and with the Back-Cover Texts being "You have freedom to copy
 and modify this GNU Manual, like GNU software".  A copy of the license
-is included in *Note GNU Free Documentation License::.
+is included in *note GNU Free Documentation License::.
 
 INFO-DIR-SECTION GNU libraries
 START-INFO-DIR-ENTRY
@@ -27,10 +28,11 @@ GNU MP
 ******
 
    This manual describes how to install and use the GNU multiple
-precision arithmetic library, version 4.2.2.
+precision arithmetic library, version 4.2.3.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
-2001, 2002, 2003, 2004, 2005, 2006, 2007 Free Software Foundation, Inc.
+2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 Free Software
+Foundation, Inc.
 
    Permission is granted to copy, distribute and/or modify this
 document under the terms of the GNU Free Documentation License, Version
@@ -38,7 +40,7 @@ document under the terms of the GNU Free Documentation License, Version
 with no Invariant Sections, with the Front-Cover Texts being "A GNU
 Manual", and with the Back-Cover Texts being "You have freedom to copy
 and modify this GNU Manual, like GNU software".  A copy of the license
-is included in *Note GNU Free Documentation License::.
+is included in *note GNU Free Documentation License::.
 
 
 * Menu:
@@ -141,7 +143,7 @@ Pyramid AP/XP.
 
 For up-to-date information on GMP, please see the GMP web pages at
 
-     `http://swox.com/gmp/'
+     `http://gmplib.org/'
 
 The latest version of the library is available at
 
@@ -156,16 +158,16 @@ the GMP library and one for bug reports.  For more information, see
 
      `http://swox.com/mailman/listinfo/'.
 
-   The proper place for bug reports is <gmp-bugs@swox.com>.  See *Note
+   The proper place for bug reports is <gmp-bugs@swox.com>.  See *note
 Reporting Bugs:: for information about reporting bugs.
 
 
 1.1 How to use this Manual
 ==========================
 
-Everyone should read *Note GMP Basics::.  If you need to install the
-library yourself, then read *Note Installing GMP::.  If you have a
-system with multiple ABIs, then read *Note ABI and ISA::, for the
+Everyone should read *note GMP Basics::.  If you need to install the
+library yourself, then read *note Installing GMP::.  If you have a
+system with multiple ABIs, then read *note ABI and ISA::, for the
 compiler options that must be used on applications.
 
    The rest of the manual can be used for later reference, although it
@@ -192,7 +194,7 @@ And you can install (under `/usr/local' by default) with
      make install
 
    If you experience problems, please report them to
-<gmp-bugs@swox.com>.  See *Note Reporting Bugs::, for information on
+<gmp-bugs@swox.com>.  See *note Reporting Bugs::, for information on
 what to include in useful bug reports.
 
 * Menu:
@@ -215,7 +217,7 @@ All the usual autoconf configure options are available, run `./configure
 installation information too.
 
 Tools
-     `configure' requires various Unix-like tools.  See *Note Notes for
+     `configure' requires various Unix-like tools.  See *note Notes for
      Particular Systems::, for some options on non-Unix systems.
 
      It might be possible to build without the help of `configure',
@@ -228,7 +230,7 @@ Build Directory
      directory.  For example
 
           cd /my/build/dir
-          /my/sources/gmp-4.2.2/configure
+          /my/sources/gmp-4.2.3/configure
 
      Not all `make' programs have the necessary features (`VPATH') to
      support this.  In particular, SunOS and Slowaris `make' have bugs
@@ -382,7 +384,7 @@ Fat binary, `--enable-fat'
 
           ./configure --host=mips64-sgi-irix6 ABI=n32
 
-     See *Note ABI and ISA::, for the available choices on relevant
+     See *note ABI and ISA::, for the available choices on relevant
      CPUs, and what applications need to do.
 
 `CC', `CFLAGS'
@@ -404,7 +406,7 @@ Fat binary, `--enable-fat'
      Note that when `CC' and `CFLAGS' are specified on a system
      supporting multiple ABIs it's important to give an explicit
      `ABI=whatever', since GMP can't determine the ABI just from the
-     flags and won't be able to select the correct assembler code.
+     flags and won't be able to select the correct assembly code.
 
      If just `CC' is selected then normal default `CFLAGS' for that
      compiler will be used (if GMP recognises it).  For example
@@ -539,7 +541,7 @@ Execution Profiling, `--enable-profiling=prof/gprof/instrument'
      Profiling::.
 
 `MPN_PATH'
-     Various assembler versions of each mpn subroutines are provided.
+     Various assembly versions of each mpn subroutines are provided.
      For a given CPU, a search is made though a path to choose a
      version of each.  For example `sparcv8' has
 
@@ -552,14 +554,14 @@ Execution Profiling, `--enable-profiling=prof/gprof/instrument'
 
 Documentation
      The source for the document you're now reading is `doc/gmp.texi',
-     in Texinfo format, see *Note Texinfo: (texinfo)Top.
+     in Texinfo format, see *note Texinfo: (texinfo)Top.
 
      Info format `doc/gmp.info' is included in the distribution.  The
      usual automake targets are available to make PostScript, DVI, PDF
      and HTML (these will require various TeX and Texinfo tools).
 
      DocBook and XML can be generated by the Texinfo `makeinfo' program
-     too, see *Note Options for `makeinfo': (texinfo)makeinfo options.
+     too, see *note Options for `makeinfo': (texinfo)makeinfo options.
 
      Some supplementary notes can also be found in the `doc'
      subdirectory.
@@ -653,7 +655,7 @@ HPPA 2.0 (`hppa2.0*', `hppa64')
 
           Note that current versions of GCC (eg. 3.2) don't generate
           64-bit instructions for `long long' operations and so may be
-          slower than for 2.0w.  (The GMP assembler code is the same
+          slower than for 2.0w.  (The GMP assembly code is the same
           though.)
 
     `ABI=1.0'
@@ -862,7 +864,7 @@ as making it possible for a user to omit `--build' (and `--host') so
 `--build' will be wanted for systems where `./config.guess' is inexact.
 
    On systems with multiple ABIs, a packaged build will need to decide
-which among the choices is to be provided, see *Note ABI and ISA::.  A
+which among the choices is to be provided, see *note ABI and ISA::.  A
 given run of `./configure' etc will only build one ABI.  If a second
 ABI is also required then a second run of `./configure' etc must be
 made, starting from a clean directory tree (`make distclean').
@@ -980,13 +982,12 @@ Power CPU Types
      In GMP, CPU types `power*' and `powerpc*' will each use
      instructions not available on the other, so it's important to
      choose the right one for the CPU that will be used.  Currently GMP
-     has no assembler code support for using just the common
-     instruction subset.  To get executables that run on both, the
-     current suggestion is to use the generic C code (CPU `none'),
-     possibly with appropriate compiler options (like `-mcpu=common' for
-     `gcc').  CPU `rs6000' (which is not a CPU but a family of
-     workstations) is accepted by `config.sub', but is currently
-     equivalent to `none'.
+     has no assembly code support for using just the common instruction
+     subset.  To get executables that run on both, the current
+     suggestion is to use the generic C code (CPU `none'), possibly
+     with appropriate compiler options (like `-mcpu=common' for `gcc').
+     CPU `rs6000' (which is not a CPU but a family of workstations) is
+     accepted by `config.sub', but is currently equivalent to `none'.
 
 Sparc CPU Types
      `sparcv8' or `supersparc' on relevant systems will give a
@@ -994,16 +995,16 @@ Sparc CPU Types
      `sparc'.
 
 Sparc App Regs
-     The GMP assembler code for both 32-bit and 64-bit Sparc clobbers
-     the "application registers" `g2', `g3' and `g4', the same way that
-     the GCC default `-mapp-regs' does (*note SPARC Options: (gcc)SPARC
+     The GMP assembly code for both 32-bit and 64-bit Sparc clobbers the
+     "application registers" `g2', `g3' and `g4', the same way that the
+     GCC default `-mapp-regs' does (*note SPARC Options: (gcc)SPARC
      Options.).
 
      This makes that code unsuitable for use with the special V9
      `-mcmodel=embmedany' (which uses `g4' as a data segment pointer),
      and for applications wanting to use those registers for special
      purposes.  In these cases the only suggestion currently is to
-     build GMP with CPU `none' to avoid the assembler code.
+     build GMP with CPU `none' to avoid the assembly code.
 
 SunOS 4
      `/usr/bin/m4' lacks various features needed to process `.asm'
@@ -1039,7 +1040,7 @@ File: gmp.info,  Node: Known Build Problems,  Next: Performance optimization,  P
 2.5 Known Build Problems
 ========================
 
-You might find more up-to-date information at `http://swox.com/gmp/'.
+You might find more up-to-date information at `http://gmplib.org/'.
 
 Compiler link options
      The version of libtool currently in use rather aggressively strips
@@ -1123,7 +1124,7 @@ File: gmp.info,  Node: Performance optimization,  Prev: Known Build Problems,  U
 ============================
 
 For optimal performance, build GMP for the exact CPU type of the target
-computer, see *Note Build Options::.
+computer, see *note Build Options::.
 
    Unlike what is the case for most other programs, the compiler
 typically doesn't matter much, since GMP uses assembly language for the
@@ -1424,9 +1425,9 @@ of space, determined by the chosen precision and allocated at
 initialization, so their size doesn't change.
 
    All memory is allocated using `malloc' and friends by default, but
-this can be changed, see *Note Custom Allocation::.  Temporary memory
+this can be changed, see *note Custom Allocation::.  Temporary memory
 on the stack is also used (via `alloca'), but this can be changed at
-build-time if desired, see *Note Build Options::.
+build-time if desired, see *note Build Options::.
 
 
 File: gmp.info,  Node: Reentrancy,  Next: Useful Macros and Constants,  Prev: Memory Management,  Up: GMP Basics
@@ -1490,7 +1491,7 @@ File: gmp.info,  Node: Useful Macros and Constants,  Next: Compatibility with ol
 
  -- Global Constant: const char * const gmp_version
      The GMP version number, as a null-terminated string, in the form
-     "i.j" or "i.j.k".  This release is "4.2.2".
+     "i.j" or "i.j.k".  This release is "4.2.3".
 
 
 File: gmp.info,  Node: Compatibility with older versions,  Next: Demonstration Programs,  Prev: Useful Macros and Constants,  Up: GMP Basics
@@ -1736,7 +1737,7 @@ File: gmp.info,  Node: Debugging,  Next: Profiling,  Prev: Efficiency,  Up: GMP 
 Stack Overflow
      Depending on the system, a segmentation violation or bus error
      might be the only indication of stack overflow.  See
-     `--enable-alloca' choices in *Note Build Options::, for how to
+     `--enable-alloca' choices in *note Build Options::, for how to
      address this.
 
      In new enough versions of GCC, `-fstack-check' may be able to
@@ -1759,7 +1760,7 @@ Heap Problems
 
      In all such cases a `malloc' debugger is recommended.  On a GNU or
      BSD system the standard C library `malloc' has some diagnostic
-     facilities, see *Note Allocation Debugging: (libc)Allocation
+     facilities, see *note Allocation Debugging: (libc)Allocation
      Debugging, or `man 3 malloc'.  Other possibilities, in no
      particular order, include
 
@@ -1800,14 +1801,14 @@ Source File Paths
      path to the source directory.
 
           cd /my/build/dir
-          /my/source/dir/gmp-4.2.2/configure
+          /my/source/dir/gmp-4.2.3/configure
 
      This works via `VPATH', and might require GNU `make'.  Alternately
      it might be possible to change the `.c.lo' rules appropriately.
 
 Assertion Checking
      The build option `--enable-assert' is available to add some
-     consistency checks to the library (see *Note Build Options::).
+     consistency checks to the library (see *note Build Options::).
      These are likely to be of limited value to most applications.
      Assertion failures are just as likely to indicate memory
      corruption as a library or compiler bug.
@@ -1816,7 +1817,7 @@ Assertion Checking
      benefit from `--enable-assert' since it adds checks on the
      parameters of most such functions, many of which have subtle
      restrictions on their usage.  Note however that only the generic C
-     code has checks, not the assembler code, so CPU `none' should be
+     code has checks, not the assembly code, so CPU `none' should be
      used for maximum checking.
 
 Temporary Memory Checking
@@ -1851,7 +1852,7 @@ Checker
 
           ./configure --host=none-pc-linux-gnu CC=checkergcc
 
-     `--host=none' must be used, since the GMP assembler code doesn't
+     `--host=none' must be used, since the GMP assembly code doesn't
      support the checking scheme.  The GMP C++ features cannot be used,
      since current versions of checker (0.9.9.1) don't yet support the
      standard C++ library.
@@ -1869,7 +1870,7 @@ Valgrind
 
 Other Problems
      Any suspected bug in GMP itself should be isolated to make sure
-     it's not an application problem, see *Note Reporting Bugs::.
+     it's not an application problem, see *note Reporting Bugs::.
 
 
 File: gmp.info,  Node: Profiling,  Next: Autoconf,  Prev: Debugging,  Up: GMP Basics
@@ -1887,7 +1888,7 @@ profiling choices for a GMP build are as follows.
      It should be possible to just compile the mainline of a program
      with `-p' and use `prof' to get a profile consisting of
      timer-based sampling of the program counter.  Most of the GMP
-     assembler code has the necessary symbol information.
+     assembly code has the necessary symbol information.
 
      This approach has the advantage of minimizing interference with
      normal program operation, but on most systems the resolution of
@@ -1903,8 +1904,8 @@ profiling choices for a GMP build are as follows.
      identified, and an average time spent in each routine to be
      determined.
 
-     The x86 assembler code has support for this option, but on other
-     processors the assembler routines will be as if compiled without
+     The x86 assembly code has support for this option, but on other
+     processors the assembly routines will be as if compiled without
      `-p' and therefore won't appear in the call counts.
 
      On some systems, such as GNU/Linux, `-p' in fact means `-pg' and in
@@ -1923,8 +1924,8 @@ profiling choices for a GMP build are as follows.
      only a total time in `mpn_mul' would be accumulated, not a
      separate amount for each call site.
 
-     The x86 assembler code has support for this option, but on other
-     processors the assembler routines will be as if compiled without
+     The x86 assembly code has support for this option, but on other
+     processors the assembly routines will be as if compiled without
      `-pg' and therefore not be included in the call counts.
 
      On x86 and m68k systems `-pg' and `-fomit-frame-pointer' are
@@ -1960,8 +1961,8 @@ profiling choices for a GMP build are as follows.
      this case it's only necessary to ensure the correct library is
      added when linking an application.
 
-     The x86 assembler code supports this option, but on other
-     processors the assembler routines will be as if compiled without
+     The x86 assembly code supports this option, but on other
+     processors the assembly routines will be as if compiled without
      `-finstrument-functions' meaning time spent in them will
      effectively be attributed to their caller.
 
@@ -1983,7 +1984,7 @@ found, but an application that must have GMP would want to generate an
 error if not found.  For example,
 
      AC_CHECK_LIB(gmp, __gmpz_init, ,
-       [AC_MSG_ERROR([GNU MP not found, see http://swox.com/gmp/])])
+       [AC_MSG_ERROR([GNU MP not found, see http://gmplib.org/])])
 
    If functions added in some particular version of GMP are required,
 then one of those can be used when checking.  For example `mpz_mul_si'
@@ -1991,7 +1992,7 @@ was added in GMP 3.1,
 
      AC_CHECK_LIB(gmp, __gmpz_mul_si, ,
        [AC_MSG_ERROR(
-       [GNU MP not found, or not 3.1 or up, see http://swox.com/gmp/])])
+       [GNU MP not found, or not 3.1 or up, see http://gmplib.org/])])
 
    An alternative would be to test the version number in `gmp.h' using
 say `AC_EGREP_CPP'.  That would make it possible to test the exact
@@ -2039,10 +2040,10 @@ If you think you have found a bug in the GMP library, please
 investigate it and report it.  We have made this library available to
 you, and it is not too much to ask you to report the bugs you find.
 
-   Before you report a bug, check it's not already addressed in *Note
-Known Build Problems::, or perhaps *Note Notes for Particular
-Systems::.  You may also want to check `http://swox.com/gmp/' for
-patches for this release.
+   Before you report a bug, check it's not already addressed in *note
+Known Build Problems::, or perhaps *note Notes for Particular
+Systems::.  You may also want to check `http://gmplib.org/' for patches
+for this release.
 
    Please include the following in any report,
 
@@ -2070,8 +2071,8 @@ patches for this release.
    * The output from running `./config.guess', and from running
      `./configfsf.guess' (might be the same).
 
-   * If the bug is related to `configure', then the contents of
-     `config.log'.
+   * If the bug is related to `configure', then the compressed contents
+     of `config.log'.
 
    * If the bug is related to an `asm' file not assembling, then the
      contents of `config.m4' and the offending line or lines from the
@@ -2262,7 +2263,7 @@ File: gmp.info,  Node: Converting Integers,  Next: Integer Arithmetic,  Prev: Si
 
 This section describes functions for converting GMP integers to
 standard C types.  Functions for converting _to_ GMP integers are
-described in *Note Assigning Integers:: and *Note I/O of Integers::.
+described in *note Assigning Integers:: and *note I/O of Integers::.
 
  -- Function: unsigned long int mpz_get_ui (mpz_t OP)
      Return the value of OP as an `unsigned long'.
@@ -2518,7 +2519,7 @@ File: gmp.info,  Node: Integer Exponentiation,  Next: Integer Roots,  Prev: Inte
      Set ROP to (BASE raised to EXP) modulo MOD.
 
      Negative EXP is supported if an inverse BASE^-1 mod MOD exists
-     (see `mpz_invert' in *Note Number Theoretic Functions::).  If an
+     (see `mpz_invert' in *note Number Theoretic Functions::).  If an
      inverse doesn't exist then a divide by zero is raised.
 
  -- Function: void mpz_pow_ui (mpz_t ROP, mpz_t BASE, unsigned long int
@@ -2696,7 +2697,7 @@ File: gmp.info,  Node: Number Theoretic Functions,  Next: Integer Comparisons,  
      The Fibonacci numbers and Lucas numbers are related sequences, so
      it's never necessary to call both `mpz_fib2_ui' and
      `mpz_lucnum2_ui'.  The formulas for going from Fibonacci to Lucas
-     can be found in *Note Lucas Numbers Algorithm::, the reverse is
+     can be found in *note Lucas Numbers Algorithm::, the reverse is
      straightforward too.
 
 
@@ -2870,7 +2871,7 @@ File: gmp.info,  Node: Integer Random Numbers,  Next: Integer Import and Export,
 
 The random number functions of GMP come in two groups; older function
 that rely on a global state, and newer functions that accept a state
-parameter that is read and modified.  Please see the *Note Random
+parameter that is read and modified.  Please see the *note Random
 Number Functions:: for more information on how to use and not to use
 random number functions.
 
@@ -2880,7 +2881,7 @@ random number functions.
      2^N-1, inclusive.
 
      The variable STATE must be initialized by calling one of the
-     `gmp_randinit' functions (*Note Random State Initialization::)
+     `gmp_randinit' functions (*note Random State Initialization::)
      before invoking this function.
 
  -- Function: void mpz_urandomm (mpz_t ROP, gmp_randstate_t STATE,
@@ -2888,7 +2889,7 @@ random number functions.
      Generate a uniform random integer in the range 0 to N-1, inclusive.
 
      The variable STATE must be initialized by calling one of the
-     `gmp_randinit' functions (*Note Random State Initialization::)
+     `gmp_randinit' functions (*note Random State Initialization::)
      before invoking this function.
 
  -- Function: void mpz_rrandomb (mpz_t ROP, gmp_randstate_t STATE,
@@ -2900,7 +2901,7 @@ random number functions.
      be in the range 0 to 2^N-1, inclusive.
 
      The variable STATE must be initialized by calling one of the
-     `gmp_randinit' functions (*Note Random State Initialization::)
+     `gmp_randinit' functions (*note Random State Initialization::)
      before invoking this function.
 
  -- Function: void mpz_random (mpz_t ROP, mp_size_t MAX_SIZE)
@@ -2930,8 +2931,8 @@ File: gmp.info,  Node: Integer Import and Export,  Next: Miscellaneous Integer F
 `mpz_t' variables can be converted to and from arbitrary words of binary
 data with the following functions.
 
- -- Function: void mpz_import (mpz_t ROP, size_t COUNT, int ORDER, int
-          SIZE, int ENDIAN, size_t NAILS, const void *OP)
+ -- Function: void mpz_import (mpz_t ROP, size_t COUNT, int ORDER,
+          size_t SIZE, int ENDIAN, size_t NAILS, const void *OP)
      Set ROP from an array of word data at OP.
 
      The parameters specify the format of the data.  COUNT many words
@@ -2939,8 +2940,8 @@ data with the following functions.
      word first or -1 for least significant first.  Within each word
      ENDIAN can be 1 for most significant byte first, -1 for least
      significant first, or 0 for the native endianness of the host CPU.
-     The most significant NAILS bits of each word are skipped, this
-     can be 0 to use the full words.
+     The most significant NAILS bits of each word are skipped, this can
+     be 0 to use the full words.
 
      There is no sign taken from the data, ROP will simply be a positive
      integer.  An application can handle any sign itself, and apply it
@@ -2965,7 +2966,7 @@ data with the following functions.
      instance `8*sizeof(int)-INT_BIT'.
 
  -- Function: void * mpz_export (void *ROP, size_t *COUNTP, int ORDER,
-          int SIZE, int ENDIAN, size_t NAILS, mpz_t OP)
+          size_t SIZE, int ENDIAN, size_t NAILS, mpz_t OP)
      Fill ROP with word data from OP.
 
      The parameters specify the format of the data produced.  Each word
@@ -3883,7 +3884,7 @@ File: gmp.info,  Node: Miscellaneous Float Functions,  Prev: I/O of Floats,  Up:
      <= ROP < 1, with NBITS significant bits in the mantissa.
 
      The variable STATE must be initialized by calling one of the
-     `gmp_randinit' functions (*Note Random State Initialization::)
+     `gmp_randinit' functions (*note Random State Initialization::)
      before invoking this function.
 
  -- Function: void mpf_random2 (mpf_t ROP, mp_size_t MAX_SIZE, mp_exp_t
@@ -3956,7 +3957,7 @@ For example, {S1P, S1N}.
      This is the lowest-level function for addition.  It is the
      preferred function for addition, since it is written in assembly
      for most CPUs.  For addition of a variable to itself (i.e., S1P
-     equals S2P, use `mpn_lshift' with a count of 1 for optimal speed.
+     equals S2P) use `mpn_lshift' with a count of 1 for optimal speed.
 
  -- Function: mp_limb_t mpn_add_1 (mp_limb_t *RP, const mp_limb_t *S1P,
           mp_size_t N, mp_limb_t S2LIMB)
@@ -4129,8 +4130,8 @@ For example, {S1P, S1N}.
      c satisfy c*b^n + a-i = 3*q, where b=2^GMP_NUMB_BITS.  The return
      c is always 0, 1 or 2, and the initial carry i must also be 0, 1
      or 2 (these are both borrows really).  When c=0 clearly q=(a-i)/3.
-     When c!=0, the remainder (a-i) mod 3 is given by 3-c, because b
-     == 1 mod 3 (when `mp_bits_per_limb' is even, which is always so
+     When c!=0, the remainder (a-i) mod 3 is given by 3-c, because b ==
+     1 mod 3 (when `mp_bits_per_limb' is even, which is always so
      currently).
 
  -- Function: mp_limb_t mpn_mod_1 (mp_limb_t *S1P, mp_size_t S1N,
@@ -4389,7 +4390,7 @@ one of the `gmp_randinit' functions, and can be seeded with one of the
 `gmp_randseed' functions.
 
    The functions actually generating random numbers are described in
-*Note Integer Random Numbers::, and *Note Miscellaneous Float
+*note Integer Random Numbers::, and *note Miscellaneous Float
 Functions::.
 
    The older style random number functions don't accept a
@@ -4417,7 +4418,7 @@ File: gmp.info,  Node: Random State Initialization,  Next: Random State Seeding,
      applications with no special requirements.  Currently this is
      `gmp_randinit_mt'.
 
- -- Function: int gmp_randinit_mt (gmp_randstate_t STATE)
+ -- Function: void gmp_randinit_mt (gmp_randstate_t STATE)
      Initialize STATE for a Mersenne Twister algorithm.  This algorithm
      is fast and has good randomness properties.
 
@@ -4670,7 +4671,7 @@ File: gmp.info,  Node: Formatted Output Functions,  Next: C++ Formatted Output, 
 
 Each of the following functions is similar to the corresponding C
 library function.  The basic `printf' forms take a variable argument
-list.  The `vprintf' forms take an argument pointer, see *Note Variadic
+list.  The `vprintf' forms take an argument pointer, see *note Variadic
 Functions: (libc)Variadic Functions, or `man 3 va_start'.
 
    It should be emphasised that if a format string is invalid, or the
@@ -4751,7 +4752,7 @@ shouldn't normally occur.
 
      These functions are available only when the C library provides the
      obstack feature, which probably means only on GNU systems, see
-     *Note Obstacks: (libc)Obstacks.
+     *note Obstacks: (libc)Obstacks.
 
 
 File: gmp.info,  Node: C++ Formatted Output,  Prev: Formatted Output Functions,  Up: Formatted Output
@@ -4814,7 +4815,7 @@ way, for example,
    But note that `ostream' output (and `istream' input, *note C++
 Formatted Input::) is the only overloading available for the GMP types
 and that for instance using `+' with an `mpz_t' will have unpredictable
-results.  For classes with overloading, see *Note C++ Class Interface::.
+results.  For classes with overloading, see *note C++ Class Interface::.
 
 
 File: gmp.info,  Node: Formatted Input,  Next: C++ Class Interface,  Prev: Formatted Output,  Up: Top
@@ -4962,7 +4963,7 @@ File: gmp.info,  Node: Formatted Input Functions,  Next: C++ Formatted Input,  P
 
 Each of the following functions is similar to the corresponding C
 library function.  The plain `scanf' forms take a variable argument
-list.  The `vscanf' forms take an argument pointer, see *Note Variadic
+list.  The `vscanf' forms take an argument pointer, see *note Variadic
 Functions: (libc)Variadic Functions, or `man 3 va_start'.
 
    It should be emphasised that if a format string is invalid, or the
@@ -5062,7 +5063,7 @@ way, for example,
    But note that `istream' input (and `ostream' output, *note C++
 Formatted Output::) is the only overloading available for the GMP types
 and that for instance using `+' with an `mpz_t' will have unpredictable
-results.  For classes with overloading, see *Note C++ Class Interface::.
+results.  For classes with overloading, see *note C++ Class Interface::.
 
 
 File: gmp.info,  Node: C++ Class Interface,  Next: BSD Compatible Functions,  Prev: Formatted Input,  Up: Top
@@ -5298,7 +5299,7 @@ called.
      exception is thrown.  The same applies to `operator='.
 
  -- Function: void mpq_class::canonicalize ()
-     Put an `mpq_class' into canonical form, as per *Note Rational
+     Put an `mpq_class' into canonical form, as per *note Rational
      Number Functions::.  All arithmetic operators require their
      operands in canonical form, and will return results in canonical
      form.
@@ -5960,7 +5961,7 @@ documented functions.
 * Root Extraction Algorithms::
 * Radix Conversion Algorithms::
 * Other Algorithms::
-* Assembler Coding::
+* Assembly Coding::
 
 
 File: gmp.info,  Node: Multiplication Algorithms,  Next: Division Algorithms,  Prev: Algorithms,  Up: Algorithms
@@ -6005,15 +6006,15 @@ that reason sometimes known as the schoolbook or grammar school method.
 This is an O(N*M) algorithm.  See Knuth section 4.3.1 algorithm M
 (*note References::), and the `mpn/generic/mul_basecase.c' code.
 
-   Assembler implementations of `mpn_mul_basecase' are essentially the
-same as the generic C code, but have all the usual assembler tricks and
+   Assembly implementations of `mpn_mul_basecase' are essentially the
+same as the generic C code, but have all the usual assembly tricks and
 obscurities introduced for speed.
 
    A square can be done in roughly half the time of a multiply, by
 using the fact that the cross products above and below the diagonal are
 the same.  A triangle of products below the diagonal is formed, doubled
 (left shift by one bit), and then the products on the diagonal added.
-This can be seen in `mpn/generic/sqr_basecase.c'.  Again the assembler
+This can be seen in `mpn/generic/sqr_basecase.c'.  Again the assembly
 implementations take essentially the same approach.
 
           u0  u1  u2  u3  u4
@@ -6273,8 +6274,8 @@ File: gmp.info,  Node: FFT Multiplication,  Next: Other Multiplication,  Prev: T
 -------------------------
 
 At large to very large sizes a Fermat style FFT multiplication is used,
-following Scho"nhage and Strassen (*note References::).  Descriptions
-of FFTs in various forms can be found in many textbooks, for instance
+following Schönhage and Strassen (*note References::).  Descriptions of
+FFTs in various forms can be found in many textbooks, for instance
 Knuth section 4.3.3 part C or Lipson chapter IX.  A brief description
 of the form used in GMP is given here.
 
@@ -6501,7 +6502,7 @@ the top end of the dividend.  With a normalized divisor (most
 significant bit set), each quotient limb can be formed with a 2x1
 division and a 1x1 multiplication plus some subtractions.  The 2x1
 division is by the high limb of the divisor and is done either with a
-hardware divide or a multiply by inverse (the same as in *Note Single
+hardware divide or a multiply by inverse (the same as in *note Single
 Limb Division::) whichever is faster.  Such a quotient is sometimes one
 too big, requiring an addback of the divisor, but that happens rarely.
 
@@ -7073,3 +7074,8 @@ representation.
 * Binary to Radix::
 * Radix to Binary::
 
+
+
+Local Variables:
+coding: iso-8859-1
+End:

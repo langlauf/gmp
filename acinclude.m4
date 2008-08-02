@@ -44,7 +44,7 @@ define(POWERPC64_PATTERN,
 [[powerpc64-*-* | powerpc64le-*-* | powerpc620-*-* | powerpc630-*-* | powerpc970-*-* | power[3-9]-*-*]])
 
 define(X86_PATTERN,
-[[i?86*-*-* | k[5-8]*-*-* | pentium*-*-* | athlon-*-* | viac3*-*-*]])
+[[i?86*-*-* | k[5-8]*-*-* | pentium*-*-* | athlon-*-* | viac3*-*-* | geode*-*-*]])
 
 
 dnl  GMP_FAT_SUFFIX(DSTVAR, DIRECTORY)
@@ -85,7 +85,7 @@ done
 
 dnl  GMP_STRIP_PATH(subdir)
 dnl  ----------------------
-dnl  Strip entries subdir from $path and $fat_path.
+dnl  Strip entries */subdir from $path and $fat_path.
 
 define(GMP_STRIP_PATH,
 [GMP_STRIP_PATH_VAR(path, [$1])
@@ -1608,6 +1608,34 @@ else
   ifelse([$3],,:,[$3])
 fi
 rm -f conftest*
+])
+
+
+dnl Checks whether the stack can be marked nonexecutable by passing an option
+dnl to the C-compiler when acting on .s files. Appends that option to ASFLAGS.
+dnl This macro is adapted from one found in GLIBC-2.3.5.
+AC_DEFUN([CL_AS_NOEXECSTACK],[
+dnl AC_REQUIRE([AC_PROG_CC]) GMP uses something else
+AC_CACHE_CHECK([whether assembler supports --noexecstack option],
+cl_cv_as_noexecstack, [dnl
+  cat > conftest.c <<EOF
+void foo() {}
+EOF
+  if AC_TRY_COMMAND([${CC} $CFLAGS $CPPFLAGS
+                     -S -o conftest.s conftest.c >/dev/null]) \
+     && grep .note.GNU-stack conftest.s >/dev/null \
+     && AC_TRY_COMMAND([${CC} $CFLAGS $CPPFLAGS -Wa,--noexecstack
+                       -c -o conftest.o conftest.s >/dev/null])
+  then
+    cl_cv_as_noexecstack=yes
+  else
+    cl_cv_as_noexecstack=no
+  fi
+  rm -f conftest*])
+  if test "$cl_cv_as_noexecstack" = yes; then
+    ASMFLAGS="$ASMFLAGS -Wa,--noexecstack"
+  fi
+  AC_SUBST(ASMFLAGS)
 ])
 
 

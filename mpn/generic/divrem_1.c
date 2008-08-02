@@ -50,8 +50,8 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
    threshold, and best results are obtained by having code for both present.
 
    The main reason for separating the norm and unnorm cases is that not all
-   CPUs give zero for "n0 >> BITS_PER_MP_LIMB" which would arise in the
-   unnorm code used on an already normalized divisor.
+   CPUs give zero for "n0 >> GMP_LIMB_BITS" which would arise in the unnorm
+   code used on an already normalized divisor.
 
    If UDIV_NEEDS_NORMALIZATION is false then plain division uses the same
    non-shifting code for both the norm and unnorm cases, though with

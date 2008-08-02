@@ -22,7 +22,7 @@
 # along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.
 
 # ***************************** NOTE **************************************
-# This script try to figure out things about this release but has a hard
+# This script tries to figure out things about this release but has a hard
 # time doing it. It reads some lines in "configure", "Makefile.am" and
 # "mp*/Makefile.am" and try to guess things. With every new release
 # this script has to be tested.

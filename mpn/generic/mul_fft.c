@@ -120,7 +120,7 @@ mpn_fft_initl (int **l, int k)
   for (i = 1, K = 1; i <= k; i++, K *= 2)
     {
       li = l[i];
-      for (j = 0; j < K ; j++)
+      for (j = 0; j < K; j++)
 	{
 	  li[j] = 2 * l[i - 1][j];
 	  li[K + j] = 1 + li[j];

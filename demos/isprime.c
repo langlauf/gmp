@@ -1,5 +1,5 @@
 /* Classify numbers as probable primes, primes or composites.
-   With -q return true if the folowing argument is a (probable) prime.
+   With -q return true if the following argument is a (probable) prime.
 
 Copyright 1999, 2000, 2002, 2005 Free Software Foundation, Inc.
 

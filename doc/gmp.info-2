@@ -1,11 +1,12 @@
 This is /home/tege/prec/gmp42/doc/gmp.info, produced by makeinfo
-version 4.8 from /home/tege/prec/gmp42/doc/gmp.texi.
+version 4.12 from /home/tege/prec/gmp42/doc/gmp.texi.
 
-   This manual describes how to install and use the GNU multiple
-precision arithmetic library, version 4.2.2.
+This manual describes how to install and use the GNU multiple precision
+arithmetic library, version 4.2.3.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
-2001, 2002, 2003, 2004, 2005, 2006, 2007 Free Software Foundation, Inc.
+2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 Free Software
+Foundation, Inc.
 
    Permission is granted to copy, distribute and/or modify this
 document under the terms of the GNU Free Documentation License, Version
@@ -13,7 +14,7 @@ document under the terms of the GNU Free Documentation License, Version
 with no Invariant Sections, with the Front-Cover Texts being "A GNU
 Manual", and with the Back-Cover Texts being "You have freedom to copy
 and modify this GNU Manual, like GNU software".  A copy of the license
-is included in *Note GNU Free Documentation License::.
+is included in *note GNU Free Documentation License::.
 
 INFO-DIR-SECTION GNU libraries
 START-INFO-DIR-ENTRY
@@ -135,7 +136,7 @@ corresponding `GET_STR_PRECOMPUTE_THRESHOLD' is that `mpn_mul_1' is
 much faster than `mpn_divrem_1' (often by a factor of 10, or more).
 
 
-File: gmp.info,  Node: Other Algorithms,  Next: Assembler Coding,  Prev: Radix Conversion Algorithms,  Up: Algorithms
+File: gmp.info,  Node: Other Algorithms,  Next: Assembly Coding,  Prev: Radix Conversion Algorithms,  Up: Algorithms
 
 16.7 Other Algorithms
 =====================
@@ -283,8 +284,8 @@ formulas is used, according as n is odd or even.
      F[2k+1] = (2F[k]+F[k-1])*(2F[k]-F[k-1]) + 2*(-1)^k
 
    F[2k+1] here is the same as above, just rearranged to be a multiply.
-For interest, the 2*(-1)^k term both here and above can be applied
-just to the low limb of the calculation, without a carry or borrow into
+For interest, the 2*(-1)^k term both here and above can be applied just
+to the low limb of the calculation, without a carry or borrow into
 further limbs, which saves some code size.  See comments with
 `mpz_fib_ui' and the internal `mpn_fib2_ui' for how this is done.
 
@@ -356,12 +357,12 @@ unsuitable for cryptographic applications without further hashing or
 the like.
 
 
-File: gmp.info,  Node: Assembler Coding,  Prev: Other Algorithms,  Up: Algorithms
+File: gmp.info,  Node: Assembly Coding,  Prev: Other Algorithms,  Up: Algorithms
 
-16.8 Assembler Coding
-=====================
+16.8 Assembly Coding
+====================
 
-The assembler subroutines in GMP are the most significant source of
+The assembly subroutines in GMP are the most significant source of
 speed at small to moderate sizes.  At larger sizes algorithm selection
 becomes more important, but of course speedups in low level routines
 will still speed up everything proportionally.
@@ -373,27 +374,26 @@ offers a speedup over generic C by a factor of anything from 2 to 10.
 
 * Menu:
 
-* Assembler Code Organisation::
-* Assembler Basics::
-* Assembler Carry Propagation::
-* Assembler Cache Handling::
-* Assembler Functional Units::
-* Assembler Floating Point::
-* Assembler SIMD Instructions::
-* Assembler Software Pipelining::
-* Assembler Loop Unrolling::
-* Assembler Writing Guide::
+* Assembly Code Organisation::
+* Assembly Basics::
+* Assembly Carry Propagation::
+* Assembly Cache Handling::
+* Assembly Functional Units::
+* Assembly Floating Point::
+* Assembly SIMD Instructions::
+* Assembly Software Pipelining::
+* Assembly Loop Unrolling::
+* Assembly Writing Guide::
 
 
-File: gmp.info,  Node: Assembler Code Organisation,  Next: Assembler Basics,  Prev: Assembler Coding,  Up: Assembler Coding
+File: gmp.info,  Node: Assembly Code Organisation,  Next: Assembly Basics,  Prev: Assembly Coding,  Up: Assembly Coding
 
 16.8.1 Code Organisation
 ------------------------
 
 The various `mpn' subdirectories contain machine-dependent code, written
-in C or assembler.  The `mpn/generic' subdirectory contains default
-code, used when there's no machine-specific version of a particular
-file.
+in C or assembly.  The `mpn/generic' subdirectory contains default code,
+used when there's no machine-specific version of a particular file.
 
    Each `mpn' subdirectory is for an ISA family.  Generally 32-bit and
 64-bit variants in a family cannot share code and have separate
@@ -408,17 +408,17 @@ There's no effort put into nails if they're not going to enhance a
 given CPU.
 
 
-File: gmp.info,  Node: Assembler Basics,  Next: Assembler Carry Propagation,  Prev: Assembler Code Organisation,  Up: Assembler Coding
+File: gmp.info,  Node: Assembly Basics,  Next: Assembly Carry Propagation,  Prev: Assembly Code Organisation,  Up: Assembly Coding
 
-16.8.2 Assembler Basics
------------------------
+16.8.2 Assembly Basics
+----------------------
 
 `mpn_addmul_1' and `mpn_submul_1' are the most important routines for
 overall GMP performance.  All multiplications and divisions come down to
 repeated calls to these.  `mpn_add_n', `mpn_sub_n', `mpn_lshift' and
 `mpn_rshift' are next most important.
 
-   On some CPUs assembler versions of the internal functions
+   On some CPUs assembly versions of the internal functions
 `mpn_mul_basecase' and `mpn_sqr_basecase' give significant speedups,
 mainly through avoiding function call overheads.  They can also
 potentially make better use of a wide superscalar processor, as can
@@ -432,7 +432,7 @@ of writing on superscalar processors, and loops can be vectorized on a
 vector processor, depending on the carry handling.
 
 
-File: gmp.info,  Node: Assembler Carry Propagation,  Next: Assembler Cache Handling,  Prev: Assembler Basics,  Up: Assembler Coding
+File: gmp.info,  Node: Assembly Carry Propagation,  Next: Assembly Cache Handling,  Prev: Assembly Basics,  Up: Assembly Coding
 
 16.8.3 Carry Propagation
 ------------------------
@@ -465,11 +465,11 @@ needs to fall through to a loop propagating further carries.
 particularly good code for the RISC style idioms that are necessary to
 handle carry bits in C.  Often conditional jumps are generated where
 `adc' or `sbb' forms would be better.  And so unfortunately almost any
-loop involving carry bits needs to be coded in assembler for best
+loop involving carry bits needs to be coded in assembly for best
 results.
 
 
-File: gmp.info,  Node: Assembler Cache Handling,  Next: Assembler Functional Units,  Prev: Assembler Carry Propagation,  Up: Assembler Coding
+File: gmp.info,  Node: Assembly Cache Handling,  Next: Assembly Functional Units,  Prev: Assembly Carry Propagation,  Up: Assembly Coding
 
 16.8.4 Cache Handling
 ---------------------
@@ -480,7 +480,7 @@ and those which don't.
    Basic routines like `mpn_add_n' or `mpn_lshift' are often used on
 large operands, so L2 and main memory performance is important for them.
 `mpn_mul_1' and `mpn_addmul_1' are mostly used for multiply and square
-basecases, so L1 performance matters most for them, unless assembler
+basecases, so L1 performance matters most for them, unless assembly
 versions of `mpn_mul_basecase' and `mpn_sqr_basecase' exist, in which
 case the remaining uses are mostly for larger operands.
 
@@ -515,12 +515,12 @@ accesses and initiates suitable cache movements automatically, making
 life easy.
 
 
-File: gmp.info,  Node: Assembler Functional Units,  Next: Assembler Floating Point,  Prev: Assembler Cache Handling,  Up: Assembler Coding
+File: gmp.info,  Node: Assembly Functional Units,  Next: Assembly Floating Point,  Prev: Assembly Cache Handling,  Up: Assembly Coding
 
 16.8.5 Functional Units
 -----------------------
 
-When choosing an approach for an assembler loop, consideration is given
+When choosing an approach for an assembly loop, consideration is given
 to what operations can execute simultaneously and what throughput can
 thereby be achieved.  In some cases an algorithm can be tweaked to
 accommodate available resources.
@@ -533,7 +533,7 @@ on CISC chips with all addressing done with the loop counter as a
 scaled index.
 
    The final loop control cost can be amortised by processing several
-limbs in each iteration (*note Assembler Loop Unrolling::).  This at
+limbs in each iteration (*note Assembly Loop Unrolling::).  This at
 least ensures loop control isn't a big fraction the work done.
 
    Memory throughput is always a limit.  If perhaps only one load or
@@ -544,14 +544,14 @@ is optimal.
    Integer resources can be freed up by having the loop counter in a
 float register, or by pressing the float units into use for some
 multiplying, perhaps doing every second limb on the float side (*note
-Assembler Floating Point::).
+Assembly Floating Point::).
 
    Float resources can be freed up by doing carry propagation on the
 integer side, or even by doing integer to float conversions in integers
 using bit twiddling.
 
 
-File: gmp.info,  Node: Assembler Floating Point,  Next: Assembler SIMD Instructions,  Prev: Assembler Functional Units,  Up: Assembler Coding
+File: gmp.info,  Node: Assembly Floating Point,  Next: Assembly SIMD Instructions,  Prev: Assembly Functional Units,  Up: Assembly Coding
 
 16.8.6 Floating Point
 ---------------------
@@ -648,7 +648,7 @@ limb, generating a low 64-bit result limb and a high 33-bit carry limb
 (i48 extends 33 bits into the high half).
 
 
-File: gmp.info,  Node: Assembler SIMD Instructions,  Next: Assembler Software Pipelining,  Prev: Assembler Floating Point,  Up: Assembler Coding
+File: gmp.info,  Node: Assembly SIMD Instructions,  Next: Assembly Software Pipelining,  Prev: Assembly Floating Point,  Up: Assembly Coding
 
 16.8.7 SIMD Instructions
 ------------------------
@@ -669,7 +669,7 @@ the P55 `mpn_mul_1'.  SSE2 is used for Pentium 4 `mpn_mul_1',
 `mpn_addmul_1', and `mpn_submul_1'.
 
 
-File: gmp.info,  Node: Assembler Software Pipelining,  Next: Assembler Loop Unrolling,  Prev: Assembler SIMD Instructions,  Up: Assembler Coding
+File: gmp.info,  Node: Assembly Software Pipelining,  Next: Assembly Loop Unrolling,  Prev: Assembly SIMD Instructions,  Up: Assembly Coding
 
 16.8.8 Software Pipelining
 --------------------------
@@ -691,10 +691,10 @@ like juggling.
    If the latency of some instruction is greater than the loop time
 then it will be necessary to unroll, so one register has a result ready
 to use while another (or multiple others) are still in progress.
-(*note Assembler Loop Unrolling::).
+(*note Assembly Loop Unrolling::).
 
 
-File: gmp.info,  Node: Assembler Loop Unrolling,  Next: Assembler Writing Guide,  Prev: Assembler Software Pipelining,  Up: Assembler Coding
+File: gmp.info,  Node: Assembly Loop Unrolling,  Next: Assembly Writing Guide,  Prev: Assembly Software Pipelining,  Up: Assembly Coding
 
 16.8.9 Loop Unrolling
 ---------------------
@@ -741,13 +741,13 @@ ways, for example
      difficult in combination with deep pipelining.
 
 
-File: gmp.info,  Node: Assembler Writing Guide,  Prev: Assembler Loop Unrolling,  Up: Assembler Coding
+File: gmp.info,  Node: Assembly Writing Guide,  Prev: Assembly Loop Unrolling,  Up: Assembly Coding
 
 16.8.10 Writing Guide
 ---------------------
 
 This is a guide to writing software pipelined loops for processing limb
-vectors in assembler.
+vectors in assembly.
 
    First determine the algorithm and which instructions are needed.
 Code it without unrolling or scheduling, to make sure it works.  On a
@@ -890,7 +890,7 @@ GCDs necessary, not four.
 
    This general approach to common factors is badly sub-optimal in the
 presence of simple factorizations or little prospect for cancellation,
-but GMP has no way to know when this will occur.  As per *Note
+but GMP has no way to know when this will occur.  As per *note
 Efficiency::, that's left to applications.  The `mpq_t' framework might
 still suit, with `mpq_numref' and `mpq_denref' for direct access to the
 numerator and denominator, or of course `mpz_t' variables can be used
@@ -1187,13 +1187,13 @@ File: gmp.info,  Node: Contributors,  Next: References,  Prev: Internals,  Up: T
 Appendix A Contributors
 ***********************
 
-Torbjo"rn Granlund wrote the original GMP library and is still the main
+Torbjörn Granlund wrote the original GMP library and is still the main
 developer.  Code not explicitly attributed to others, was contributed by
-Torbjo"rn.  Several other individuals and organizations have
-contributed to code that is in version of GMP.  Here is a list in
-chronological order on first contribution:
+Torbjörn.  Several other individuals and organizations have contributed
+to code that is in version of GMP.  Here is a list in chronological
+order on first contribution:
 
-   Gunnar Sjo"din and Hans Riesel helped with mathematical problems in
+   Gunnar Sjödin and Hans Riesel helped with mathematical problems in
 early versions of the library.
 
    Richard Stallman helped with the interface design and revised the
@@ -1206,12 +1206,11 @@ the library and made creative suggestions.
 `mpz_probab_prime_p'.
 
    Paul Zimmermann wrote the divide and conquer division code, the
-REDC-based mpz_powm code, the Scho"nhage-Strassen FFT multiply code,
-and the Karatsuba square root code.  He also improved the Toom3 code
-for GMP 4.2.  Paul sparked the development of GMP 2, with his
-comparisons between bignum packages.  The ECMNET project Paul is
-organizing was a driving force behind many of the optimizations in GMP
-3.
+REDC-based mpz_powm code, the Schönhage-Strassen FFT multiply code, and
+the Karatsuba square root code.  He also improved the Toom3 code for
+GMP 4.2.  Paul sparked the development of GMP 2, with his comparisons
+between bignum packages.  The ECMNET project Paul is organizing was a
+driving force behind many of the optimizations in GMP 3.
 
    Ken Weber (Kent State University, Universidade Federal do Rio Grande
 do Sul) contributed `mpz_gcd', `mpz_divexact', `mpn_gcd', and
@@ -1322,7 +1321,7 @@ B.2 Papers
      Max-Planck-Institut fuer Informatik Research Report MPI-I-98-1-022,
      `http://data.mpi-sb.mpg.de/internet/reports.nsf/NumberView/1998-1-022'
 
-   * Torbjo"rn Granlund and Peter L. Montgomery, "Division by Invariant
+   * Torbjörn Granlund and Peter L. Montgomery, "Division by Invariant
      Integers using Multiplication", in Proceedings of the SIGPLAN
      PLDI'94 Conference, June 1994.  Also available
      `ftp://ftp.cwi.nl/pub/pmontgom/divcnst.psa4.gz' (and .psl.gz).
@@ -1372,7 +1371,7 @@ B.2 Papers
      Division", in Mathematics of Computation, volume 44, number 170,
      April 1985.
 
-   * Arnold Scho"nhage and Volker Strassen, "Schnelle Multiplikation
+   * Arnold Schönhage and Volker Strassen, "Schnelle Multiplikation
      grosser Zahlen", Computing 7, 1971, pp. 281-292.
 
    * Kenneth Weber, "The accelerated integer GCD algorithm", ACM
@@ -1854,7 +1853,7 @@ Concept Index
 * 68000:                                 Notes for Particular Systems.
                                                               (line  85)
 * 80x86:                                 Notes for Particular Systems.
-                                                              (line 132)
+                                                              (line 131)
 * ABI <1>:                               Build Options.       (line 171)
 * ABI:                                   ABI and ISA.         (line   6)
 * About this manual:                     Introduction to GMP. (line  58)
@@ -1873,22 +1872,22 @@ Concept Index
 * Arithmetic functions:                  Rational Arithmetic. (line   6)
 * ARM:                                   Notes for Particular Systems.
                                                               (line  20)
-* Assembler cache handling:              Assembler Cache Handling.
+* Assembly cache handling:               Assembly Cache Handling.
                                                               (line   6)
-* Assembler carry propagation:           Assembler Carry Propagation.
+* Assembly carry propagation:            Assembly Carry Propagation.
                                                               (line   6)
-* Assembler code organisation:           Assembler Code Organisation.
+* Assembly code organisation:            Assembly Code Organisation.
                                                               (line   6)
-* Assembler coding:                      Assembler Coding.    (line   6)
-* Assembler floating Point:              Assembler Floating Point.
+* Assembly coding:                       Assembly Coding.     (line   6)
+* Assembly floating Point:               Assembly Floating Point.
                                                               (line   6)
-* Assembler loop unrolling:              Assembler Loop Unrolling.
+* Assembly loop unrolling:               Assembly Loop Unrolling.
                                                               (line   6)
-* Assembler SIMD:                        Assembler SIMD Instructions.
+* Assembly SIMD:                         Assembly SIMD Instructions.
                                                               (line   6)
-* Assembler software pipelining:         Assembler Software Pipelining.
+* Assembly software pipelining:          Assembly Software Pipelining.
                                                               (line   6)
-* Assembler writing guide:               Assembler Writing Guide.
+* Assembly writing guide:                Assembly Writing Guide.
                                                               (line   6)
 * Assertion checking <1>:                Build Options.       (line 327)
 * Assertion checking:                    Debugging.           (line  79)
@@ -1948,7 +1947,7 @@ Concept Index
 * CFLAGS:                                Build Options.       (line 182)
 * Checker:                               Debugging.           (line 115)
 * checkergcc:                            Debugging.           (line 122)
-* Code organisation:                     Assembler Code Organisation.
+* Code organisation:                     Assembly Code Organisation.
                                                               (line   6)
 * Compaq C++:                            Notes for Particular Systems.
                                                               (line  25)
@@ -2118,7 +2117,7 @@ Concept Index
 * I/O functions <2>:                     I/O of Integers.     (line   6)
 * I/O functions:                         I/O of Rationals.    (line   6)
 * i386:                                  Notes for Particular Systems.
-                                                              (line 132)
+                                                              (line 131)
 * IA-64:                                 ABI and ISA.         (line 107)
 * Import:                                Integer Import and Export.
                                                               (line  11)
@@ -2258,7 +2257,7 @@ Concept Index
 * Miscellaneous integer functions:       Miscellaneous Integer Functions.
                                                               (line   6)
 * MMX:                                   Notes for Particular Systems.
-                                                              (line 138)
+                                                              (line 137)
 * Modular inverse functions:             Number Theoretic Functions.
                                                               (line  58)
 * Most significant bit:                  Miscellaneous Integer Functions.
@@ -2425,14 +2424,14 @@ Concept Index
 * Solaris:                               Known Build Problems.
                                                               (line  72)
 * Sparc:                                 Notes for Particular Systems.
-                                                              (line 109)
+                                                              (line 108)
 * Sparc V9:                              ABI and ISA.         (line 201)
 * Special integer functions:             Integer Special Functions.
                                                               (line   6)
 * Square root algorithm:                 Square Root Algorithm.
                                                               (line   6)
 * SSE2:                                  Notes for Particular Systems.
-                                                              (line 138)
+                                                              (line 137)
 * Stack backtrace:                       Debugging.           (line  50)
 * Stack overflow <1>:                    Build Options.       (line 278)
 * Stack overflow:                        Debugging.           (line   7)
@@ -2445,7 +2444,7 @@ Concept Index
                                                               (line  28)
 * Sun:                                   ABI and ISA.         (line 201)
 * SunOS:                                 Notes for Particular Systems.
-                                                              (line 126)
+                                                              (line 125)
 * Systems:                               Notes for Particular Systems.
                                                               (line   6)
 * Temporary memory:                      Build Options.       (line 278)
@@ -2474,7 +2473,7 @@ Concept Index
 * Windows:                               Notes for Particular Systems.
                                                               (line  61)
 * x86:                                   Notes for Particular Systems.
-                                                              (line 132)
+                                                              (line 131)
 * x87:                                   Notes for Particular Systems.
                                                               (line  34)
 * XML:                                   Build Options.       (line 354)
@@ -3155,3 +3154,8 @@ Function and Type Index
                                                               (line  34)
 
 
+
+
+Local Variables:
+coding: iso-8859-1
+End:

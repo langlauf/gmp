@@ -146,6 +146,7 @@ ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
 AR = @AR@
 AS = @AS@
+ASMFLAGS = @ASMFLAGS@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -357,7 +358,7 @@ TUNE_MPN_SRCS_BASIC = dc_divrem_n.c divrem_2.c gcd.c gcdext.c get_str.c \
 # COMPILE minus CC.
 #
 COMPILE_FLAGS = $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
-	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) $(ASMFLAGS)
 
 
 # Flags used for preprocessing (in ansi2knr rules).

@@ -33,9 +33,9 @@ mpexpr_va_to_var (void *var[], va_list ap)
     {
       v = va_arg (ap, void *);
       if (v == NULL)
-        break;
+	break;
       if (i >= MPEXPR_VARIABLES)
-        return MPEXPR_RESULT_BAD_VARIABLE;
+	return MPEXPR_RESULT_BAD_VARIABLE;
       var[i++] = v;
     }
 

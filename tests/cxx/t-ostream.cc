@@ -30,37 +30,37 @@ using namespace std;
 int   option_check_standard = 0;
 
 
-#define CALL(expr)                                      \
-  do {                                                  \
-    got.flags (data[i].flags);                          \
-    got.width (data[i].width);                          \
-    got.precision (data[i].precision);                  \
-    if (data[i].fill == '\0')                           \
-      got.fill (' ');                                   \
-    else                                                \
-      got.fill (data[i].fill);                          \
-							\
-    if (! (expr))                                       \
-      {                                                 \
-	cout << "\"got\" output error\n";               \
-	abort ();                                       \
-      }                                                 \
-    if (got.width() != 0)                               \
-      {                                                 \
-	cout << "\"got\" width not reset to 0\n";       \
-	abort ();                                       \
-      }                                                 \
-							\
+#define CALL(expr)							\
+  do {									\
+    got.flags (data[i].flags);						\
+    got.width (data[i].width);						\
+    got.precision (data[i].precision);					\
+    if (data[i].fill == '\0')						\
+      got.fill (' ');							\
+    else								\
+      got.fill (data[i].fill);						\
+									\
+    if (! (expr))							\
+      {									\
+	cout << "\"got\" output error\n";				\
+	abort ();							\
+      }									\
+    if (got.width() != 0)						\
+      {									\
+	cout << "\"got\" width not reset to 0\n";			\
+	abort ();							\
+      }									\
+									\
   } while (0)
 
 
-#define DUMP()                                                          \
-  do {                                                                  \
-    cout << "  want:  |" << data[i].want << "|\n";                      \
-    cout << "  got:   |" << got.str() << "|\n";                         \
-    cout << "  width: " << data[i].width << "\n";                       \
-    cout << "  prec:  " << got.precision() << "\n";                     \
-    cout << "  flags: " << hex << (unsigned long) got.flags() << "\n";  \
+#define DUMP()								\
+  do {									\
+    cout << "  want:  |" << data[i].want << "|\n";			\
+    cout << "  got:   |" << got.str() << "|\n";				\
+    cout << "  width: " << data[i].width << "\n";			\
+    cout << "  prec:  " << got.precision() << "\n";			\
+    cout << "  flags: " << hex << (unsigned long) got.flags() << "\n";	\
   } while (0)
 
 #define ABORT() \

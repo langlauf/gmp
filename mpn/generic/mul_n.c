@@ -405,9 +405,9 @@ toom3_interpolate (mp_ptr c, mp_srcptr v1, mp_ptr v2, mp_ptr vm1,
 		   mp_limb_t vinf0, mp_limb_t cinf0, mp_ptr ws)
 {
   mp_limb_t cy, saved;
-  unsigned long twok = k + k;
-  unsigned long kk1 = twok + 1;
-  unsigned long twor = r + r;
+  mp_size_t twok = k + k;
+  mp_size_t kk1 = twok + 1;
+  mp_size_t twor = r + r;
   mp_ptr c1, c2, c3, c4, c5;
   mp_limb_t cout; /* final carry, should be zero at the end */
 

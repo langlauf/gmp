@@ -83,8 +83,6 @@ ifdef(`PIC',`
 	LEA(	modlimb_invert_table, edi)
 Zdisp(	movzbl,	0,(%ecx,%edi), %edi)			C inv 8 bits
 ',`
-
-dnl non-PIC
 	movzbl	modlimb_invert_table(%ecx), %edi	C inv 8 bits
 ')
 	leal	(%edi,%edi), %ecx	C 2*inv

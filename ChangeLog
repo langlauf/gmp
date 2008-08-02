@@ -1,20 +1,169 @@
-Copyright 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001,
-	  2002, 2003, 2004, 2005, 2006, 2007 Free Software Foundation, Inc.
-.
-This file is part of the GNU MP Library.
-.
-The GNU MP Library is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 3 of the License, or (at your
-option) any later version.
-.
-The GNU MP Library is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-License for more details.
-.
-You should have received a copy of the GNU Lesser General Public License
-along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.
+2008-08-02  Torbjorn Granlund  <tege@swox.com>
+
+	* Version 4.2.3 released.
+
+	* config.guess (ia64): Recognize Montecito.
+
+	* tests/misc/t-scanf.c: Avoid negative arguments to _ui functions.
+	* tests/misc/t-printf.c: Likewise.
+
+	* acinclude.m4 (X86_PATTERN): Add geode.
+
+	* acinclude.m4 (CL_AS_NOEXECSTACK): Avoid -q flag to grep.
+
+2008-08-01  Torbjorn Granlund  <tege@swox.com>
+
+	* acinclude.m4 (CL_AS_NOEXECSTACK): New.
+	* configure.in: Use CL_AS_NOEXECSTACK.
+	* mpn/Makeasm.am: Use ASM_FLAGS (defined by CL_AS_NOEXECSTACK).
+
+	* gmpxx.h (__GMP_DBL_LIMBS): Use DBL_MAX_EXP instead of
+	std::numeric_limits<double>::max_exponent for better portability.
+
+2008-07-29  Torbjorn Granlund  <tege@swox.com>
+
+	* gmpxx.h (__GMP_DBL_LIMBS): New #define.
+	(__GMP_ULI_LIMBS): New #define.
+	(__GMPXX_TMP_UI): New macro.
+	(__GMPXX_TMP_SI): New macro.
+	(__GMPXX_TMP_D): New macro.
+	(struct __gmp_binary_and): Rewrite, using the new macros.
+	(struct __gmp_binary_ior): Likewise.
+	(struct __gmp_binary_xor): Likewise.
+
+2008-07-28  Torbjorn Granlund  <tege@swox.com>
+
+	* tests/cxx/t-binary.cc: Add some tests for logical operations.
+
+2008-07-24  Torbjorn Granlund  <tege@swox.com>
+
+	* gmpxx.h: Use __GMPZ_* instead of __GMPZZ_* for bitwise ops, remove
+	__GMPZZ_*.
+	Remove repeated #undefs.
+	(__gmp_alloc_cstring): Declare freefunc as extern "C".
+
+2008-07-23  Torbjorn Granlund  <tege@swox.com>
+
+	* gmp-h.in (__GMP_CC): New define, undocumented for now.
+	(__GMP_CFLAGS): Likewise.
+
+2008-07-21  Torbjorn Granlund  <tege@swox.com>
+
+	* tests/amd64check.c: Fix a printf type clash.
+
+	* mpz/realloc.c: Amend last fix.
+
+	* gmp-h.in: Include <cstdlib> for C++.
+	* gmp-h.in: Handle new gcc 4.3 inline semantics defaults.
+
+	* configfsf.guess: Update to version of 2008-04-14.
+	* configfsf.sub: Update to version of 2008-06-16.
+
+	* configure.in: Separate core2 and athlon64 flags handling.
+	* configfsf.guess: Separate core2 and athlon64 flags handling.
+
+2008-06-19  Torbjorn Granlund  <tege@swox.com>
+
+	* config.guess: Recognize pentiumm and AMD geode.
+	* config.sub: Likewise.
+	* configure.in: Likewise.
+
+2008-06-02  Torbjorn Granlund  <tege@swox.com>
+
+	* configure.in: Disallow odd nails sizes.
+
+2008-05-23  Torbjorn Granlund  <tege@swox.com>
+
+	* mpz/init2.c: Rewrite to avoid internal overflow and to detect mpz_t
+	overflow.
+	* mpz/realloc2.c: Likewise.
+	* mpz/realloc.c: Detect mpz_t overflow.
+
+	* gmp-h.in (__GNU_MP_VERSION_PATCHLEVEL): Bump.
+
+	* Makefile.am (LIBGMP_LT_*, LIBGMPXX_LT_*, LIBMP_LT_*):
+	Bump version info.
+
+2008-05-22  Torbjorn Granlund  <tege@swox.com>
+
+	* configure.in (sparc): Remove -fast, it causes documented
+	miscompilation.
+
+	* config.guess: Properly handle the "extended" variants of x86 cpuid.
+
+2008-02-29  Torbjorn Granlund  <tege@swox.com>
+
+	* tests/cxx/t-binary.cc (check_mpz): Expect floor rounding for right shift.
+
+2008-02-27  Torbjorn Granlund  <tege@swox.com>
+
+	* gmpxx.h (struct __gmp_binary_rshift): Use floor rounding, not
+	truncation.
+
+	* gmpxx.h (__gmp_binary_and, __gmp_binary_ior, __gmp_binary_xor):
+	Add variants with unsigned long int argument.
+
+2007-12-10  Torbjorn Granlund  <tege@swox.com>
+
+	* mpf/set_str.c (mpf_set_str): Write own code for converting the
+	exponent, avoids strtol base < 36 limitation.
+
+2007-10-25  Torbjorn Granlund  <tege@swox.com>
+
+	* mpn/generic/mul_n.c (toom3_interpolate): Make sizes use mp_size_t.
+
+2007-10-17  Torbjorn Granlund  <tege@swox.com>
+
+	* tests/misc/t-printf.c: Fix a printf type clash.
+	* tests/mpq/t-get_str.c: Likewise.
+	* tests/mpz/t-import.c: Likewise.
+	* tests/mpz/t-io_raw.c: Likewise.
+
+2007-09-26  Torbjorn Granlund  <tege@swox.com>
+
+	* tests/mpz/io.c: Correct type for a printf.
+	* tests/mpz/t-export.c: Likewise.
+
+	* tests/devel/shift.c: Misc cleanup.
+	* tests/devel/addmul_N.c: Likewise.
+	* tests/devel/addsub_n.c: Likewise.
+	* tests/devel/addsub_n_2.c: Likewise.
+	* tests/devel/anymul_1.c: Likewise.
+	* tests/devel/divmod_1.c: Likewise.
+	* tests/devel/divrem.c: Likewise.
+	* tests/devel/shift.c: Likewise.
+
+	* tests/t-constants.c (main): Cast 2nd arg of CHECK_INT to int, as
+	expected by its printf.
+
+	* tests/refmpn.c (refmpn_divrem_2): New function.
+
+	* mpz/get_str.c: Cast a char index to int to shut up compilers.
+
+	* mpz/fac_ui.c: Use GMP_NUMB_BITS, not BITS_PER_MP_LIMB, consistency.
+
+2007-09-24  Torbjorn Granlund  <tege@swox.com>
+
+	* mpn/x86/k7/mmx/popham.asm: Table cycle counts.
+
+	* mpn/x86/k6/README: Update URLs.
+
+	* mpn/powerpc32/README: Update URL's, company names.
+
+	* mpn/generic/get_d.c: Misc cleanup.
+
+	* mpn/alpha/invert_limb.asm: Update cycle counts.  Fix a comment typo.
+
+	* mpf/get_str.c: Include stdlib.h, not stdio.h for NULL.
+
+	* doc/gmp.texi: Fix a typo.
+
+2007-09-18  Torbjorn Granlund  <tege@swox.com>
+
+	* demos/pexpr.c (main): Add -v option.
+	(enum op_t): New tag TIMING.
+	(mpz_eval_expr): Execute TIMING.
+	(fns): Add TIMING entry.
 
 2007-09-10  Torbjorn Granlund  <tege@swox.com>
 
@@ -60,6 +209,7 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.
 	From Richard Guenther:
 	* gmp-h.in (__GMP_EXTERN_INLINE): Declare conditionally on
 	__GNUC_STDC_INLINE__.
+
 	* tests/cxx/t-locale.cc: #include <cstdlib>, for abort.
 
 2007-09-01  Torbjorn Granlund  <tege@swox.com>
@@ -160,6 +310,8 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.
 	from MMX register to general register (workaround for GNU vs Solaris
 	assembler incompatibility).
 	* mpn/x86_64/rshift.asm: Likewise.
+
+	* mpf/get_str.c: Misc cleanups.
 
 	* tests/amd64call.asm: Use jmp instead of jmpq to placate Solaris.
 
@@ -21055,20 +21207,3 @@ Tue Mar  3 18:50:10 1991  Torbjorn Granlund  (tege@musta.nada.kth.se)
 	* msqrt: Use the low level routines.  Use low precision in the
 	beginning, and increase the precision as the result converges.
 	(This optimization gave a 6-fold speedup.)
-
-
-
-Local Variables:
-mode: indented-text
-left-margin: 8
-fill-column: 79
-version-control: never
-eval: (unless (string-match "GNU Emacs \\(21\.[4-9]\\|22\.\\)" (emacs-version))
-	(save-excursion
-	  (goto-char (point-min))
-	  (when (looking-at "Copyright")
-	    (search-forward "\n\n")
-	    (skip-chars-forward "\n")
-	    (narrow-to-region (point) (point-max))
-	    (message "Note! narrowed to hide copyright notice"))))
-End:

@@ -371,8 +371,6 @@ check_mpf (void)
 }
 
 
-
-
 int
 main (void)
 {

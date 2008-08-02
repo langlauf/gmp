@@ -1233,6 +1233,22 @@ refmpn_preinv_divrem_1 (mp_ptr rp, mp_size_t xsize,
   return refmpn_divrem_1 (rp, xsize, sp, size, divisor);
 }
 
+mp_limb_t
+refmpn_divrem_2 (mp_ptr qp, mp_size_t qxn,
+		 mp_ptr np, mp_size_t nn,
+		 mp_srcptr dp)
+{
+  mp_ptr tp;
+  mp_limb_t qh;
+
+  tp = refmpn_malloc_limbs (nn + qxn);
+  refmpn_zero (tp, qxn);
+  refmpn_copyi (tp + qxn, np, nn);
+  qh = refmpn_sb_divrem_mn (qp, tp, nn + qxn, dp, 2);
+  refmpn_copyi (np, tp, 2);
+  free (tp);
+  return qh;
+}
 
 /* Inverse is floor((b*(b-d)-1) / d), per division by invariant integers
    paper, figure 8.1 m', where b=2^BITS_PER_MP_LIMB.  Note that -d-1 < d
