@@ -17,6 +17,20 @@ You should have received a copy of the GNU Lesser General Public License
 along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.
 
 
+Changes between GMP version 4.2.3 and 4.2.4
+
+  Bugs:
+  * Fix bug with parsing exponent '+' sign in mpf.
+  * Fix an allocation bug in mpf_set_str, also affecting mpf_init_set_str, and
+    mpf_inp_str.
+
+  Speedups:
+  * None, except that proper processor recognition helps affected processors.
+
+  Features:
+  * Recognize new AMD processors.
+
+
 Changes between GMP version 4.2.2 and 4.2.3
 
   Bugs:
@@ -38,6 +52,7 @@ Changes between GMP version 4.2.2 and 4.2.3
     that overflow will now cause an abort, except when the allocation
     computation itself overflows.  (Such overflow can probably only happen in
     powering functions; we will detect powering overflow in the future.)
+
 
 Changes between GMP version 4.2.1 and 4.2.2
 

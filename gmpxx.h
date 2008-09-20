@@ -657,7 +657,6 @@ struct __gmp_binary_modulus
 };
 
 // Max allocations for plain types when converted to mpz_t
-// FIXME: how do we get the proper max "double" exponent?
 #define __GMP_DBL_LIMBS (2 + DBL_MAX_EXP / GMP_NUMB_BITS)
 #define __GMP_ULI_LIMBS (1 + (8 * sizeof (long) - 1) / GMP_NUMB_BITS)
 

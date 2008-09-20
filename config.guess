@@ -709,7 +709,7 @@ main ()
   model = ((fms >> 4) & 0xf) + ((fms >> 12) & 0xf0);
   stepping = fms & 0xf;
 
-  modelstr = "i486";
+  modelstr = "$guess_cpu";
   if (strcmp (vendor_string, "GenuineIntel") == 0)
     {
       switch (family)
@@ -748,6 +748,7 @@ main ()
 	  modelstr = "athlon";
 	  break;
 	case 15:
+	case 16:
 	  modelstr = "athlon64";
 	  break;
 	}

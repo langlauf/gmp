@@ -22,6 +22,7 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
 
 #if defined (__cplusplus)
 #include <iosfwd>   /* for std::istream, std::ostream, std::string */
+#include <cstdio>
 #endif
 
 
@@ -516,10 +517,7 @@ typedef __mpq_struct *mpq_ptr;
 
 #if defined (__cplusplus)
 extern "C" {
-#include <cstdio>
-#ifdef _GMP_H_HAVE_FILE
 using std::FILE;
-#endif
 #endif
 
 #define mp_set_memory_functions __gmp_set_memory_functions
@@ -2179,7 +2177,7 @@ enum
 /* Major version number is the value of __GNU_MP__ too, above and in mp.h. */
 #define __GNU_MP_VERSION 4
 #define __GNU_MP_VERSION_MINOR 2
-#define __GNU_MP_VERSION_PATCHLEVEL 3
+#define __GNU_MP_VERSION_PATCHLEVEL 4
 
 #define __GMP_H__
 #endif /* __GMP_H__ */

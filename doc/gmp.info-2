@@ -1,8 +1,8 @@
 This is /home/tege/prec/gmp42/doc/gmp.info, produced by makeinfo
-version 4.12 from /home/tege/prec/gmp42/doc/gmp.texi.
+version 4.8 from /home/tege/prec/gmp42/doc/gmp.texi.
 
-This manual describes how to install and use the GNU multiple precision
-arithmetic library, version 4.2.3.
+   This manual describes how to install and use the GNU multiple
+precision arithmetic library, version 4.2.4.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 Free Software
@@ -14,7 +14,7 @@ document under the terms of the GNU Free Documentation License, Version
 with no Invariant Sections, with the Front-Cover Texts being "A GNU
 Manual", and with the Back-Cover Texts being "You have freedom to copy
 and modify this GNU Manual, like GNU software".  A copy of the license
-is included in *note GNU Free Documentation License::.
+is included in *Note GNU Free Documentation License::.
 
 INFO-DIR-SECTION GNU libraries
 START-INFO-DIR-ENTRY
@@ -284,8 +284,8 @@ formulas is used, according as n is odd or even.
      F[2k+1] = (2F[k]+F[k-1])*(2F[k]-F[k-1]) + 2*(-1)^k
 
    F[2k+1] here is the same as above, just rearranged to be a multiply.
-For interest, the 2*(-1)^k term both here and above can be applied just
-to the low limb of the calculation, without a carry or borrow into
+For interest, the 2*(-1)^k term both here and above can be applied
+just to the low limb of the calculation, without a carry or borrow into
 further limbs, which saves some code size.  See comments with
 `mpz_fib_ui' and the internal `mpn_fib2_ui' for how this is done.
 
@@ -890,7 +890,7 @@ GCDs necessary, not four.
 
    This general approach to common factors is badly sub-optimal in the
 presence of simple factorizations or little prospect for cancellation,
-but GMP has no way to know when this will occur.  As per *note
+but GMP has no way to know when this will occur.  As per *Note
 Efficiency::, that's left to applications.  The `mpq_t' framework might
 still suit, with `mpq_numref' and `mpq_denref' for direct access to the
 numerator and denominator, or of course `mpz_t' variables can be used
@@ -1187,13 +1187,16 @@ File: gmp.info,  Node: Contributors,  Next: References,  Prev: Internals,  Up: T
 Appendix A Contributors
 ***********************
 
-Torbjörn Granlund wrote the original GMP library and is still the main
+Torbjo"rn Granlund wrote the original GMP library and is still the main
 developer.  Code not explicitly attributed to others, was contributed by
-Torbjörn.  Several other individuals and organizations have contributed
-to code that is in version of GMP.  Here is a list in chronological
-order on first contribution:
+Torbjo"rn.  Torbjo"rn's work is currently sponsored by CIAM,
+http://www.ciam.kth.se/.
 
-   Gunnar Sjödin and Hans Riesel helped with mathematical problems in
+   Several other individuals and organizations have contributed to code
+that is in version of GMP.  Here is a list in chronological order on
+first contribution:
+
+   Gunnar Sjo"din and Hans Riesel helped with mathematical problems in
 early versions of the library.
 
    Richard Stallman helped with the interface design and revised the
@@ -1206,11 +1209,12 @@ the library and made creative suggestions.
 `mpz_probab_prime_p'.
 
    Paul Zimmermann wrote the divide and conquer division code, the
-REDC-based mpz_powm code, the Schönhage-Strassen FFT multiply code, and
-the Karatsuba square root code.  He also improved the Toom3 code for
-GMP 4.2.  Paul sparked the development of GMP 2, with his comparisons
-between bignum packages.  The ECMNET project Paul is organizing was a
-driving force behind many of the optimizations in GMP 3.
+REDC-based mpz_powm code, the Scho"nhage-Strassen FFT multiply code,
+and the Karatsuba square root code.  He also improved the Toom3 code
+for GMP 4.2.  Paul sparked the development of GMP 2, with his
+comparisons between bignum packages.  The ECMNET project Paul is
+organizing was a driving force behind many of the optimizations in GMP
+3.
 
    Ken Weber (Kent State University, Universidade Federal do Rio Grande
 do Sul) contributed `mpz_gcd', `mpz_divexact', `mpn_gcd', and
@@ -1321,7 +1325,7 @@ B.2 Papers
      Max-Planck-Institut fuer Informatik Research Report MPI-I-98-1-022,
      `http://data.mpi-sb.mpg.de/internet/reports.nsf/NumberView/1998-1-022'
 
-   * Torbjörn Granlund and Peter L. Montgomery, "Division by Invariant
+   * Torbjo"rn Granlund and Peter L. Montgomery, "Division by Invariant
      Integers using Multiplication", in Proceedings of the SIGPLAN
      PLDI'94 Conference, June 1994.  Also available
      `ftp://ftp.cwi.nl/pub/pmontgom/divcnst.psa4.gz' (and .psl.gz).
@@ -1371,7 +1375,7 @@ B.2 Papers
      Division", in Mathematics of Computation, volume 44, number 170,
      April 1985.
 
-   * Arnold Schönhage and Volker Strassen, "Schnelle Multiplikation
+   * Arnold Scho"nhage and Volker Strassen, "Schnelle Multiplikation
      grosser Zahlen", Computing 7, 1971, pp. 281-292.
 
    * Kenneth Weber, "The accelerated integer GCD algorithm", ACM
@@ -3154,8 +3158,3 @@ Function and Type Index
                                                               (line  34)
 
 
-
-
-Local Variables:
-coding: iso-8859-1
-End:

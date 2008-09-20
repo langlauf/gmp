@@ -1,3 +1,33 @@
+2008-09-19  Torbjorn Granlund  <tege@swox.com>
+
+	* Version 4.2.4 released.
+
+2008-09-10  Torbjorn Granlund  <tege@swox.com>
+
+	* tests/devel/anymul_1.c: Include <string.h>.
+
+	* gmp-h.in (__GNU_MP_VERSION_PATCHLEVEL): Bump.
+
+	* Makefile.am (LIBGMP_LT_*, LIBGMPXX_LT_*, LIBMP_LT_*):
+	Bump version info.
+
+	* gmp-h.in: Unconditionally include <cstdio>.
+
+2008-09-09  Torbjorn Granlund  <tege@swox.com>
+
+	* doc/gmp.texi: Fix a typo and clarify mpn_gcdext docs.
+
+2008-08-25  Torbjorn Granlund  <tege@swox.com>
+
+	* mpf/set_str.c: Allocate mantissa space based on mantissa size,
+	not on destination variable space.
+	* mpf/set_str.c: Accept unary plus before exponent.
+
+2008-08-15  Torbjorn Granlund  <tege@swox.com>
+
+	* config.guess: Recognize new AMD K10 processors.
+	Default x86 cpu type to configfsf.guess's value.
+
 2008-08-02  Torbjorn Granlund  <tege@swox.com>
 
 	* Version 4.2.3 released.
@@ -60,7 +90,6 @@
 	* configfsf.sub: Update to version of 2008-06-16.
 
 	* configure.in: Separate core2 and athlon64 flags handling.
-	* configfsf.guess: Separate core2 and athlon64 flags handling.
 
 2008-06-19  Torbjorn Granlund  <tege@swox.com>
 
@@ -118,6 +147,9 @@
 	* tests/mpq/t-get_str.c: Likewise.
 	* tests/mpz/t-import.c: Likewise.
 	* tests/mpz/t-io_raw.c: Likewise.
+
+	* acinclude.m4: Conditionally disable some tests when compiled by a C++
+	compiler.
 
 2007-09-26  Torbjorn Granlund  <tege@swox.com>
 

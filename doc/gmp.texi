@@ -5337,10 +5337,10 @@ and both must be non-zero.  The regions @{@var{s1p}, @math{@var{s1n}+1}@} and
 @{@var{s2p}, @math{@var{s2n}+1}@} are destroyed (i.e.@: the operands plus an
 extra limb past the end of each).
 
-The cofactor @var{r1} will satisfy @m{r_2 s_1 + k s_2 = r_1, @var{r2}*@var{s1}
+The cofactor @var{r2} will satisfy @m{r_2 s_1 + k s_2 = r_1, @var{r2}*@var{s1}
 + @var{k}*@var{s2} = @var{r1}}.  The second cofactor @var{k} is not calculated
 but can easily be obtained from @m{(r_1 - r_2 s_1) / s_2, (@var{r1} -
-@var{r2}*@var{s1}) / @var{s2}}.
+@var{r2}*@var{s1}) / @var{s2}} (this division will be exact).
 @end deftypefun
 
 @deftypefun mp_size_t mpn_sqrtrem (mp_limb_t *@var{r1p}, mp_limb_t *@var{r2p}, const mp_limb_t *@var{sp}, mp_size_t @var{n})
@@ -10044,9 +10044,12 @@ all subexpressions are evaluated to the precision of @code{f}.
 
 Torbj@"orn Granlund wrote the original GMP library and is still the main
 developer.  Code not explicitly attributed to others, was contributed by
-Torbj@"orn.  Several other individuals and organizations have contributed to
-code that is in version of GMP.  Here is a list in chronological order on
-first contribution:
+Torbj@"orn.  Torbj@"orn's work is currently sponsored by CIAM,
+http://www.ciam.kth.se/.
+
+Several other individuals and organizations have contributed to code that is
+in version of GMP.  Here is a list in chronological order on first
+contribution:
 
 Gunnar Sj@"odin and Hans Riesel helped with mathematical problems in early
 versions of the library.
