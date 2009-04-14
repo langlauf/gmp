@@ -17,6 +17,11 @@ License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
 
+#define __gmpn_set_str mpn_set_str_basecase
+#define __gmpn_bc_set_str mpn_bc_set_str_basecase
+#define __gmpn_dc_set_str mpn_dc_set_str_basecase
+#define __gmpn_set_str_compute_powtab mpn_set_str_compute_powtab_basecase
+
 #include "gmp.h"
 #include "gmp-impl.h"
 
@@ -24,8 +29,9 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
 #define SIZE_T_MAX  ((size_t) ULONG_MAX)
 #endif
 
-#undef SET_STR_THRESHOLD
-#define SET_STR_THRESHOLD  SIZE_T_MAX /* always */
-#define __gmpn_set_str mpn_set_str_basecase
+#undef SET_STR_DC_THRESHOLD
+#define SET_STR_DC_THRESHOLD           SIZE_T_MAX /* always */
+#undef SET_STR_PRECOMPUTE_THRESHOLD
+#define SET_STR_PRECOMPUTE_THRESHOLD   SIZE_T_MAX /* always */
 
 #include "mpn/generic/set_str.c"

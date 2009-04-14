@@ -30,7 +30,7 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.
-SOURCES = t-aors_1.c t-asmtype.c t-divrem_1.c t-fat.c t-get_d.c t-instrument.c t-iord_u.c t-mp_bases.c t-perfsqr.c t-scan.c
+SOURCES = t-aors_1.c t-asmtype.c t-divrem_1.c t-fat.c t-get_d.c t-hgcd.c t-instrument.c t-iord_u.c t-matrix22.c t-mp_bases.c t-perfsqr.c t-scan.c
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -57,7 +57,8 @@ ANSI2KNR = $(top_builddir)/ansi2knr
 check_PROGRAMS = t-asmtype$(EXEEXT) t-aors_1$(EXEEXT) \
 	t-divrem_1$(EXEEXT) t-fat$(EXEEXT) t-get_d$(EXEEXT) \
 	t-instrument$(EXEEXT) t-iord_u$(EXEEXT) t-mp_bases$(EXEEXT) \
-	t-perfsqr$(EXEEXT) t-scan$(EXEEXT)
+	t-perfsqr$(EXEEXT) t-scan$(EXEEXT) t-hgcd$(EXEEXT) \
+	t-matrix22$(EXEEXT)
 subdir = tests/mpn
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -93,6 +94,11 @@ t_get_d_OBJECTS = t-get_d$U.$(OBJEXT)
 t_get_d_LDADD = $(LDADD)
 t_get_d_DEPENDENCIES = $(top_builddir)/tests/libtests.la \
 	$(top_builddir)/libgmp.la
+t_hgcd_SOURCES = t-hgcd.c
+t_hgcd_OBJECTS = t-hgcd$U.$(OBJEXT)
+t_hgcd_LDADD = $(LDADD)
+t_hgcd_DEPENDENCIES = $(top_builddir)/tests/libtests.la \
+	$(top_builddir)/libgmp.la
 t_instrument_SOURCES = t-instrument.c
 t_instrument_OBJECTS = t-instrument$U.$(OBJEXT)
 t_instrument_LDADD = $(LDADD)
@@ -102,6 +108,11 @@ t_iord_u_SOURCES = t-iord_u.c
 t_iord_u_OBJECTS = t-iord_u$U.$(OBJEXT)
 t_iord_u_LDADD = $(LDADD)
 t_iord_u_DEPENDENCIES = $(top_builddir)/tests/libtests.la \
+	$(top_builddir)/libgmp.la
+t_matrix22_SOURCES = t-matrix22.c
+t_matrix22_OBJECTS = t-matrix22$U.$(OBJEXT)
+t_matrix22_LDADD = $(LDADD)
+t_matrix22_DEPENDENCIES = $(top_builddir)/tests/libtests.la \
 	$(top_builddir)/libgmp.la
 t_mp_bases_SOURCES = t-mp_bases.c
 t_mp_bases_OBJECTS = t-mp_bases$U.$(OBJEXT)
@@ -130,9 +141,11 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 SOURCES = t-aors_1.c t-asmtype.c t-divrem_1.c t-fat.c t-get_d.c \
-	t-instrument.c t-iord_u.c t-mp_bases.c t-perfsqr.c t-scan.c
+	t-hgcd.c t-instrument.c t-iord_u.c t-matrix22.c t-mp_bases.c \
+	t-perfsqr.c t-scan.c
 DIST_SOURCES = t-aors_1.c t-asmtype.c t-divrem_1.c t-fat.c t-get_d.c \
-	t-instrument.c t-iord_u.c t-mp_bases.c t-perfsqr.c t-scan.c
+	t-hgcd.c t-instrument.c t-iord_u.c t-matrix22.c t-mp_bases.c \
+	t-perfsqr.c t-scan.c
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -334,12 +347,18 @@ t-fat$(EXEEXT): $(t_fat_OBJECTS) $(t_fat_DEPENDENCIES)
 t-get_d$(EXEEXT): $(t_get_d_OBJECTS) $(t_get_d_DEPENDENCIES) 
 	@rm -f t-get_d$(EXEEXT)
 	$(LINK) $(t_get_d_LDFLAGS) $(t_get_d_OBJECTS) $(t_get_d_LDADD) $(LIBS)
+t-hgcd$(EXEEXT): $(t_hgcd_OBJECTS) $(t_hgcd_DEPENDENCIES) 
+	@rm -f t-hgcd$(EXEEXT)
+	$(LINK) $(t_hgcd_LDFLAGS) $(t_hgcd_OBJECTS) $(t_hgcd_LDADD) $(LIBS)
 t-instrument$(EXEEXT): $(t_instrument_OBJECTS) $(t_instrument_DEPENDENCIES) 
 	@rm -f t-instrument$(EXEEXT)
 	$(LINK) $(t_instrument_LDFLAGS) $(t_instrument_OBJECTS) $(t_instrument_LDADD) $(LIBS)
 t-iord_u$(EXEEXT): $(t_iord_u_OBJECTS) $(t_iord_u_DEPENDENCIES) 
 	@rm -f t-iord_u$(EXEEXT)
 	$(LINK) $(t_iord_u_LDFLAGS) $(t_iord_u_OBJECTS) $(t_iord_u_LDADD) $(LIBS)
+t-matrix22$(EXEEXT): $(t_matrix22_OBJECTS) $(t_matrix22_DEPENDENCIES) 
+	@rm -f t-matrix22$(EXEEXT)
+	$(LINK) $(t_matrix22_LDFLAGS) $(t_matrix22_OBJECTS) $(t_matrix22_LDADD) $(LIBS)
 t-mp_bases$(EXEEXT): $(t_mp_bases_OBJECTS) $(t_mp_bases_DEPENDENCIES) 
 	@rm -f t-mp_bases$(EXEEXT)
 	$(LINK) $(t_mp_bases_LDFLAGS) $(t_mp_bases_OBJECTS) $(t_mp_bases_LDADD) $(LIBS)
@@ -379,10 +398,14 @@ t-fat_.c: t-fat.c $(ANSI2KNR)
 	$(CPP) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/t-fat.c; then echo $(srcdir)/t-fat.c; else echo t-fat.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > $@ || rm -f $@
 t-get_d_.c: t-get_d.c $(ANSI2KNR)
 	$(CPP) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/t-get_d.c; then echo $(srcdir)/t-get_d.c; else echo t-get_d.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > $@ || rm -f $@
+t-hgcd_.c: t-hgcd.c $(ANSI2KNR)
+	$(CPP) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/t-hgcd.c; then echo $(srcdir)/t-hgcd.c; else echo t-hgcd.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > $@ || rm -f $@
 t-instrument_.c: t-instrument.c $(ANSI2KNR)
 	$(CPP) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/t-instrument.c; then echo $(srcdir)/t-instrument.c; else echo t-instrument.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > $@ || rm -f $@
 t-iord_u_.c: t-iord_u.c $(ANSI2KNR)
 	$(CPP) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/t-iord_u.c; then echo $(srcdir)/t-iord_u.c; else echo t-iord_u.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > $@ || rm -f $@
+t-matrix22_.c: t-matrix22.c $(ANSI2KNR)
+	$(CPP) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/t-matrix22.c; then echo $(srcdir)/t-matrix22.c; else echo t-matrix22.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > $@ || rm -f $@
 t-mp_bases_.c: t-mp_bases.c $(ANSI2KNR)
 	$(CPP) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/t-mp_bases.c; then echo $(srcdir)/t-mp_bases.c; else echo t-mp_bases.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > $@ || rm -f $@
 t-perfsqr_.c: t-perfsqr.c $(ANSI2KNR)
@@ -391,8 +414,9 @@ t-scan_.c: t-scan.c $(ANSI2KNR)
 	$(CPP) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/t-scan.c; then echo $(srcdir)/t-scan.c; else echo t-scan.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > $@ || rm -f $@
 t-aors_1_.$(OBJEXT) t-aors_1_.lo t-asmtype_.$(OBJEXT) t-asmtype_.lo \
 t-divrem_1_.$(OBJEXT) t-divrem_1_.lo t-fat_.$(OBJEXT) t-fat_.lo \
-t-get_d_.$(OBJEXT) t-get_d_.lo t-instrument_.$(OBJEXT) \
-t-instrument_.lo t-iord_u_.$(OBJEXT) t-iord_u_.lo \
+t-get_d_.$(OBJEXT) t-get_d_.lo t-hgcd_.$(OBJEXT) t-hgcd_.lo \
+t-instrument_.$(OBJEXT) t-instrument_.lo t-iord_u_.$(OBJEXT) \
+t-iord_u_.lo t-matrix22_.$(OBJEXT) t-matrix22_.lo \
 t-mp_bases_.$(OBJEXT) t-mp_bases_.lo t-perfsqr_.$(OBJEXT) \
 t-perfsqr_.lo t-scan_.$(OBJEXT) t-scan_.lo : $(ANSI2KNR)
 

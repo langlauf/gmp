@@ -58,13 +58,6 @@ deflit(`FRAME',0)
 	movl	PARAM_CARRY, %ecx
 	jmp	L(start_1c)
 
-
-ifdef(`PIC',`
-L(movl_eip_edi):
-	movl	(%esp), %edi
-	ret_internal
-')
-
 EPILOGUE()
 
 
@@ -87,10 +80,10 @@ L(start_1c):
 	andl	$127, %eax
 
 ifdef(`PIC',`
-	LEA(	modlimb_invert_table, edi)
-	movzbl	(%eax,%edi), %edi			C inv 8 bits
+	LEA(	binvert_limb_table, %edi)
+	movzbl	(%eax,%edi), %edi		C inv 8 bits
 ',`
-	movzbl	modlimb_invert_table(%eax), %edi	C inv 8 bits
+	movzbl	binvert_limb_table(%eax), %edi	C inv 8 bits
 ')
 
 	xorl	%edx, %edx		C initial extra carry

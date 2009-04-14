@@ -195,8 +195,8 @@ __gmpn_cpuvec_init (void)
       vendor_string[12] = 0;
 
       fms = __gmpn_cpuid (dummy_string, 1);
-      family = (fms >> 8) & 15;
-      model = (fms >> 4) & 15;
+      family = ((fms >> 8) & 0xf) + ((fms >> 20) & 0xff);
+      model = ((fms >> 4) & 0xf) + ((fms >> 12) & 0xf0);
 
       if (strcmp (vendor_string, "GenuineIntel") == 0)
         {
@@ -217,7 +217,7 @@ __gmpn_cpuvec_init (void)
               break;
 
             case 6:
-              TRACE (printf ("  pentiumpro\n"));
+              TRACE (printf ("  p6\n"));
               CPUVEC_SETUP_p6;
               if (model >= 2)
                 {
@@ -228,6 +228,11 @@ __gmpn_cpuvec_init (void)
                 {
                   TRACE (printf ("  pentium3\n"));
                   CPUVEC_SETUP_p6_p3mmx;
+                }
+              if (model >= 0xD || model == 9)
+                {
+                  TRACE (printf ("  p6 with sse2\n"));
+                  CPUVEC_SETUP_p6_sse2;
                 }
               break;
 

@@ -76,10 +76,10 @@ L(strip_twos):
 	andl	$127, %eax		C d/2, 7 bits
 
 ifdef(`PIC',`
-	LEA(	modlimb_invert_table, edx)
-	movzbl	(%eax,%edx), %eax			C inv 8 bits
+	LEA(	binvert_limb_table, %edx)
+	movzbl	(%eax,%edx), %eax		C inv 8 bits
 ',`
-	movzbl	modlimb_invert_table(%eax), %eax	C inv 8 bits
+	movzbl	binvert_limb_table(%eax), %eax	C inv 8 bits
 ')
 
 	leal	(%eax,%eax), %edx	C 2*inv
@@ -124,12 +124,6 @@ ifdef(`PIC',`
 	movl	%edi, VAR_DST_END
 	xorl	%ebx, %ebx
 	jmp	L(entry)
-
-ifdef(`PIC',`
-L(movl_eip_edx):
-	movl	(%esp), %edx
-	ret_internal
-')
 
 	ALIGN(8)
 L(top):

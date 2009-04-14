@@ -25,8 +25,8 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
 #include "gmp-impl.h"
 #include "tests.h"
 
-void dump_abort _PROTO ((char *, mpz_t, unsigned long));
-void debug_mp _PROTO ((mpz_t, int));
+void dump_abort __GMP_PROTO ((char *, mpz_t, unsigned long));
+void debug_mp __GMP_PROTO ((mpz_t, int));
 
 int
 main (int argc, char **argv)
@@ -38,7 +38,7 @@ main (int argc, char **argv)
   mp_size_t dividend_size;
   unsigned long divisor;
   int i;
-  int reps = 10000;
+  int reps = 200000;
   gmp_randstate_ptr rands;
   mpz_t bs;
   unsigned long bsi, size_range;

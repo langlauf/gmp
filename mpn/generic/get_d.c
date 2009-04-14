@@ -157,6 +157,156 @@ mpn_get_d (mp_srcptr up, mp_size_t size, mp_size_t sign, long exp)
       exp += GMP_NUMB_BITS * size;
     }
 
+
+#if 1
+{
+  int lshift, nbits;
+  union ieee_double_extract u;
+  mp_limb_t x, mhi, mlo;
+#if GMP_LIMB_BITS == 64
+  mp_limb_t m;
+  up += size;
+  m = *--up;
+  count_leading_zeros (lshift, m);
+
+  exp -= (lshift - GMP_NAIL_BITS) + 1;
+  m <<= lshift;
+
+  nbits = GMP_LIMB_BITS - lshift;
+
+  if (nbits < 53 && size > 1)
+    {
+      x = *--up;
+      x <<= GMP_NAIL_BITS;
+      x >>= nbits;
+      m |= x;
+      nbits += GMP_NUMB_BITS;
+
+      if (LIMBS_PER_DOUBLE >= 3 && nbits < 53 && size > 2)
+	{
+	  x = *--up;
+	  x <<= GMP_NAIL_BITS;
+	  x >>= nbits;
+	  m |= x;
+	  nbits += GMP_NUMB_BITS;
+	}
+    }
+  mhi = m >> (32 + 11);
+  mlo = m >> 11;
+#endif
+#if GMP_LIMB_BITS == 32
+  up += size;
+  x = *--up, size--;
+  count_leading_zeros (lshift, x);
+
+  exp -= (lshift - GMP_NAIL_BITS) + 1;
+  x <<= lshift;
+  mhi = x >> 11;
+
+  if (lshift < 11)		/* FIXME: never true if NUMB < 20 bits */
+    {
+      /* All 20 bits in mhi */
+      mlo = x << 21;
+      /* >= 1 bit in mlo */
+      nbits = GMP_LIMB_BITS - lshift - 21;
+    }
+  else
+    {
+      if (size != 0)
+	{
+	  nbits = GMP_LIMB_BITS - lshift;
+
+	  x = *--up, size--;
+	  x <<= GMP_NAIL_BITS;
+	  mhi |= x >> nbits >> 11;
+
+	  mlo = x << GMP_LIMB_BITS - nbits - 11;
+	  nbits = nbits + 11 - GMP_NAIL_BITS;
+	}
+      else
+	{
+	  mlo = 0;
+	  goto done;
+	}
+    }
+
+  if (LIMBS_PER_DOUBLE >= 2 && nbits < 32 && size != 0)
+    {
+      x = *--up, size--;
+      x <<= GMP_NAIL_BITS;
+      x >>= nbits;
+      mlo |= x;
+      nbits += GMP_NUMB_BITS;
+
+      if (LIMBS_PER_DOUBLE >= 3 && nbits < 32 && size != 0)
+	{
+	  x = *--up, size--;
+	  x <<= GMP_NAIL_BITS;
+	  x >>= nbits;
+	  mlo |= x;
+	  nbits += GMP_NUMB_BITS;
+
+	  if (LIMBS_PER_DOUBLE >= 4 && nbits < 32 && size != 0)
+	    {
+	      x = *--up;
+	      x <<= GMP_NAIL_BITS;
+	      x >>= nbits;
+	      mlo |= x;
+	      nbits += GMP_NUMB_BITS;
+	    }
+	}
+    }
+
+ done:;
+
+#endif
+  {
+    if (UNLIKELY (exp >= CONST_1024))
+      {
+	/* overflow, return infinity */
+      ieee_infinity:
+	mhi = 0;
+	mlo = 0;
+	exp = 1024;
+      }
+    else if (UNLIKELY (exp <= CONST_NEG_1023))
+      {
+	int rshift = GMP_LIMB_BITS - lshift;
+
+	if (LIKELY (exp <= CONST_NEG_1022_SUB_53))
+	  return 0.0;	 /* denorm underflows to zero */
+
+	rshift = -1022 - exp;
+	ASSERT (rshift > 0 && rshift < 53);
+	if (GMP_LIMB_BITS == 64)
+	  {
+	    mlo = (mlo >> rshift) | (mhi << lshift);
+	    mhi >>= rshift;
+	  }
+	else
+	  {
+	    if (rshift >= 32)
+	      {
+		mlo = mhi;
+		mhi = 0;
+		rshift -= 32;
+	      }
+	    lshift = GMP_LIMB_BITS - rshift;
+	    mlo = (mlo >> rshift) | (rshift == 0 ? 0 : mhi << lshift);
+	    mhi >>= rshift;
+	  }
+	exp = -1023;
+      }
+  }
+  u.s.manh = mhi;
+  u.s.manl = mlo;
+  u.s.exp = exp + 1023;
+  u.s.sig = (sign < 0);
+  return u.d;
+}
+#else
+
+
 #define ONE_LIMB    (GMP_LIMB_BITS == 64 && 2*GMP_NUMB_BITS >= 53)
 #define TWO_LIMBS   (GMP_LIMB_BITS == 32 && 3*GMP_NUMB_BITS >= 53)
 
@@ -339,4 +489,5 @@ mpn_get_d (mp_srcptr up, mp_size_t size, mp_size_t sign, long exp)
     generic_done:
       return (sign >= 0 ? d : -d);
     }
+#endif
 }

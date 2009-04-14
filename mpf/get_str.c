@@ -100,7 +100,9 @@ mpn_pow_1_highpart (mp_ptr rp, mp_size_t *ignp,
       rn = prec;
     }
 
-  MPN_COPY_INCR (passed_rp, rp + off, rn);
+  /* With somewhat less than 50% probability, we can skip this copy.  */
+  if (passed_rp != rp + off)
+    MPN_COPY_INCR (passed_rp, rp + off, rn);
   *ignp = ign;
   return rn;
 }

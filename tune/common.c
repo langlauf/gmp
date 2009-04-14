@@ -121,7 +121,7 @@ double_cmp_ptr (const double *p, const double *q)
    s->r, -1.0 should be returned.  See the various base routines below.  */
 
 double
-speed_measure (double (*fun) _PROTO ((struct speed_params *s)),
+speed_measure (double (*fun) __GMP_PROTO ((struct speed_params *s)),
                struct speed_params *s)
 {
 #define TOLERANCE    1.005  /* 0.5% */
@@ -537,6 +537,20 @@ speed_mpn_mul_2 (struct speed_params *s)
   SPEED_ROUTINE_MPN_UNARY_2 (mpn_mul_2);
 }
 #endif
+#if HAVE_NATIVE_mpn_mul_3
+double
+speed_mpn_mul_3 (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_UNARY_3 (mpn_mul_3);
+}
+#endif
+#if HAVE_NATIVE_mpn_mul_4
+double
+speed_mpn_mul_4 (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_UNARY_4 (mpn_mul_4);
+}
+#endif
 
 
 double
@@ -673,6 +687,12 @@ speed_mpn_divexact_by3 (struct speed_params *s)
   SPEED_ROUTINE_MPN_COPY (mpn_divexact_by3);
 }
 
+double
+speed_mpn_bdiv_dbm1c (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_BDIV_DBM1C (mpn_bdiv_dbm1c);
+}
+
 #if HAVE_NATIVE_mpn_modexact_1_odd
 double
 speed_mpn_modexact_1_odd (struct speed_params *s)
@@ -736,9 +756,9 @@ speed_mpz_mod (struct speed_params *s)
   SPEED_ROUTINE_MPZ_MOD (mpz_mod);
 }
 double
-speed_redc (struct speed_params *s)
+speed_mpn_redc_1 (struct speed_params *s)
 {
-  SPEED_ROUTINE_REDC (redc);
+  SPEED_ROUTINE_REDC_1 (mpn_redc_1);
 }
 
 
@@ -865,7 +885,12 @@ speed_mpn_mul_n_sqr (struct speed_params *s)
 double
 speed_mpn_mul_basecase (struct speed_params *s)
 {
-  SPEED_ROUTINE_MPN_MUL_BASECASE(mpn_mul_basecase);
+  SPEED_ROUTINE_MPN_MUL(mpn_mul_basecase);
+}
+double
+speed_mpn_mul (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_MUL(mpn_mul);
 }
 double
 speed_mpn_sqr_basecase (struct speed_params *s)
@@ -985,21 +1010,165 @@ speed_mpn_mullow_basecase (struct speed_params *s)
 }
 
 double
+speed_mpn_matrix22_mul (struct speed_params *s)
+{
+  /* Speed params only includes 2 inputs, so we have to invent the
+     other 6. */
+
+  mp_ptr a1, a2, a3;
+  mp_ptr r0, r1, r2, r3;
+  mp_ptr b1, b2, b3;
+  mp_ptr tp;
+  mp_size_t scratch;
+  unsigned i;
+  double t;
+  TMP_DECL;
+
+  TMP_MARK;
+  SPEED_TMP_ALLOC_LIMBS (a1, s->size, s->align_xp);
+  SPEED_TMP_ALLOC_LIMBS (a2, s->size, s->align_xp);
+  SPEED_TMP_ALLOC_LIMBS (a3, s->size, s->align_xp);
+
+  SPEED_TMP_ALLOC_LIMBS (b1, s->size, s->align_yp);
+  SPEED_TMP_ALLOC_LIMBS (b2, s->size, s->align_yp);
+  SPEED_TMP_ALLOC_LIMBS (b3, s->size, s->align_yp);
+
+  SPEED_TMP_ALLOC_LIMBS (r0, 2 * s->size +1, s->align_xp);
+  SPEED_TMP_ALLOC_LIMBS (r1, 2 * s->size +1, s->align_xp);
+  SPEED_TMP_ALLOC_LIMBS (r2, 2 * s->size +1, s->align_xp);
+  SPEED_TMP_ALLOC_LIMBS (r3, 2 * s->size +1, s->align_xp);
+
+  mpn_random (a1, s->size);
+  mpn_random (a2, s->size);
+  mpn_random (a3, s->size);
+  mpn_random (b1, s->size);
+  mpn_random (b2, s->size);
+  mpn_random (b3, s->size);
+
+  scratch = mpn_matrix22_mul_itch (s->size, s->size);
+  SPEED_TMP_ALLOC_LIMBS (tp, scratch, s->align_wp);
+
+  speed_starttime ();
+  i = s->reps;
+  do
+    {
+      MPN_COPY (r0, s->xp, s->size);
+      MPN_COPY (r1, a1, s->size);
+      MPN_COPY (r2, a2, s->size);
+      MPN_COPY (r3, a3, s->size);
+      mpn_matrix22_mul (r0, r1, r2, r3, s->size, s->yp, b1, b2, b3, s->size, tp);
+    }
+  while (--i != 0);
+  t = speed_endtime();
+  TMP_FREE;
+  return t;
+}
+
+double
+speed_mpn_hgcd (struct speed_params *s)
+{
+  mp_ptr wp;
+  mp_size_t hgcd_init_scratch = MPN_HGCD_MATRIX_INIT_ITCH (s->size);
+  mp_size_t hgcd_scratch = mpn_hgcd_itch (s->size);
+  mp_ptr ap;
+  mp_ptr bp;
+  mp_ptr tmp1, tmp2;
+
+  struct hgcd_matrix hgcd;
+  int res;
+  unsigned i;
+  double t;
+  TMP_DECL;
+
+  if (s->size < 2)
+    return -1;
+
+  TMP_MARK;
+
+  SPEED_TMP_ALLOC_LIMBS (ap, s->size + 1, s->align_xp);
+  SPEED_TMP_ALLOC_LIMBS (bp, s->size + 1, s->align_yp);
+
+  s->xp[s->size - 1] |= 1;
+  s->yp[s->size - 1] |= 1;
+
+  SPEED_TMP_ALLOC_LIMBS (tmp1, hgcd_init_scratch, s->align_wp);
+  SPEED_TMP_ALLOC_LIMBS (wp, hgcd_scratch, s->align_wp);
+
+  speed_starttime ();
+  i = s->reps;
+  do
+    {
+      MPN_COPY (ap, s->xp, s->size);
+      MPN_COPY (bp, s->yp, s->size);
+      mpn_hgcd_matrix_init (&hgcd, s->size, tmp1);
+      res = mpn_hgcd (ap, bp, s->size, &hgcd, wp);
+    }
+  while (--i != 0);
+  t = speed_endtime ();
+  TMP_FREE;
+  return t;
+}
+
+double
+speed_mpn_hgcd_lehmer (struct speed_params *s)
+{
+  mp_ptr wp;
+  mp_size_t hgcd_init_scratch = MPN_HGCD_MATRIX_INIT_ITCH (s->size);
+  mp_size_t hgcd_scratch = MPN_HGCD_LEHMER_ITCH (s->size);
+  mp_ptr ap;
+  mp_ptr bp;
+  mp_ptr tmp1, tmp2;
+
+  struct hgcd_matrix hgcd;
+  int res;
+  unsigned i;
+  double t;
+  TMP_DECL;
+
+  if (s->size < 2)
+    return -1;
+
+  TMP_MARK;
+
+  SPEED_TMP_ALLOC_LIMBS (ap, s->size + 1, s->align_xp);
+  SPEED_TMP_ALLOC_LIMBS (bp, s->size + 1, s->align_yp);
+
+  s->xp[s->size - 1] |= 1;
+  s->yp[s->size - 1] |= 1;
+
+  SPEED_TMP_ALLOC_LIMBS (tmp1, hgcd_init_scratch, s->align_wp);
+  SPEED_TMP_ALLOC_LIMBS (wp, hgcd_scratch, s->align_wp);
+
+  speed_starttime ();
+  i = s->reps;
+  do
+    {
+      MPN_COPY (ap, s->xp, s->size);
+      MPN_COPY (bp, s->yp, s->size);
+      mpn_hgcd_matrix_init (&hgcd, s->size, tmp1);
+      res = mpn_hgcd_lehmer (ap, bp, s->size, &hgcd, wp);
+    }
+  while (--i != 0);
+  t = speed_endtime ();
+  TMP_FREE;
+  return t;
+}
+
+double
 speed_mpn_gcd (struct speed_params *s)
 {
   SPEED_ROUTINE_MPN_GCD (mpn_gcd);
 }
+#if 0
 double
 speed_mpn_gcd_binary (struct speed_params *s)
 {
   SPEED_ROUTINE_MPN_GCD (mpn_gcd_binary);
 }
-
-#if HAVE_NATIVE_mpn_gcd_finda
 double
-speed_mpn_gcd_finda (struct speed_params *s)
+speed_mpn_gcd_accel (struct speed_params *s)
 {
-  SPEED_ROUTINE_MPN_GCD_FINDA (mpn_gcd_finda);
+  SPEED_ROUTINE_MPN_GCD (mpn_gcd_accel);
 }
 #endif
 
@@ -1145,9 +1314,9 @@ speed_mpz_powm_ui (struct speed_params *s)
 
 
 double
-speed_modlimb_invert (struct speed_params *s)
+speed_binvert_limb (struct speed_params *s)
 {
-  SPEED_ROUTINE_MODLIMB_INVERT (modlimb_invert);
+  SPEED_ROUTINE_MODLIMB_INVERT (binvert_limb);
 }
 
 
@@ -1902,19 +2071,13 @@ speed_mpn_get_str (struct speed_params *s)
 double
 speed_mpn_set_str (struct speed_params *s)
 {
-  SPEED_ROUTINE_MPN_SET_STR (mpn_set_str);
+  SPEED_ROUTINE_MPN_SET_STR_CALL (mpn_set_str (wp, xp, s->size, base));
 }
 double
-speed_mpn_set_str_basecase (struct speed_params *s)
+speed_mpn_bc_set_str (struct speed_params *s)
 {
-  SPEED_ROUTINE_MPN_SET_STR (mpn_set_str_basecase);
+  SPEED_ROUTINE_MPN_SET_STR_CALL (mpn_bc_set_str (wp, xp, s->size, base));
 }
-double
-speed_mpn_set_str_subquad (struct speed_params *s)
-{
-  SPEED_ROUTINE_MPN_SET_STR (mpn_set_str_subquad);
-}
-
 
 double
 speed_MPN_ZERO (struct speed_params *s)

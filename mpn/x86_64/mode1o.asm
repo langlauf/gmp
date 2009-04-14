@@ -21,10 +21,13 @@ dnl  along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.
 include(`../config.m4')
 
 
-C		    cycles/limb
-C AMD K8:		10
-C Intel P4:		33
-C Intel Core 2:		13
+C	     cycles/limb
+C K8,K9:	10
+C K10:		10
+C P4:		33
+C P6-15 (Core2):13
+C P6-28 (Atom):	35
+
 
 C mp_limb_t mpn_modexact_1_odd (mp_srcptr src, mp_size_t size,
 C                               mp_limb_t divisor);
@@ -60,7 +63,7 @@ C used.
 C
 C Enhancements:
 C
-C For PIC, we shouldn't really need the GOT fetch for modlimb_invert_table,
+C For PIC, we shouldn't really need the GOT fetch for binvert_limb_table,
 C it'll be in rodata or text in libgmp.so and can be accessed directly %rip
 C relative.  This would be for small model only (something we don't
 C presently detect, but which is all that gcc 3.3.3 supports), since 8-byte
@@ -69,8 +72,8 @@ C experiments with binutils 2.13 looked worrylingly like it might come out
 C with an unwanted text segment relocation though, even with ".protected".
 
 
+ASM_START()
 	TEXT
-
 	ALIGN(32)
 PROLOGUE(mpn_modexact_1_odd)
 
@@ -86,9 +89,9 @@ PROLOGUE(mpn_modexact_1c_odd)
 	movq	%rdx, %r8		C d
 	shrl	%edx			C d/2
 ifdef(`PIC',`
-	movq	modlimb_invert_table@GOTPCREL(%rip), %r9
+	movq	binvert_limb_table@GOTPCREL(%rip), %r9
 ',`
-	movabsq	$modlimb_invert_table, %r9
+	movabsq	$binvert_limb_table, %r9
 ')
 
 	andl	$127, %edx

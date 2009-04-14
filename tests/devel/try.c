@@ -3,7 +3,8 @@
    THIS IS A TEST PROGRAM USED ONLY FOR DEVELOPMENT.  IT'S ALMOST CERTAIN TO
    BE SUBJECT TO INCOMPATIBLE CHANGES IN FUTURE VERSIONS OF GMP.
 
-Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006 Free Software Foundation, Inc.
+Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008 Free Software
+Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -288,7 +289,7 @@ struct each_t  fun = { "Fun" };
 
 #define SRC_SIZE(n)  ((n) == 1 && tr->size2 ? size2 : size)
 
-void validate_fail _PROTO ((void));
+void validate_fail __GMP_PROTO ((void));
 
 
 #if HAVE_TRY_NEW_C
@@ -296,7 +297,7 @@ void validate_fail _PROTO ((void));
 #endif
 
 
-typedef mp_limb_t (*tryfun_t) _PROTO ((ANYARGS));
+typedef mp_limb_t (*tryfun_t) __GMP_PROTO ((ANYARGS));
 
 struct try_t {
   char  retval;
@@ -367,7 +368,7 @@ struct try_t {
   tryfun_t    reference;
   const char  *reference_name;
 
-  void        (*validate) _PROTO ((void));
+  void        (*validate) __GMP_PROTO ((void));
   const char  *validate_name;
 };
 
@@ -561,6 +562,8 @@ validate_sqrtrem (void)
 #define TYPE_MUL_1C            8
 
 #define TYPE_MUL_2             9
+#define TYPE_MUL_3             92
+#define TYPE_MUL_4             93
 
 #define TYPE_ADDMUL_1         10
 #define TYPE_ADDMUL_1C        11
@@ -628,7 +631,7 @@ validate_sqrtrem (void)
 #define TYPE_XOR_N            76
 #define TYPE_XNOR_N           77
 
-#define TYPE_MUL_BASECASE     80
+#define TYPE_MUL_MN           80
 #define TYPE_MUL_N            81
 #define TYPE_SQR              82
 #define TYPE_UMUL_PPMM        83
@@ -726,6 +729,16 @@ param_init (void)
   p->msize = 2;
   p->overlap = OVERLAP_NOT_SRC2;
   REFERENCE (refmpn_mul_2);
+
+  p = &param[TYPE_MUL_3];
+  COPY (TYPE_MUL_2);
+  p->msize = 3;
+  REFERENCE (refmpn_mul_3);
+
+  p = &param[TYPE_MUL_4];
+  COPY (TYPE_MUL_2);
+  p->msize = 4;
+  REFERENCE (refmpn_mul_4);
 
 
   p = &param[TYPE_ADDMUL_1];
@@ -1000,12 +1013,6 @@ param_init (void)
   p->data = DATA_GCD;
   REFERENCE (refmpn_gcd);
 
-  /* FIXME: size==2 */
-  p = &param[TYPE_GCD_FINDA];
-  p->retval = 1;
-  p->src[0] = 1;
-  REFERENCE (refmpn_gcd_finda);
-
 
   p = &param[TYPE_MPZ_JACOBI];
   p->retval = 1;
@@ -1057,7 +1064,7 @@ param_init (void)
   p->src[1] = 1;
   REFERENCE (refmpn_mul_n);
 
-  p = &param[TYPE_MUL_BASECASE];
+  p = &param[TYPE_MUL_MN];
   COPY (TYPE_MUL_N);
   p->size2 = 1;
   REFERENCE (refmpn_mul_basecase);
@@ -1439,17 +1446,23 @@ const struct choice_t choice_array[] = {
 #if HAVE_NATIVE_mpn_mul_2
   { TRY(mpn_mul_2),      TYPE_MUL_2, 2 },
 #endif
+#if HAVE_NATIVE_mpn_mul_3
+  { TRY(mpn_mul_3),      TYPE_MUL_3, 3 },
+#endif
+#if HAVE_NATIVE_mpn_mul_4
+  { TRY(mpn_mul_4),      TYPE_MUL_4, 4 },
+#endif
 
   { TRY(mpn_rshift),     TYPE_RSHIFT },
   { TRY(mpn_lshift),     TYPE_LSHIFT },
 
 
-  { TRY(mpn_mul_basecase), TYPE_MUL_BASECASE },
+  { TRY(mpn_mul_basecase), TYPE_MUL_MN },
 #if SQR_KARATSUBA_THRESHOLD > 0
   { TRY(mpn_sqr_basecase), TYPE_SQR },
 #endif
 
-  { TRY(mpn_mul),    TYPE_MUL_BASECASE },
+  { TRY(mpn_mul),    TYPE_MUL_MN },
   { TRY(mpn_mul_n),  TYPE_MUL_N },
   { TRY(mpn_sqr_n),  TYPE_SQR },
 
@@ -1468,9 +1481,6 @@ const struct choice_t choice_array[] = {
 
   { TRY(mpn_gcd_1),        TYPE_GCD_1            },
   { TRY(mpn_gcd),          TYPE_GCD              },
-#if HAVE_NATIVE_mpn_gcd_finda
-  { TRY(mpn_gcd_finda),    TYPE_GCD_FINDA        },
-#endif
   { TRY(mpz_jacobi),       TYPE_MPZ_JACOBI       },
   { TRY(mpz_kronecker_ui), TYPE_MPZ_KRONECKER_UI },
   { TRY(mpz_kronecker_si), TYPE_MPZ_KRONECKER_SI },
@@ -1504,7 +1514,7 @@ mprotect_maybe (void *addr, size_t len, int prot)
   if (mprotect (addr, len, prot) != 0)
     {
       fprintf (stderr, "Cannot mprotect %p 0x%X 0x%X: %s\n",
-	       addr, len, prot, strerror (errno));
+	       addr, (unsigned) len, prot, strerror (errno));
       exit (1);
     }
 #else
@@ -1564,7 +1574,7 @@ malloc_region (struct region_t *r, mp_size_t n)
   if (p == (void *) -1)
     {
       fprintf (stderr, "Cannot mmap %#x anon bytes: %s\n",
-	       nbytes, strerror (errno));
+	       (unsigned) nbytes, strerror (errno));
       exit (1);
     }
 #else
@@ -1958,10 +1968,12 @@ call (struct each_t *e, tryfun_t function)
     break;
 
   case TYPE_MUL_2:
+  case TYPE_MUL_3:
+  case TYPE_MUL_4:
     if (size == 1)
       abort ();
     e->retval = CALLING_CONVENTIONS (function)
-      (e->d[0].p, e->s[0].p, size, e->s[1].p);
+      (e->d[0].p, e->s[0].p, size, multiplier_N);
     break;
 
   case TYPE_ADDMUL_2:
@@ -2161,7 +2173,7 @@ call (struct each_t *e, tryfun_t function)
     }
     break;
 
-  case TYPE_MUL_BASECASE:
+  case TYPE_MUL_MN:
     CALLING_CONVENTIONS (function)
       (e->d[0].p, e->s[0].p, size, e->s[1].p, size2);
     break;
@@ -2910,15 +2922,15 @@ main (int argc, char *argv[])
 	case 's':
 	  {
 	    char  *p;
-	    option_firstsize = atoi (optarg);
+	    option_firstsize = strtol (optarg, 0, 0);
 	    if ((p = strchr (optarg, '-')) != NULL)
-	      option_lastsize = atoi (p+1);
+	      option_lastsize = strtol (p+1, 0, 0);
 	  }
 	  break;
 	case 'S':
 	  /* -S <size> sets the starting size for the second of a two size
 	     routine (like mpn_mul_basecase) */
-	  option_firstsize2 = atoi (optarg);
+	  option_firstsize2 = strtol (optarg, 0, 0);
 	  break;
 	case 'W':
 	  /* use this when running in the debugger */

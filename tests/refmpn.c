@@ -1,8 +1,8 @@
 /* Reference mpn functions, designed to be simple, portable and independent
    of the normal gmp code.  Speed isn't a consideration.
 
-Copyright 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006
-Free Software Foundation, Inc.
+Copyright 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006,
+2007, 2008 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -790,15 +790,17 @@ refmpn_mul_1 (mp_ptr rp, mp_srcptr sp, mp_size_t size, mp_limb_t multiplier)
 
 
 mp_limb_t
-refmpn_mul_2 (mp_ptr dst, mp_srcptr src, mp_size_t size, mp_srcptr mult)
+refmpn_mul_N (mp_ptr dst, mp_srcptr src, mp_size_t size,
+	      mp_srcptr mult, mp_size_t msize)
 {
   mp_ptr     src_copy;
-  mp_limb_t  c;
+  mp_limb_t  ret;
+  mp_size_t  i;
 
   ASSERT (refmpn_overlap_fullonly_p (dst, src, size));
-  ASSERT (! refmpn_overlap_p (dst, size+1, mult, (mp_size_t) 2));
-  ASSERT (size >= 1);
-  ASSERT_MPN (mult, 2);
+  ASSERT (! refmpn_overlap_p (dst, size+msize-1, mult, msize));
+  ASSERT (size >= msize);
+  ASSERT_MPN (mult, msize);
 
   /* in case dst==src */
   src_copy = refmpn_malloc_limbs (size);
@@ -806,11 +808,29 @@ refmpn_mul_2 (mp_ptr dst, mp_srcptr src, mp_size_t size, mp_srcptr mult)
   src = src_copy;
 
   dst[size] = refmpn_mul_1 (dst, src, size, mult[0]);
-  c = refmpn_addmul_1 (dst+1, src, size, mult[1]);
+  for (i = 1; i < msize-1; i++)
+    dst[size+i] = refmpn_addmul_1 (dst+i, src, size, mult[i]);
+  ret = refmpn_addmul_1 (dst+i, src, size, mult[i]);
+
   free (src_copy);
-  return c;
+  return ret;
 }
 
+mp_limb_t
+refmpn_mul_2 (mp_ptr rp, mp_srcptr sp, mp_size_t size, mp_srcptr mult)
+{
+  return refmpn_mul_N (rp, sp, size, mult, (mp_size_t) 2);
+}
+mp_limb_t
+refmpn_mul_3 (mp_ptr rp, mp_srcptr sp, mp_size_t size, mp_srcptr mult)
+{
+  return refmpn_mul_N (rp, sp, size, mult, (mp_size_t) 3);
+}
+mp_limb_t
+refmpn_mul_4 (mp_ptr rp, mp_srcptr sp, mp_size_t size, mp_srcptr mult)
+{
+  return refmpn_mul_N (rp, sp, size, mult, (mp_size_t) 4);
+}
 
 #define AORSMUL_1C(operation_n)                                 \
   {                                                             \
@@ -1608,34 +1628,6 @@ refmpn_mod2 (mp_limb_t r[2], const mp_limb_t a[2], const mp_limb_t d[2])
 }
 
 
-/* Return n with 0 < n < 2^GMP_NUMB_BITS such that there exists 0 < |d| <
-   2^GMP_NUMB_BITS, and n == d * c mod 2^(2*GMP_NUMB_BITS).  */
-mp_limb_t
-refmpn_gcd_finda (const mp_limb_t c[2])
-{
-  mp_limb_t  n1[2], n2[2];
-
-  ASSERT (c[0] != 0);
-  ASSERT (c[1] != 0);
-  ASSERT_MPN (c, 2);
-
-  n1[0] = c[0];
-  n1[1] = c[1];
-
-  n2[0] = -n1[0];
-  n2[1] = ~n1[1];
-
-  while (n2[1] != 0)
-    {
-      refmpn_mod2 (n1, n1, n2);
-
-      MP_LIMB_T_SWAP (n1[0], n2[0]);
-      MP_LIMB_T_SWAP (n1[1], n2[1]);
-    }
-
-  return n2[0];
-}
-
 
 /* Similar to mpn/generic/sb_divrem_mn.c, but somewhat simplified, in
    particular the trial quotient is allowed to be 2 too big. */
@@ -1694,7 +1686,9 @@ refmpn_sb_divrem_mn (mp_ptr qp,
     }
 
   /* remainder < divisor */
+#if 0		/* ASSERT triggers gcc 4.2.1 bug */
   ASSERT (refmpn_cmp (np, dp, dsize) < 0);
+#endif
 
   /* multiply back to original */
   {
@@ -1749,6 +1743,26 @@ refmpn_tdiv_qr (mp_ptr qp, mp_ptr rp, mp_size_t qxn,
     }
 }
 
+void
+refmpn_redc_1 (mp_ptr rp, mp_ptr up, mp_srcptr mp, mp_size_t n, mp_limb_t invm)
+{
+  mp_size_t j;
+  mp_limb_t cy;
+
+  ASSERT_MPN (up, 2*n);
+  /* ASSERT about directed overlap rp, up */
+  /* ASSERT about overlap rp, mp */
+  /* ASSERT about overlap up, mp */
+
+  for (j = n - 1; j >= 0; j--)
+    {
+      up[0] = mpn_addmul_1 (up, mp, n, (up[0] * invm) & GMP_NUMB_MASK);
+      up++;
+    }
+  cy = mpn_add_n (rp, up, up - n, n);
+  if (cy != 0)
+    mpn_sub_n (rp, rp, mp, n);
+}
 
 size_t
 refmpn_get_str (unsigned char *dst, int base, mp_ptr src, mp_size_t size)

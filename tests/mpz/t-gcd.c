@@ -1,7 +1,7 @@
 /* Test mpz_gcd, mpz_gcdext, and mpz_gcd_ui.
 
-Copyright 1991, 1993, 1994, 1996, 1997, 2000, 2001, 2002, 2003, 2004, 2005
-Free Software Foundation, Inc.
+Copyright 1991, 1993, 1994, 1996, 1997, 2000, 2001, 2002, 2003, 2004, 2005,
+2008 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -82,7 +82,23 @@ check_data (void)
    to reinitialize them for each test.  */
 mpz_t gcd1, gcd2, s, t, temp1, temp2;
 
+#if GCD_DC_THRESHOLD > GCDEXT_DC_THRESHOLD
+#define MAX_SCHOENHAGE_THRESHOLD GCD_DC_THRESHOLD
+#else
+#define MAX_SCHOENHAGE_THRESHOLD GCDEXT_DC_THRESHOLD
+#endif
+
+/* Define this to make all operands be large enough for Schoenhage gcd
+   to be used.  */
+#ifndef WHACK_SCHOENHAGE
+#define WHACK_SCHOENHAGE 0
+#endif
+
+#if WHACK_SCHOENHAGE
+#define MIN_OPERAND_BITSIZE (MAX_SCHOENHAGE_THRESHOLD * GMP_NUMB_BITS)
+#else
 #define MIN_OPERAND_BITSIZE 1
+#endif
 
 int
 main (int argc, char **argv)
@@ -92,7 +108,7 @@ main (int argc, char **argv)
   gmp_randstate_ptr rands;
   mpz_t bs;
   unsigned long bsi, size_range;
-  int reps = 200;
+  int reps = 100;
 
   if (argc == 2)
      reps = atoi (argv[1]);
@@ -148,8 +164,12 @@ main (int argc, char **argv)
       mpz_add_ui (op2, op2, 1);
       mpz_set (ref, op2);
 
+#if WHACK_SCHOENHAGE
+      chain_len = 1000000;
+#else
       mpz_urandomb (bs, rands, 32);
-      chain_len = mpz_get_ui (bs) % 50;
+      chain_len = mpz_get_ui (bs) % (GMP_NUMB_BITS * MAX_SCHOENHAGE_THRESHOLD / 256);
+#endif
 
       for (j = 0; j < chain_len; j++)
 	{
@@ -161,7 +181,7 @@ main (int argc, char **argv)
 	  mpz_add (op1, op1, temp1);
 
 	  /* Don't generate overly huge operands.  */
-	  if (SIZ (op1) > 400)
+	  if (SIZ (op1) > 3 * MAX_SCHOENHAGE_THRESHOLD)
 	    break;
 
 	  mpz_urandomb (bs, rands, 32);
@@ -172,7 +192,7 @@ main (int argc, char **argv)
 	  mpz_add (op2, op2, temp1);
 
 	  /* Don't generate overly huge operands.  */
-	  if (SIZ (op2) > 400)
+	  if (SIZ (op2) > 3 * MAX_SCHOENHAGE_THRESHOLD)
 	    break;
 	}
       one_test (op1, op2, ref, i);
@@ -232,6 +252,7 @@ one_test (mpz_t op1, mpz_t op2, mpz_t ref, int i)
       fprintf (stderr, "op1=");                 debug_mp (op1, -16);
       fprintf (stderr, "op2=");                 debug_mp (op2, -16);
       fprintf (stderr, "mpz_gcdext returns:\n");debug_mp (gcd1, -16);
+      fprintf (stderr, "s=");                   debug_mp (s, -16);
       abort ();
     }
 

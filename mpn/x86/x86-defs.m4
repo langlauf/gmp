@@ -736,6 +736,8 @@ Zdisp_match( sbbl, 0,(%edx), %esi,        `0x1b,0x72,0x00',           $@)`'dnl
 Zdisp_match( subl, %ecx, 0,(%edi),        `0x29,0x4f,0x00',           $@)`'dnl
 Zdisp_match( movzbl, 0,(%eax,%ebp), %eax, `0x0f,0xb6,0x44,0x28,0x00', $@)`'dnl
 Zdisp_match( movzbl, 0,(%ecx,%edi), %edi, `0x0f,0xb6,0x7c,0x39,0x00', $@)`'dnl
+Zdisp_match( adc, 0,(%ebx,%ecx,4), %eax,  `0x13,0x44,0x8b,0x00',      $@)`'dnl
+Zdisp_match( sbb, 0,(%ebx,%ecx,4), %eax,  `0x1b,0x44,0x8b,0x00',      $@)`'dnl
 ')
 define(Zdisp_2,`dnl
 Zdisp_match( movl, %eax, 0,(%edi),        `0x89,0x47,0x00',           $@)`'dnl
@@ -746,6 +748,8 @@ Zdisp_match( movl, 0,(%ebx), %esi,        `0x8b,0x73,0x00',           $@)`'dnl
 Zdisp_match( movl, 0,(%edx), %eax,        `0x8b,0x42,0x00',           $@)`'dnl
 Zdisp_match( movl, 0,(%esi), %eax,        `0x8b,0x46,0x00',           $@)`'dnl
 Zdisp_match( movl, 0,(%esi,%ecx,4), %eax, `0x8b,0x44,0x8e,0x00',      $@)`'dnl
+Zdisp_match( mov, 0,(%esi,%ecx,4), %eax,  `0x8b,0x44,0x8e,0x00',      $@)`'dnl
+Zdisp_match( mov, %eax, 0,(%edi,%ecx,4),  `0x89,0x44,0x8f,0x00',      $@)`'dnl
 ')
 define(Zdisp_3,`dnl
 Zdisp_match( movq, 0,(%eax,%ecx,8), %mm0, `0x0f,0x6f,0x44,0xc8,0x00', $@)`'dnl
@@ -925,9 +929,28 @@ m4_assert_numargs(1)
 dnl  Usage LEA(symbol,reg)
 
 define(`LEA',`
-        call    L(movl_eip_`'$2)
-        addl    $_GLOBAL_OFFSET_TABLE_, %$2
-        movl    $1@GOT(%$2), %$2
+define(`EPILOGUE_cpu',
+`
+L(movl_eip_`'substr($2,1)):
+	movl	(%esp), $2
+	ret_internal
+	SIZE(`$1',.-`$1')')
+
+        call    L(movl_eip_`'substr($2,1))
+        addl    $_GLOBAL_OFFSET_TABLE_, $2
+        movl    $1@GOT($2), $2
 ')
+
+
+define(`DEF_OBJECT',
+m4_assert_numargs_range(1,2)
+	`RODATA
+	ALIGN(ifelse($#,1,2,$2))
+$1:
+')
+
+define(`END_OBJECT',
+m4_assert_numargs(1)
+`	SIZE(`$1',.-`$1')')
 
 divert`'dnl

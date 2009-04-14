@@ -146,8 +146,7 @@ dnl  like 3.0.1 if patchlevel > 0.
 define(GMP_VERSION,
 [GMP_HEADER_GETVAL(__GNU_MP_VERSION,gmp-h.in)[]dnl
 .GMP_HEADER_GETVAL(__GNU_MP_VERSION_MINOR,gmp-h.in)[]dnl
-ifelse(m4_eval(GMP_HEADER_GETVAL(__GNU_MP_VERSION_PATCHLEVEL,gmp-h.in) > 0),1,
-[.GMP_HEADER_GETVAL(__GNU_MP_VERSION_PATCHLEVEL,gmp-h.in)])])
+.GMP_HEADER_GETVAL(__GNU_MP_VERSION_PATCHLEVEL,gmp-h.in)])
 
 
 dnl  GMP_SUBST_CHECK_FUNCS(func,...)
@@ -624,7 +623,7 @@ GMP_PROG_CC_WORKS_PART_MAIN([$1], [mpn_lshift_com optimization],
    but that's fine, the offending cc is a native-only compiler so we don't
    have to worry about cross compiling.  */
 
-#if ! defined (__cplusplus)                                         
+#if ! defined (__cplusplus)
 unsigned long
 lshift_com (rp, up, n, cnt)
   unsigned long *rp;
@@ -674,7 +673,7 @@ GMP_PROG_CC_WORKS_PART_MAIN([$1], [mpn_lshift_com optimization 2],
     to be run to show the problem, but that's fine, the offending cc is a
     native-only compiler so we don't have to worry about cross compiling.  */
 
-#if ! defined (__cplusplus)                                         
+#if ! defined (__cplusplus)
 #include <stdlib.h>
 void
 lshift_com (rp, up, n, cnt)

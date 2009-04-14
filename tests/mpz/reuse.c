@@ -6,7 +6,7 @@
 	mpz_mul_si
 	mpz_addmul_ui (should this really allow a+=a*c?)
 
-Copyright 1996, 1999, 2000, 2001, 2002, 2007 Free Software Foundation, Inc.
+Copyright 1996, 1999, 2000, 2001, 2002 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -48,14 +48,14 @@ main (void)
 
 #else /* ! DLL_EXPORT */
 
-void dump _PROTO ((char *, mpz_t, mpz_t, mpz_t));
+void dump __GMP_PROTO ((char *, mpz_t, mpz_t, mpz_t));
 
-typedef void (*dss_func) _PROTO ((mpz_ptr, mpz_srcptr, mpz_srcptr));
-typedef void (*dsi_func) _PROTO ((mpz_ptr, mpz_srcptr, unsigned long int));
-typedef unsigned long int (*dsi_div_func) _PROTO ((mpz_ptr, mpz_srcptr, unsigned long int));
-typedef unsigned long int (*ddsi_div_func) _PROTO ((mpz_ptr, mpz_ptr, mpz_srcptr, unsigned long int));
-typedef void (*ddss_div_func) _PROTO ((mpz_ptr, mpz_ptr, mpz_srcptr, mpz_srcptr));
-typedef void (*ds_func) _PROTO ((mpz_ptr, mpz_srcptr));
+typedef void (*dss_func) __GMP_PROTO ((mpz_ptr, mpz_srcptr, mpz_srcptr));
+typedef void (*dsi_func) __GMP_PROTO ((mpz_ptr, mpz_srcptr, unsigned long int));
+typedef unsigned long int (*dsi_div_func) __GMP_PROTO ((mpz_ptr, mpz_srcptr, unsigned long int));
+typedef unsigned long int (*ddsi_div_func) __GMP_PROTO ((mpz_ptr, mpz_ptr, mpz_srcptr, unsigned long int));
+typedef void (*ddss_div_func) __GMP_PROTO ((mpz_ptr, mpz_ptr, mpz_srcptr, mpz_srcptr));
+typedef void (*ds_func) __GMP_PROTO ((mpz_ptr, mpz_srcptr));
 
 
 void
@@ -184,7 +184,7 @@ int
 main (int argc, char **argv)
 {
   int i;
-  int pass, reps = 50;
+  int pass, reps = 1000;
   mpz_t in1, in2, in3;
   unsigned long int in2i;
   mp_size_t size;
@@ -219,7 +219,7 @@ main (int argc, char **argv)
   for (pass = 1; pass <= reps; pass++)
     {
       mpz_urandomb (bs, rands, 32);
-      size_range = mpz_get_ui (bs) % 16 + 2;
+      size_range = mpz_get_ui (bs) % 12 + 2;
 
       mpz_urandomb (bs, rands, size_range);
       size = mpz_get_ui (bs);
@@ -402,7 +402,7 @@ main (int argc, char **argv)
 	    FAIL2 (mpz_rootrem, in1, in2, NULL);
 	}
 
-      if (size_range < 10)	/* gcd/gcdext still quadratic */
+      if (pass < reps / 2)	/* run fewer tests since gcdext lots of time */
 	{
 	  mpz_gcdext (ref1, ref2, ref3, in1, in2);
 

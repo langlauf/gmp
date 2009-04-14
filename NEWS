@@ -1,5 +1,5 @@
-Copyright 1996, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
-Free Software Foundation, Inc.
+Copyright 1996, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+2009 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -15,6 +15,46 @@ License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
 along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.
+
+
+Changes between GMP version 4.2.X and 4.3.0
+
+  Bugs:
+  * Fixed bug in mpz_perfect_power_p with recognition of negative perfect
+    powers that can be written both as an even and odd power.
+  * We might accidentally have added bugs since there is a large amount of
+    new code in this release.
+
+  Speedups:
+  * Vastly improved assembly code for x86-64 processors from AMD and Intel.
+  * Major improvements also for many other processor families, such as
+    Alpha, PowerPC, and Itanium.
+  * New sub-quadratic mpn_gcd and mpn_gcdext, as well as improved basecase
+    gcd code.
+  * The multiply FFT code has been slightly improved.
+  * Balanced multiplication now uses 4-way Toom in addition to schoolbook,
+    Karatsuba, 3-way Toom, and FFT.
+  * Unbalanced multiplication has been vastly improved.
+  * Improved schoolbook division by means of faster quotient approximation.
+  * Several new algorithms for division and mod by single limbs, giving
+    many-fold speedups.
+  * Improved nth root computations.
+  * The mpz_nextprime function uses sieving and is much faster.
+  * Countless minor tweaks.
+
+  Features:
+  * Updated support for fat binaries for x86_32 include current processors
+  * Lots of new mpn internal interfaces.  Some of them will become public
+    in a future GMP release.
+  * Support for the 32-bit ABI under x86-apple-darwin.
+  * x86 CPU recognition code should now default better for future
+    processors.
+  * The experimental nails feature does not work in this release, but
+    it might be re-enabled in the future.
+
+  Misc:
+  * The gmp_version variable now always contains three parts.  For this
+    release, it is "4.3.0".
 
 
 Changes between GMP version 4.2.3 and 4.2.4
@@ -178,9 +218,9 @@ Changes between GMP version 4.0.1 and 4.1
 * Asymptotically fast conversion to/from strings (mpz, mpq, mpn levels), but
   also major speed improvements for tiny operands.
 * mpn_get_str parameter restrictions relaxed.
-* Major speed improvments for HPPA 2.0 systems.
-* Major speed improvments for UltraSPARC systems.
-* Major speed improvments for IA-64 systems (but still sub-optimal code).
+* Major speed improvements for HPPA 2.0 systems.
+* Major speed improvements for UltraSPARC systems.
+* Major speed improvements for IA-64 systems (but still sub-optimal code).
 * Extended test suite.
 * mpfr is back, with many bug fixes and portability improvements.
 * New function: mpz_ui_sub.
@@ -256,8 +296,8 @@ Changes between GMP version 3.0 and 3.1
 * Improved `make check' running more tests.
 * Tuned algorithm cutoff points for many machines.  This will improve speed for
   a lot of operations, in some cases by a large amount.
-* Major speed improvments: Alpha 21264.
-* Some speed improvments: Cray vector computers, AMD K6 and Athlon, Intel P5
+* Major speed improvements: Alpha 21264.
+* Some speed improvements: Cray vector computers, AMD K6 and Athlon, Intel P5
   and Pentium Pro/II/III.
 * The mpf_get_prec function now works as it did in GMP 2.
 * New utilities for auto-tuning and speed measuring.

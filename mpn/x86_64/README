@@ -1,4 +1,4 @@
-Copyright 2003, 2004, 2006 Free Software Foundation, Inc.
+Copyright 2003, 2004, 2006, 2008 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -46,17 +46,18 @@ cycles, so a saved cycle isn't too exciting.
 
 
 The new spin of the venerable P6 core, the "Core 2" is much better than the
-Pentium4 for the GMP loops.  Its integer pipeline is very similar to to the
-Opteron/Athlon64 pipeline, except that the GMP favourites ADC/SBB and MUL
-are slower.  Furthermore, an INC/DEC followed by ADC/SBB incur a pipeline
-stall of around 10 cycles.  The current mpn_add_n and mpn_sub_n code suffers
-badly from the stall.  One would want to use the almost forgotten
-instruction JRCXZ for loop control, updating the induction variable using
-LEA.
+Pentium4 for the GMP loops.  Its integer pipeline is somewhat similar to to
+the Opteron/Athlon64 pipeline, except that the GMP favourites ADC/SBB and
+MUL are slower.  Furthermore, an INC/DEC followed by ADC/SBB incur a
+pipeline stall of around 10 cycles.  The default mpn_add_n and mpn_sub_n
+code suffers badly from the stall.  The code in the core2 subdirectory uses
+the almost forgotten instruction JRCXZ for loop control, and updates the
+induction variable using LEA.
 
 
 
 REFERENCES
 
 "System V Application Binary Interface AMD64 Architecture Processor
-Supplement", draft version 0.90, April 2003.
+Supplement", draft version 0.99, December 2007.
+http://www.x86-64.org/documentation/abi.pdf

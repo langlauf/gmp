@@ -217,17 +217,19 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.
 #undef HAVE_NATIVE_mpn_addmul_7
 #undef HAVE_NATIVE_mpn_addmul_8
 #undef HAVE_NATIVE_mpn_addsub_n
+#undef HAVE_NATIVE_mpn_addaddmul_1msb0
 #undef HAVE_NATIVE_mpn_and_n
 #undef HAVE_NATIVE_mpn_andn_n
+#undef HAVE_NATIVE_mpn_bdiv_dbm1c
 #undef HAVE_NATIVE_mpn_com_n
 #undef HAVE_NATIVE_mpn_copyd
 #undef HAVE_NATIVE_mpn_copyi
 #undef HAVE_NATIVE_mpn_divexact_1
+#undef HAVE_NATIVE_mpn_divexact_by3c
 #undef HAVE_NATIVE_mpn_divrem_1
 #undef HAVE_NATIVE_mpn_divrem_1c
 #undef HAVE_NATIVE_mpn_divrem_2
 #undef HAVE_NATIVE_mpn_gcd_1
-#undef HAVE_NATIVE_mpn_gcd_finda
 #undef HAVE_NATIVE_mpn_invert_limb
 #undef HAVE_NATIVE_mpn_ior_n
 #undef HAVE_NATIVE_mpn_iorn_n
@@ -244,6 +246,8 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.
 #undef HAVE_NATIVE_mpn_nior_n
 #undef HAVE_NATIVE_mpn_preinv_divrem_1
 #undef HAVE_NATIVE_mpn_preinv_mod_1
+#undef HAVE_NATIVE_mpn_redc_1
+#undef HAVE_NATIVE_mpn_redc_2
 #undef HAVE_NATIVE_mpn_rsh1add_n
 #undef HAVE_NATIVE_mpn_rsh1sub_n
 #undef HAVE_NATIVE_mpn_sqr_basecase
@@ -507,6 +511,10 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.
 #ifndef __cplusplus
 #undef inline
 #endif
+
+/* Define to equivalent of C99 restrict keyword, or to nothing if this is not
+   supported. Do not define if restrict is supported directly. */
+#undef restrict
 
 /* Define to empty if the keyword `volatile' does not work. Warning: valid
    code using `volatile' can become incorrect without. Disable with care. */

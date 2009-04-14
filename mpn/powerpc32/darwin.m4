@@ -35,6 +35,8 @@ define(`EPILOGUE_cpu',
 m4_assert_numargs(1))
 
 
+dnl  LEA -- Load Effective Address.
+
 define(`LEA',
 m4_assert_numargs(2)
 `ifdef(`PIC',
@@ -48,6 +50,11 @@ m4_assert_numargs(2)
 	lis	$1, ha16($2)
 	la	$1, lo16($2)($1)
 ')')
+
+define(`LEAL',
+m4_assert_numargs(2)
+`LEA($1,$2)')
+
 
 define(`EXTERN',
 m4_assert_numargs(1)

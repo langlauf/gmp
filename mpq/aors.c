@@ -22,12 +22,12 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
 #include "gmp-impl.h"
 
 
-static void __gmpq_aors _PROTO ((REGPARM_3_1 (mpq_ptr w, mpq_srcptr x, mpq_srcptr y, void (*fun) _PROTO ((mpz_ptr, mpz_srcptr, mpz_srcptr))))) REGPARM_ATTR (1);
+static void __gmpq_aors __GMP_PROTO ((REGPARM_3_1 (mpq_ptr, mpq_srcptr, mpq_srcptr, void (*) __GMP_PROTO ((mpz_ptr, mpz_srcptr, mpz_srcptr))))) REGPARM_ATTR (1);
 #define mpq_aors(w,x,y,fun)  __gmpq_aors (REGPARM_3_1 (w, x, y, fun))
 
 REGPARM_ATTR (1) static void
 mpq_aors (mpq_ptr rop, mpq_srcptr op1, mpq_srcptr op2,
-	  void (*fun) _PROTO ((mpz_ptr, mpz_srcptr, mpz_srcptr)))
+          void (*fun) __GMP_PROTO ((mpz_ptr, mpz_srcptr, mpz_srcptr)))
 {
   mpz_t gcd;
   mpz_t tmp1, tmp2;
@@ -65,16 +65,16 @@ mpq_aors (mpq_ptr rop, mpq_srcptr op1, mpq_srcptr op2,
 
       mpz_gcd (gcd, t, gcd);
       if (MPZ_EQUAL_1_P (gcd))
-	{
-	  mpz_set (&(rop->_mp_num), t);
-	  mpz_mul (&(rop->_mp_den), &(op2->_mp_den), tmp2);
-	}
+        {
+          mpz_set (&(rop->_mp_num), t);
+          mpz_mul (&(rop->_mp_den), &(op2->_mp_den), tmp2);
+        }
       else
-	{
-	  mpz_divexact_gcd (&(rop->_mp_num), t, gcd);
-	  mpz_divexact_gcd (tmp1, &(op2->_mp_den), gcd);
-	  mpz_mul (&(rop->_mp_den), tmp1, tmp2);
-	}
+        {
+          mpz_divexact_gcd (&(rop->_mp_num), t, gcd);
+          mpz_divexact_gcd (tmp1, &(op2->_mp_den), gcd);
+          mpz_mul (&(rop->_mp_den), tmp1, tmp2);
+        }
     }
   else
     {

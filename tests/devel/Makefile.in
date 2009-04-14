@@ -30,7 +30,7 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.
-SOURCES = addmul_N.c anymul_1.c aors_n.c copy.c divmod_1.c divrem.c logops_n.c mul_N.c shift.c try.c
+SOURCES = anymul_1.c aors_n.c copy.c divmod_1.c divrem.c logops_n.c shift.c try.c tst-addsub.c
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -56,8 +56,7 @@ host_triplet = @host@
 ANSI2KNR = $(top_builddir)/ansi2knr
 EXTRA_PROGRAMS = aors_n$(EXEEXT) anymul_1$(EXEEXT) copy$(EXEEXT) \
 	divmod_1$(EXEEXT) divrem$(EXEEXT) shift$(EXEEXT) \
-	logops_n$(EXEEXT) mul_N$(EXEEXT) addmul_N$(EXEEXT) \
-	try$(EXEEXT)
+	logops_n$(EXEEXT) tst-addsub$(EXEEXT) try$(EXEEXT)
 subdir = tests/devel
 DIST_COMMON = README $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -68,11 +67,6 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(mkdir_p)
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
-addmul_N_SOURCES = addmul_N.c
-addmul_N_OBJECTS = addmul_N$U.$(OBJEXT)
-addmul_N_LDADD = $(LDADD)
-addmul_N_DEPENDENCIES = $(top_builddir)/tests/libtests.la \
-	$(top_builddir)/libgmp.la
 anymul_1_SOURCES = anymul_1.c
 anymul_1_OBJECTS = anymul_1$U.$(OBJEXT)
 anymul_1_LDADD = $(LDADD)
@@ -103,11 +97,6 @@ logops_n_OBJECTS = logops_n$U.$(OBJEXT)
 logops_n_LDADD = $(LDADD)
 logops_n_DEPENDENCIES = $(top_builddir)/tests/libtests.la \
 	$(top_builddir)/libgmp.la
-mul_N_SOURCES = mul_N.c
-mul_N_OBJECTS = mul_N$U.$(OBJEXT)
-mul_N_LDADD = $(LDADD)
-mul_N_DEPENDENCIES = $(top_builddir)/tests/libtests.la \
-	$(top_builddir)/libgmp.la
 shift_SOURCES = shift.c
 shift_OBJECTS = shift$U.$(OBJEXT)
 shift_LDADD = $(LDADD)
@@ -117,6 +106,11 @@ try_SOURCES = try.c
 try_OBJECTS = try$U.$(OBJEXT)
 try_LDADD = $(LDADD)
 try_DEPENDENCIES = $(top_builddir)/tests/libtests.la \
+	$(top_builddir)/libgmp.la
+tst_addsub_SOURCES = tst-addsub.c
+tst_addsub_OBJECTS = tst-addsub$U.$(OBJEXT)
+tst_addsub_LDADD = $(LDADD)
+tst_addsub_DEPENDENCIES = $(top_builddir)/tests/libtests.la \
 	$(top_builddir)/libgmp.la
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp =
@@ -129,10 +123,10 @@ LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = addmul_N.c anymul_1.c aors_n.c copy.c divmod_1.c divrem.c \
-	logops_n.c mul_N.c shift.c try.c
-DIST_SOURCES = addmul_N.c anymul_1.c aors_n.c copy.c divmod_1.c \
-	divrem.c logops_n.c mul_N.c shift.c try.c
+SOURCES = anymul_1.c aors_n.c copy.c divmod_1.c divrem.c logops_n.c \
+	shift.c try.c tst-addsub.c
+DIST_SOURCES = anymul_1.c aors_n.c copy.c divmod_1.c divrem.c \
+	logops_n.c shift.c try.c tst-addsub.c
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -312,9 +306,6 @@ $(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
-addmul_N$(EXEEXT): $(addmul_N_OBJECTS) $(addmul_N_DEPENDENCIES) 
-	@rm -f addmul_N$(EXEEXT)
-	$(LINK) $(addmul_N_LDFLAGS) $(addmul_N_OBJECTS) $(addmul_N_LDADD) $(LIBS)
 anymul_1$(EXEEXT): $(anymul_1_OBJECTS) $(anymul_1_DEPENDENCIES) 
 	@rm -f anymul_1$(EXEEXT)
 	$(LINK) $(anymul_1_LDFLAGS) $(anymul_1_OBJECTS) $(anymul_1_LDADD) $(LIBS)
@@ -333,15 +324,15 @@ divrem$(EXEEXT): $(divrem_OBJECTS) $(divrem_DEPENDENCIES)
 logops_n$(EXEEXT): $(logops_n_OBJECTS) $(logops_n_DEPENDENCIES) 
 	@rm -f logops_n$(EXEEXT)
 	$(LINK) $(logops_n_LDFLAGS) $(logops_n_OBJECTS) $(logops_n_LDADD) $(LIBS)
-mul_N$(EXEEXT): $(mul_N_OBJECTS) $(mul_N_DEPENDENCIES) 
-	@rm -f mul_N$(EXEEXT)
-	$(LINK) $(mul_N_LDFLAGS) $(mul_N_OBJECTS) $(mul_N_LDADD) $(LIBS)
 shift$(EXEEXT): $(shift_OBJECTS) $(shift_DEPENDENCIES) 
 	@rm -f shift$(EXEEXT)
 	$(LINK) $(shift_LDFLAGS) $(shift_OBJECTS) $(shift_LDADD) $(LIBS)
 try$(EXEEXT): $(try_OBJECTS) $(try_DEPENDENCIES) 
 	@rm -f try$(EXEEXT)
 	$(LINK) $(try_LDFLAGS) $(try_OBJECTS) $(try_LDADD) $(LIBS)
+tst-addsub$(EXEEXT): $(tst_addsub_OBJECTS) $(tst_addsub_DEPENDENCIES) 
+	@rm -f tst-addsub$(EXEEXT)
+	$(LINK) $(tst_addsub_LDFLAGS) $(tst_addsub_OBJECTS) $(tst_addsub_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -362,8 +353,6 @@ mostlyclean-kr:
 
 .c.lo:
 	$(LTCOMPILE) -c -o $@ $<
-addmul_N_.c: addmul_N.c $(ANSI2KNR)
-	$(CPP) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/addmul_N.c; then echo $(srcdir)/addmul_N.c; else echo addmul_N.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > $@ || rm -f $@
 anymul_1_.c: anymul_1.c $(ANSI2KNR)
 	$(CPP) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/anymul_1.c; then echo $(srcdir)/anymul_1.c; else echo anymul_1.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > $@ || rm -f $@
 aors_n_.c: aors_n.c $(ANSI2KNR)
@@ -376,17 +365,17 @@ divrem_.c: divrem.c $(ANSI2KNR)
 	$(CPP) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/divrem.c; then echo $(srcdir)/divrem.c; else echo divrem.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > $@ || rm -f $@
 logops_n_.c: logops_n.c $(ANSI2KNR)
 	$(CPP) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/logops_n.c; then echo $(srcdir)/logops_n.c; else echo logops_n.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > $@ || rm -f $@
-mul_N_.c: mul_N.c $(ANSI2KNR)
-	$(CPP) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/mul_N.c; then echo $(srcdir)/mul_N.c; else echo mul_N.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > $@ || rm -f $@
 shift_.c: shift.c $(ANSI2KNR)
 	$(CPP) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/shift.c; then echo $(srcdir)/shift.c; else echo shift.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > $@ || rm -f $@
 try_.c: try.c $(ANSI2KNR)
 	$(CPP) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/try.c; then echo $(srcdir)/try.c; else echo try.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > $@ || rm -f $@
-addmul_N_.$(OBJEXT) addmul_N_.lo anymul_1_.$(OBJEXT) anymul_1_.lo \
-aors_n_.$(OBJEXT) aors_n_.lo copy_.$(OBJEXT) copy_.lo \
-divmod_1_.$(OBJEXT) divmod_1_.lo divrem_.$(OBJEXT) divrem_.lo \
-logops_n_.$(OBJEXT) logops_n_.lo mul_N_.$(OBJEXT) mul_N_.lo \
-shift_.$(OBJEXT) shift_.lo try_.$(OBJEXT) try_.lo : $(ANSI2KNR)
+tst-addsub_.c: tst-addsub.c $(ANSI2KNR)
+	$(CPP) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/tst-addsub.c; then echo $(srcdir)/tst-addsub.c; else echo tst-addsub.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > $@ || rm -f $@
+anymul_1_.$(OBJEXT) anymul_1_.lo aors_n_.$(OBJEXT) aors_n_.lo \
+copy_.$(OBJEXT) copy_.lo divmod_1_.$(OBJEXT) divmod_1_.lo \
+divrem_.$(OBJEXT) divrem_.lo logops_n_.$(OBJEXT) logops_n_.lo \
+shift_.$(OBJEXT) shift_.lo try_.$(OBJEXT) try_.lo \
+tst-addsub_.$(OBJEXT) tst-addsub_.lo : $(ANSI2KNR)
 
 mostlyclean-libtool:
 	-rm -f *.lo

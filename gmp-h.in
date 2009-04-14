@@ -573,10 +573,10 @@ __GMP_DECLSPEC void gmp_randseed_ui __GMP_PROTO ((gmp_randstate_t, unsigned long
 __GMP_DECLSPEC void gmp_randclear __GMP_PROTO ((gmp_randstate_t));
 
 #define gmp_urandomb_ui __gmp_urandomb_ui
-unsigned long gmp_urandomb_ui __GMP_PROTO ((gmp_randstate_t, unsigned long));
+__GMP_DECLSPEC unsigned long gmp_urandomb_ui __GMP_PROTO ((gmp_randstate_t, unsigned long));
 
 #define gmp_urandomm_ui __gmp_urandomm_ui
-unsigned long gmp_urandomm_ui __GMP_PROTO ((gmp_randstate_t, unsigned long));
+__GMP_DECLSPEC unsigned long gmp_urandomm_ui __GMP_PROTO ((gmp_randstate_t, unsigned long));
 
 
 /**************** Formatted output routines.  ****************/
@@ -1505,6 +1505,9 @@ __GMP_DECLSPEC mp_size_t mpn_gcd __GMP_PROTO ((mp_ptr, mp_ptr, mp_size_t, mp_ptr
 #define mpn_gcd_1 __MPN(gcd_1)
 __GMP_DECLSPEC mp_limb_t mpn_gcd_1 __GMP_PROTO ((mp_srcptr, mp_size_t, mp_limb_t)) __GMP_ATTRIBUTE_PURE;
 
+#define mpn_gcdext_1 __MPN(gcdext_1)
+__GMP_DECLSPEC mp_limb_t mpn_gcdext_1 __GMP_PROTO ((mp_ptr, mp_ptr, mp_limb_t, mp_limb_t));
+
 #define mpn_gcdext __MPN(gcdext)
 __GMP_DECLSPEC mp_size_t mpn_gcdext __GMP_PROTO ((mp_ptr, mp_ptr, mp_size_t *, mp_ptr, mp_size_t, mp_ptr, mp_size_t));
 
@@ -1528,6 +1531,9 @@ __GMP_DECLSPEC mp_limb_t mpn_mul_1 __GMP_PROTO ((mp_ptr, mp_srcptr, mp_size_t, m
 
 #define mpn_mul_n __MPN(mul_n)
 __GMP_DECLSPEC void mpn_mul_n __GMP_PROTO ((mp_ptr, mp_srcptr, mp_srcptr, mp_size_t));
+
+#define mpn_neg_n __MPN(neg_n)
+__GMP_DECLSPEC mp_limb_t mpn_neg_n __GMP_PROTO ((mp_ptr, mp_srcptr, mp_size_t));
 
 #define mpn_perfect_square_p __MPN(perfect_square_p)
 __GMP_DECLSPEC int mpn_perfect_square_p __GMP_PROTO ((mp_srcptr, mp_size_t)) __GMP_ATTRIBUTE_PURE;
@@ -2085,6 +2091,24 @@ mpn_sub_1 (mp_ptr __gmp_dst, mp_srcptr __gmp_src, mp_size_t __gmp_size, mp_limb_
 }
 #endif
 
+#if defined (__GMP_EXTERN_INLINE) || defined (__GMP_FORCE_mpn_neg_n)
+#if ! defined (__GMP_FORCE_mpn_neg_n)
+__GMP_EXTERN_INLINE
+#endif
+mp_limb_t
+mpn_neg_n (mp_ptr __gmp_rp, mp_srcptr __gmp_up, mp_size_t __gmp_n)
+{
+  mp_limb_t __gmp_ul, __gmp_cy;
+  __gmp_cy = 0;
+  do {
+      __gmp_ul = *__gmp_up++;
+      *__gmp_rp++ = -__gmp_ul - __gmp_cy;
+      __gmp_cy |= __gmp_ul != 0;
+  } while (--__gmp_n != 0);
+  return __gmp_cy;
+}
+#endif
+
 #if defined (__cplusplus)
 }
 #endif
@@ -2096,7 +2120,7 @@ mpn_sub_1 (mp_ptr __gmp_dst, mp_srcptr __gmp_src, mp_size_t __gmp_size, mp_limb_
 #define mpq_sgn(Q) ((Q)->_mp_num._mp_size < 0 ? -1 : (Q)->_mp_num._mp_size > 0)
 
 /* When using GCC, optimize certain common comparisons.  */
-#if defined (__GNUC__)
+#if defined (__GNUC__) && __GNUC__ >= 2
 #define mpz_cmp_ui(Z,UI) \
   (__builtin_constant_p (UI) && (UI) == 0				\
    ? mpz_sgn (Z) : _mpz_cmp_ui (Z,UI))
@@ -2176,8 +2200,8 @@ enum
 
 /* Major version number is the value of __GNU_MP__ too, above and in mp.h. */
 #define __GNU_MP_VERSION 4
-#define __GNU_MP_VERSION_MINOR 2
-#define __GNU_MP_VERSION_PATCHLEVEL 4
+#define __GNU_MP_VERSION_MINOR 3
+#define __GNU_MP_VERSION_PATCHLEVEL 0
 
 #define __GMP_H__
 #endif /* __GMP_H__ */
