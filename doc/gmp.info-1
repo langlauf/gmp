@@ -2,7 +2,7 @@ This is ../../gmp/doc/gmp.info, produced by makeinfo version 4.8 from
 ../../gmp/doc/gmp.texi.
 
    This manual describes how to install and use the GNU multiple
-precision arithmetic library, version 4.3.1.
+precision arithmetic library, version 4.3.2.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Free Software
@@ -10,7 +10,7 @@ Foundation, Inc.
 
    Permission is granted to copy, distribute and/or modify this
 document under the terms of the GNU Free Documentation License, Version
-1.2 or any later version published by the Free Software Foundation;
+1.3 or any later version published by the Free Software Foundation;
 with no Invariant Sections, with the Front-Cover Texts being "A GNU
 Manual", and with the Back-Cover Texts being "You have freedom to copy
 and modify this GNU Manual, like GNU software".  A copy of the license
@@ -28,7 +28,7 @@ GNU MP
 ******
 
    This manual describes how to install and use the GNU multiple
-precision arithmetic library, version 4.3.1.
+precision arithmetic library, version 4.3.2.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Free Software
@@ -36,7 +36,7 @@ Foundation, Inc.
 
    Permission is granted to copy, distribute and/or modify this
 document under the terms of the GNU Free Documentation License, Version
-1.2 or any later version published by the Free Software Foundation;
+1.3 or any later version published by the Free Software Foundation;
 with no Invariant Sections, with the Front-Cover Texts being "A GNU
 Manual", and with the Back-Cover Texts being "You have freedom to copy
 and modify this GNU Manual, like GNU software".  A copy of the license
@@ -230,7 +230,7 @@ Build Directory
      directory.  For example
 
           cd /my/build/dir
-          /my/sources/gmp-4.3.1/configure
+          /my/sources/gmp-4.3.2/configure
 
      Not all `make' programs have the necessary features (`VPATH') to
      support this.  In particular, SunOS and Slowaris `make' have bugs
@@ -1491,8 +1491,13 @@ File: gmp.info,  Node: Useful Macros and Constants,  Next: Compatibility with ol
 
  -- Global Constant: const char * const gmp_version
      The GMP version number, as a null-terminated string, in the form
-     "i.j.k".  This release is "4.3.1".  Note that the format "i.j" was
+     "i.j.k".  This release is "4.3.2".  Note that the format "i.j" was
      used when k was zero was used before version 4.3.0.
+
+ -- Macro: __GMP_CC
+ -- Macro: __GMP_CFLAGS
+     The compiler and compiler flags, respectively, used when compiling
+     GMP, as strings.
 
 
 File: gmp.info,  Node: Compatibility with older versions,  Next: Demonstration Programs,  Prev: Useful Macros and Constants,  Up: GMP Basics
@@ -1802,7 +1807,7 @@ Source File Paths
      path to the source directory.
 
           cd /my/build/dir
-          /my/source/dir/gmp-4.3.1/configure
+          /my/source/dir/gmp-4.3.2/configure
 
      This works via `VPATH', and might require GNU `make'.  Alternately
      it might be possible to change the `.c.lo' rules appropriately.
@@ -2153,28 +2158,33 @@ example,
    As you can see, you can store new values any number of times, once an
 object is initialized.
 
- -- Function: void mpz_init (mpz_t INTEGER)
-     Initialize INTEGER, and set its value to 0.
+ -- Function: void mpz_init (mpz_t X)
+     Initialize X, and set its value to 0.
 
- -- Function: void mpz_init2 (mpz_t INTEGER, unsigned long N)
-     Initialize INTEGER, with space for N bits, and set its value to 0.
+ -- Function: void mpz_init2 (mpz_t X, unsigned long N)
+     Initialize X, with space for N-bit numbers, and set its value to 0.
+     Calling this function instead of `mpz_init' or `mpz_inits' is never
+     necessary; reallocation is handled automatically by GMP when
+     needed.
 
-     N is only the initial space, INTEGER will grow automatically in
-     the normal way, if necessary, for subsequent values stored.
+     N is only the initial space, X will grow automatically in the
+     normal way, if necessary, for subsequent values stored.
      `mpz_init2' makes it possible to avoid such reallocations if a
      maximum size is known in advance.
 
- -- Function: void mpz_clear (mpz_t INTEGER)
-     Free the space occupied by INTEGER.  Call this function for all
-     `mpz_t' variables when you are done with them.
+ -- Function: void mpz_clear (mpz_t X)
+     Free the space occupied by X.  Call this function for all `mpz_t'
+     variables when you are done with them.
 
- -- Function: void mpz_realloc2 (mpz_t INTEGER, unsigned long N)
-     Change the space allocated for INTEGER to N bits.  The value in
-     INTEGER is preserved if it fits, or is set to 0 if not.
+ -- Function: void mpz_realloc2 (mpz_t X, unsigned long N)
+     Change the space allocated for X to N bits.  The value in X is
+     preserved if it fits, or is set to 0 if not.
 
-     This function can be used to increase the space for a variable in
-     order to avoid repeated automatic reallocations, or to decrease it
-     to give memory back to the heap.
+     Calling this function is never necessary; reallocation is handled
+     automatically by GMP when needed.  But this function can be used
+     to increase the space for a variable in order to avoid repeated
+     automatic reallocations, or to decrease it to give memory back to
+     the heap.
 
 
 File: gmp.info,  Node: Assigning Integers,  Next: Simultaneous Integer Init & Assign,  Prev: Initializing Integers,  Up: Integer Functions
@@ -2957,7 +2967,7 @@ data with the following functions.
      significant element first, and host byte order within each value.
 
           unsigned long  a[20];
-          mpz_t          z;
+          /* Initialize Z and A */
           mpz_import (z, 20, 1, sizeof(a[0]), 0, 0, a);
 
      This example assumes the full `sizeof' bytes are used for data in
@@ -3160,14 +3170,14 @@ File: gmp.info,  Node: Initializing Rationals,  Next: Rational Conversions,  Pre
 6.1 Initialization and Assignment Functions
 ===========================================
 
- -- Function: void mpq_init (mpq_t DEST_RATIONAL)
-     Initialize DEST_RATIONAL and set it to 0/1.  Each variable should
-     normally only be initialized once, or at least cleared out (using
-     the function `mpq_clear') between each initialization.
+ -- Function: void mpq_init (mpq_t X)
+     Initialize X and set it to 0/1.  Each variable should normally
+     only be initialized once, or at least cleared out (using the
+     function `mpq_clear') between each initialization.
 
- -- Function: void mpq_clear (mpq_t RATIONAL_NUMBER)
-     Free the space occupied by RATIONAL_NUMBER.  Make sure to call this
-     function for all `mpq_t' variables when you are done with them.
+ -- Function: void mpq_clear (mpq_t X)
+     Free the space occupied by X.  Make sure to call this function for
+     all `mpq_t' variables when you are done with them.
 
  -- Function: void mpq_set (mpq_t ROP, mpq_t OP)
  -- Function: void mpq_set_z (mpq_t ROP, mpz_t OP)
@@ -4008,6 +4018,27 @@ For example, {S1P, S1N}.
      product's most significant limb is zero.  No overlap is permitted
      between the destination and either source.
 
+     If the two input operands are the same, use `mpn_sqr_n'.
+
+ -- Function: mp_limb_t mpn_mul (mp_limb_t *RP, const mp_limb_t *S1P,
+          mp_size_t S1N, const mp_limb_t *S2P, mp_size_t S2N)
+     Multiply {S1P, S1N} and {S2P, S2N}, and write the (S1N+S2N)-limb
+     result to RP.  Return the most significant limb of the result.
+
+     The destination has to have space for S1N + S2N limbs, even if the
+     product's most significant limb is zero.  No overlap is permitted
+     between the destination and either source.
+
+     This function requires that S1N is greater than or equal to S2N.
+
+ -- Function: void mpn_sqr_n (mp_limb_t *RP, const mp_limb_t *S1P,
+          mp_size_t N)
+     Compute the square of {S1P, N} and write the 2*N-limb result to RP.
+
+     The destination has to have space for 2*N limbs, even if the
+     result's most significant limb is zero.  No overlap is permitted
+     between the destination and the source.
+
  -- Function: mp_limb_t mpn_mul_1 (mp_limb_t *RP, const mp_limb_t *S1P,
           mp_size_t N, mp_limb_t S2LIMB)
      Multiply {S1P, N} by S2LIMB, and write the N least significant
@@ -4044,17 +4075,6 @@ For example, {S1P, S1N}.
      This is a low-level function that is a building block for general
      multiplication and division as well as other operations in GMP.
      It is written in assembly for most CPUs.
-
- -- Function: mp_limb_t mpn_mul (mp_limb_t *RP, const mp_limb_t *S1P,
-          mp_size_t S1N, const mp_limb_t *S2P, mp_size_t S2N)
-     Multiply {S1P, S1N} and {S2P, S2N}, and write the result to RP.
-     Return the most significant limb of the result.
-
-     The destination has to have space for S1N + S2N limbs, even if the
-     result might be one limb smaller.
-
-     This function requires that S1N is greater than or equal to S2N.
-     The destination must be distinct from both input operands.
 
  -- Function: void mpn_tdiv_qr (mp_limb_t *QP, mp_limb_t *RP, mp_size_t
           QXN, const mp_limb_t *NP, mp_size_t NN, const mp_limb_t *DP,
@@ -4192,39 +4212,44 @@ For example, {S1P, S1N}.
      Compare {S1P, N} and {S2P, N} and return a positive value if S1 >
      S2, 0 if they are equal, or a negative value if S1 < S2.
 
- -- Function: mp_size_t mpn_gcd (mp_limb_t *RP, mp_limb_t *S1P,
-          mp_size_t S1N, mp_limb_t *S2P, mp_size_t S2N)
-     Set {RP, RETVAL} to the greatest common divisor of {S1P, S1N} and
-     {S2P, S2N}.  The result can be up to S2N limbs, the return value
-     is the actual number produced.  Both source operands are destroyed.
+ -- Function: mp_size_t mpn_gcd (mp_limb_t *RP, mp_limb_t *XP,
+          mp_size_t XN, mp_limb_t *YP, mp_size_t YN)
+     Set {RP, RETVAL} to the greatest common divisor of {XP, XN} and
+     {YP, YN}.  The result can be up to YN limbs, the return value is
+     the actual number produced.  Both source operands are destroyed.
 
-     {S1P, S1N} must have at least as many bits as {S2P, S2N}.  {S2P,
-     S2N} must be odd.  Both operands must have non-zero most
-     significant limbs.  No overlap is permitted between {S1P, S1N} and
-     {S2P, S2N}.
+     {XP, XN} must have at least as many bits as {YP, YN}.  {YP, YN}
+     must be odd.  Both operands must have non-zero most significant
+     limbs.  No overlap is permitted between {XP, XN} and {YP, YN}.
 
- -- Function: mp_limb_t mpn_gcd_1 (const mp_limb_t *S1P, mp_size_t S1N,
-          mp_limb_t S2LIMB)
-     Return the greatest common divisor of {S1P, S1N} and S2LIMB.  Both
+ -- Function: mp_limb_t mpn_gcd_1 (const mp_limb_t *XP, mp_size_t XN,
+          mp_limb_t YLIMB)
+     Return the greatest common divisor of {XP, XN} and YLIMB.  Both
      operands must be non-zero.
 
- -- Function: mp_size_t mpn_gcdext (mp_limb_t *R1P, mp_limb_t *R2P,
-          mp_size_t *R2N, mp_limb_t *S1P, mp_size_t S1N, mp_limb_t
-          *S2P, mp_size_t S2N)
-     Calculate the greatest common divisor of {S1P, S1N} and {S2P,
-     S2N}.  Store the gcd at {R1P, RETVAL} and the first cofactor at
-     {R2P, *R2N}, with *R2N negative if the cofactor is negative.  R1P
-     and R2P should each have room for S1N+1 limbs, but the return
-     value and value stored through R2N indicate the actual number
-     produced.
+ -- Function: mp_size_t mpn_gcdext (mp_limb_t *GP, mp_limb_t *SP,
+          mp_size_t *SN, mp_limb_t *XP, mp_size_t XN, mp_limb_t *YP,
+          mp_size_t YN)
+     Let U be defined by {XP, XN} and let V be defined by {YP, YN}.
 
-     {S1P, S1N} >= {S2P, S2N} is required, and both must be non-zero.
-     The regions {S1P, S1N+1} and {S2P, S2N+1} are destroyed (i.e. the
+     Compute the greatest common divisor G of U and V.  Compute a
+     cofactor S such that G = US + VT.  The second cofactor T is not
+     computed but can easily be obtained from (G - U*S) / V (the
+     division will be exact).  It is required that U >= V > 0.
+
+     S satisfies S = 1 or abs(S) < V / (2 G). S = 0 if and only if V
+     divides U (i.e., G = V).
+
+     Store G at GP and let the return value define its limb count.
+     Store S at SP and let |*SN| define its limb count.  S can be
+     negative; when this happens *SN will be negative.  The areas at GP
+     and SP should each have room for XN+1 limbs.
+
+     The areas {XP, XN+1} and {YP, YN+1} are destroyed (i.e. the input
      operands plus an extra limb past the end of each).
 
-     The cofactor R2 will satisfy R2*S1 + K*S2 = R1.  The second
-     cofactor K is not calculated but can easily be obtained from (R1 -
-     R2*S1) / S2 (this division will be exact).
+     Compatibility note: GMP 4.3.0 and 4.3.1 defined S less strictly.
+     Earlier as well as later GMP releases define S as described here.
 
  -- Function: mp_size_t mpn_sqrtrem (mp_limb_t *R1P, mp_limb_t *R2P,
           const mp_limb_t *SP, mp_size_t N)
@@ -6502,14 +6527,14 @@ Nx1 division is implemented using repeated 2x1 divisions from high to
 low, either with a hardware divide instruction or a multiplication by
 inverse, whichever is best on a given CPU.
 
-   The multiply by inverse follows section 8 of "Division by Invariant
-Integers using Multiplication" by Granlund and Montgomery (*note
-References::) and is implemented as `udiv_qrnnd_preinv' in
-`gmp-impl.h'.  The idea is to have a fixed-point approximation to 1/d
-(see `invert_limb') and then multiply by the high limb (plus one bit)
-of the dividend to get a quotient q.  With d normalized (high bit set),
-q is no more than 1 too small.  Subtracting q*d from the dividend gives
-a remainder, and reveals whether q or q-1 is correct.
+   The multiply by inverse follows "Improved division by invariant
+integers" by Mo"ller and Granlund (*note References::) and is
+implemented as `udiv_qrnnd_preinv' in `gmp-impl.h'.  The idea is to
+have a fixed-point approximation to 1/d (see `invert_limb') and then
+multiply by the high limb (plus one bit) of the dividend to get a
+quotient q.  With d normalized (high bit set), q is no more than 1 too
+small.  Subtracting q*d from the dividend gives a remainder, and
+reveals whether q or q-1 is correct.
 
    The result is a division done with two multiplications and four or
 five arithmetic operations.  On CPUs with low latency multipliers this
@@ -7035,58 +7060,4 @@ File: gmp.info,  Node: Root Extraction Algorithms,  Next: Radix Conversion Algor
 * Nth Root Algorithm::
 * Perfect Square Algorithm::
 * Perfect Power Algorithm::
-
-
-File: gmp.info,  Node: Square Root Algorithm,  Next: Nth Root Algorithm,  Prev: Root Extraction Algorithms,  Up: Root Extraction Algorithms
-
-16.5.1 Square Root
-------------------
-
-Square roots are taken using the "Karatsuba Square Root" algorithm by
-Paul Zimmermann (*note References::).
-
-   An input n is split into four parts of k bits each, so with b=2^k we
-have n = a3*b^3 + a2*b^2 + a1*b + a0.  Part a3 must be "normalized" so
-that either the high or second highest bit is set.  In GMP, k is kept
-on a limb boundary and the input is left shifted (by an even number of
-bits) to normalize.
-
-   The square root of the high two parts is taken, by recursive
-application of the algorithm (bottoming out in a one-limb Newton's
-method),
-
-     s1,r1 = sqrtrem (a3*b + a2)
-
-   This is an approximation to the desired root and is extended by a
-division to give s,r,
-
-     q,u = divrem (r1*b + a1, 2*s1)
-     s = s1*b + q
-     r = u*b + a0 - q^2
-
-   The normalization requirement on a3 means at this point s is either
-correct or 1 too big.  r is negative in the latter case, so
-
-     if r < 0 then
-       r = r + 2*s - 1
-       s = s - 1
-
-   The algorithm is expressed in a divide and conquer form, but as
-noted in the paper it can also be viewed as a discrete variant of
-Newton's method, or as a variation on the schoolboy method (no longer
-taught) for square roots two digits at a time.
-
-   If the remainder r is not required then usually only a few high limbs
-of r and u need to be calculated to determine whether an adjustment to
-s is required.  This optimization is not currently implemented.
-
-   In the Karatsuba multiplication range this algorithm is
-O(1.5*M(N/2)), where M(n) is the time to multiply two numbers of n
-limbs.  In the FFT multiplication range this grows to a bound of
-O(6*M(N/2)).  In practice a factor of about 1.5 to 1.8 is found in the
-Karatsuba and Toom-3 ranges, growing to 2 or 3 in the FFT range.
-
-   The algorithm does all its calculations in integers and the resulting
-`mpn_sqrtrem' is used for both `mpz_sqrt' and `mpf_sqrt'.  The extended
-precision given by `mpf_sqrt_ui' is obtained by padding with zero limbs.
 

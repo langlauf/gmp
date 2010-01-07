@@ -1,7 +1,7 @@
 dnl  GMP specific autoconf macros
 
 
-dnl  Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006 Free Software
+dnl  Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2009 Free Software
 dnl  Foundation, Inc.
 dnl
 dnl  This file is part of the GNU MP Library.
@@ -68,7 +68,7 @@ define(GMP_FAT_SUFFIX,
 
 dnl  GMP_REMOVE_FROM_LIST(listvar,item)
 dnl  ----------------------------------
-dnl  Emit code to remove any occurance of ITEM from $LISTVAR.  ITEM can be a
+dnl  Emit code to remove any occurrence of ITEM from $LISTVAR.  ITEM can be a
 dnl  shell expression like $foo if desired.
 
 define(GMP_REMOVE_FROM_LIST,
@@ -189,7 +189,7 @@ esac
 dnl  GMP_COMPARE_GE(A1,B1, A2,B2, ...)
 dnl  ---------------------------------
 dnl  Compare two version numbers A1.A2.etc and B1.B2.etc.  Set
-dnl  $gmp_compare_ge to yes or no accoring to the result.  The A parts
+dnl  $gmp_compare_ge to yes or no according to the result.  The A parts
 dnl  should be variables, the B parts fixed numbers.  As many parts as
 dnl  desired can be included.  An empty string in an A part is taken to be
 dnl  zero, the B parts should be non-empty and non-zero.
@@ -252,7 +252,7 @@ dnl  For reference, $ARFLAGS is used by automake (1.8) for its ".a" archive
 dnl  file rules.  This doesn't get used by the piecewise linking, so we
 dnl  leave it at the default "cru".
 dnl
-dnl  FIXME: Libtool 1.5.2 has its own arrangments for "cq", but that version
+dnl  FIXME: Libtool 1.5.2 has its own arrangements for "cq", but that version
 dnl  is broken in other ways.  When we can upgrade, remove the forcible
 dnl  AR_FLAGS=cq.
 
@@ -590,7 +590,7 @@ GMP_PROG_CC_WORKS_PART([$1], [long long reliability test 1],
 
 #if defined (__GNUC__) && ! defined (__cplusplus)
 typedef unsigned long long t1;typedef t1*t2;
-__inline__ t1 e(t2 rp,t2 up,int n,t1 v0)
+static __inline__ t1 e(t2 rp,t2 up,int n,t1 v0)
 {t1 c,x,r;int i;if(v0){c=1;for(i=1;i<n;i++){x=up[i];r=x+1;rp[i]=r;}}return c;}
 f(){static const struct{t1 n;t1 src[9];t1 want[9];}d[]={{1,{0},{1}},};t1 got[9];int i;
 for(i=0;i<1;i++){if(e(got,got,9,d[i].n)==0)h();g(i,d[i].src,d[i].n,got,d[i].want,9);if(d[i].n)h();}}
@@ -1811,7 +1811,7 @@ dnl  Note that both solaris "as"s only care about ",0x90" if they actually
 dnl  have to use it to fill something, hence the .byte in the test.  It's
 dnl  the second .align which provokes the error or warning.
 dnl
-dnl  The warning from solaris 2.8 is supressed to stop anyone worrying that
+dnl  The warning from solaris 2.8 is suppressed to stop anyone worrying that
 dnl  something might be wrong.
 
 AC_DEFUN([GMP_ASM_ALIGN_FILL_0x90],
@@ -2184,7 +2184,7 @@ AC_REQUIRE([GMP_PROG_NM])
 AC_CACHE_CHECK([for assembler local label prefix],
                gmp_cv_asm_lsym_prefix,
 [gmp_tmp_pre_appears=yes
-for gmp_tmp_pre in L .L $ L$; do
+for gmp_tmp_pre in L .L $L $ L$; do
   echo "Trying $gmp_tmp_pre" >&AC_FD_CC
   GMP_TRY_ASSEMBLE(
 [	$gmp_cv_asm_text
@@ -3807,7 +3807,7 @@ AC_CACHE_CHECK([whether build system compiler is ANSI],
                gmp_cv_c_for_build_ansi,
 [cat >conftest.c <<EOF
 int
-main (int argc, char *argv[])
+main (int argc, char **argv)
 {
   exit(0);
 }

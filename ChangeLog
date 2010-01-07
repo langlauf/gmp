@@ -1,3 +1,144 @@
+2010-01-07  Torbjorn Granlund  <tege@gmplib.org>
+
+	* Version 4.3.2 released.
+
+2009-12-27  Torbjorn Granlund  <tege@gmplib.org>
+
+	* (mpn_sqr): New name for mpn_sqr_n.  Make minimal changes,
+	leaving internal references still to old name.
+
+	* gmp-impl.h: Update mpn_mul_fft declaration.
+
+2009-12-21  Torbjorn Granlund  <tege@gmplib.org>
+
+	* gmp-h.in (__GNU_MP_VERSION_PATCHLEVEL): Bump.
+
+2009-12-17  Torbjorn Granlund  <tege@gmplib.org>
+
+	* doc/gmp.texi: Update References section.  Update Contributors
+	section.  Misc updates.
+
+2009-12-16  Niels Möller  <nisse@lysator.liu.se>
+
+	* tests/mpz/t-gcd.c (main): Added test case to exercise the
+	unlikely u0 == u1 case in mpn_gcdext_lehmer_n.
+
+	* mpn/generic/gcdext_lehmer.c (mpn_gcdext_lehmer_n): Get ASSERT
+	right.
+
+2009-12-15  Torbjorn Granlund  <tege@gmplib.org>
+
+	* mpn/generic/gcdext_subdiv_step.c: Get an ASSERT right.
+
+2009-12-13  Torbjorn Granlund  <tege@gmplib.org>
+
+	* mpn/generic/mul_fft.c (mpn_mul_fft_full): Handle carry-out from 2nd
+	mpn_mul_fft, add an ASSERT for the 1st mpn_mul_fft.  Replace some
+	comments on cc's range with ASSERTs.
+
+2009-12-03  Yann Droneaud  <yann@droneaud.fr>
+
+	* acinclude.m4 ([long long reliability test 1]): Add a "static" for C99
+	inline semantics compatibility.
+
+2009-12-03  Torbjorn Granlund  <tege@gmplib.org>
+
+	* mpn/generic/gcdext.c: Add a TMP_FREE.
+
+2009-12-03  Niels Möller  <nisse@lysator.liu.se>
+
+	* mpn/generic/gcdext_lehmer.c (mpn_gcdext_lehmer_n): Handle v == 0
+	from mpn_gcdext_1.
+	* mpn/generic/gcdext_1.c (mpn_gcdext_1): Allow inputs with a < b,
+	assertions fixed accordingly.
+
+2009-12-03  Niels Möller  <nisse@lysator.liu.se>
+
+	* mpn/generic/gcdext_subdiv_step.c (mpn_gcdext_subdiv_step):
+	Select the right cofactor in the cases A == B or A == 2B.
+
+	* mpn/generic/gcdext_lehmer.c (mpn_gcdext_lehmer_n): Deleted
+	handling of ap[0] == 0 and bp[0] == 0; these cases don't happen.
+	Select the right cofactor in the case ap[0] == bp[0].
+	* mpn/generic/gcdext.c (mpn_gcdext): Analogous changes.
+
+2009-12-02  Niels Möller  <nisse@lysator.liu.se>
+
+	* gmp-h.in (mpn_gcdext_1): Updated prototype.
+	* mpn/generic/gcdext_lehmer.c (mpn_gcdext_lehmer_n): Updated for
+	signed cofactors from gcdext_1.
+	* mpn/generic/gcdext_1.c (mpn_gcdext_1): Use Euclid's algorithm,
+	and return signed cofactors.
+
+2009-12-02  Torbjorn Granlund  <tege@gmplib.org>
+
+	* doc/gmp.texi (Low-level Functions): Document mpn_sqr_n.
+
+2009-11-09  Torbjorn Granlund  <tege@gmplib.org>
+
+	* acinclude.m4 (GMP_C_FOR_BUILD_ANSI): Avoid poor quoting.
+
+2009-10-29  Torbjorn Granlund  <tege@gmplib.org>
+
+	* mpn/generic/mul_fft.c (mpn_mul_fft): Make it return high limb.
+	(mpn_mul_fft_internal): Likewise.
+
+2009-10-23  Torbjorn Granlund  <tege@gmplib.org>
+
+	* mpn/generic/get_d.c: Fix code handling denorms for 64-bit machines.
+	* tests/mpf/t-get_d.c (test_denorms): New function.
+
+2009-09-15  Torbjorn Granlund  <tege@gmplib.org>
+
+	Suggested by Uwe Mueller:
+	* printf/doprnt.c: Use "%ld" for exponent printing.
+	* printf/doprntf.c (__gmp_doprnt_mpf): Make expval "long".
+
+2009-08-05  Torbjorn Granlund  <tege@gmplib.org>
+
+	* tests/mpz/dive_ui.c (check_random): Avoid zero divisors.
+
+2009-07-26  Torbjorn Granlund  <tege@swox.com>
+
+	* config.guess (_cpuid): Recognize more Intel "Core" processors.
+
+2009-07-13  Torbjorn Granlund  <tege@gmplib.org>
+
+	* mpf/eq.c: Rewrite.
+
+2009-07-05  Torbjorn Granlund  <tege@gmplib.org>
+
+	* mpf/get_str.c: Use less overflow prone expression for computing limb
+	allocation.
+	* mpz/inp_str.c: Likewise.
+	* mpf/set_str.c: Likewise.
+	* mpz/set_str.c: Likewise.
+
+2009-06-17  Torbjorn Granlund  <tege@gmplib.org>
+
+	* mpn/generic/toom44_mul.c: Use TMP_ALLOC for unbounded allocations.
+
+2009-06-12  Torbjorn Granlund  <tege@gmplib.org>
+
+	* mpn/generic/mul.c: Use TMP_ALLOC_LIMBS for unbounded allocations.
+
+2009-06-05  Torbjorn Granlund  <tege@gmplib.org>
+
+	* mpn/generic/mul_fft.c (FFT_TABLE2_SIZE): Default to 200.
+	(MUL_FFT_TABLE2_SIZE, SQR_FFT_TABLE2_SIZE): Let these decide
+	FFT_TABLE2_SIZE if they are defined.
+	(struct nk): Use bit field.
+
+2009-06-01  Torbjorn Granlund  <tege@gmplib.org>
+
+	* mpz/remove.c: Correctly handle multiplicity that does not fit an int.
+
+	* Makefile.am (dist-hook): Check library version consistency.
+
+2009-05-24  Torbjorn Granlund  <tege@gmplib.org>
+
+	* acinclude.m4 (GMP_ASM_LSYM_PREFIX): Try "$L" too, before "$".
+
 2009-05-12  Torbjorn Granlund  <tege@gmplib.org>
 
 	* Version 4.3.1 released.

@@ -18,7 +18,7 @@ Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002,
 2003, 2004, 2005, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
 
 Permission is granted to copy, distribute and/or modify this document under
-the terms of the GNU Free Documentation License, Version 1.2 or any later
+the terms of the GNU Free Documentation License, Version 1.3 or any later
 version published by the Free Software Foundation; with no Invariant Sections,
 with the Front-Cover Texts being ``A GNU Manual'', and with the Back-Cover
 Texts being ``You have freedom to copy and modify this GNU Manual, like GNU
@@ -91,7 +91,7 @@ How to install and use the GNU multiple precision arithmetic library, version @v
 @subtitle Edition @value{EDITION}
 @subtitle @value{UPDATED}
 
-@author by The GMP developers
+@author by the GMP developers
 @c @email{tege@@gmplib.org}
 
 @c Include the Distribution inside the titlepage so
@@ -2211,6 +2211,12 @@ This release is @nicode{"@value{VERSION}"}.  Note that the format ``i.j'' was
 used when k was zero was used before version 4.3.0.
 @end deftypevr
 
+@defmac __GMP_CC
+@defmacx __GMP_CFLAGS
+The compiler and compiler flags, respectively, used when compiling GMP, as
+strings.
+@end defmac
+
 
 @node Compatibility with older versions, Demonstration Programs, Useful Macros and Constants, GMP Basics
 @section Compatibility with older versions
@@ -2988,31 +2994,34 @@ example,
 As you can see, you can store new values any number of times, once an
 object is initialized.
 
-@deftypefun void mpz_init (mpz_t @var{integer})
-Initialize @var{integer}, and set its value to 0.
+@deftypefun void mpz_init (mpz_t @var{x})
+Initialize @var{x}, and set its value to 0.
 @end deftypefun
 
-@deftypefun void mpz_init2 (mpz_t @var{integer}, unsigned long @var{n})
-Initialize @var{integer}, with space for @var{n} bits, and set its value to 0.
+@deftypefun void mpz_init2 (mpz_t @var{x}, unsigned long @var{n})
+Initialize @var{x}, with space for @var{n}-bit numbers, and set its value to 0.
+Calling this function instead of @code{mpz_init} or @code{mpz_inits} is never
+necessary; reallocation is handled automatically by GMP when needed.
 
-@var{n} is only the initial space, @var{integer} will grow automatically in
+@var{n} is only the initial space, @var{x} will grow automatically in
 the normal way, if necessary, for subsequent values stored.  @code{mpz_init2}
 makes it possible to avoid such reallocations if a maximum size is known in
 advance.
 @end deftypefun
 
-@deftypefun void mpz_clear (mpz_t @var{integer})
-Free the space occupied by @var{integer}.  Call this function for all
-@code{mpz_t} variables when you are done with them.
+@deftypefun void mpz_clear (mpz_t @var{x})
+Free the space occupied by @var{x}.  Call this function for all @code{mpz_t}
+variables when you are done with them.
 @end deftypefun
 
-@deftypefun void mpz_realloc2 (mpz_t @var{integer}, unsigned long @var{n})
-Change the space allocated for @var{integer} to @var{n} bits.  The value in
-@var{integer} is preserved if it fits, or is set to 0 if not.
+@deftypefun void mpz_realloc2 (mpz_t @var{x}, unsigned long @var{n})
+Change the space allocated for @var{x} to @var{n} bits.  The value in @var{x}
+is preserved if it fits, or is set to 0 if not.
 
-This function can be used to increase the space for a variable in order to
-avoid repeated automatic reallocations, or to decrease it to give memory back
-to the heap.
+Calling this function is never necessary; reallocation is handled automatically
+by GMP when needed.  But this function can be used to increase the space for a
+variable in order to avoid repeated automatic reallocations, or to decrease it
+to give memory back to the heap.
 @end deftypefun
 
 
@@ -3933,7 +3942,7 @@ significant element first, and host byte order within each value.
 
 @example
 unsigned long  a[20];
-mpz_t          z;
+/* Initialize @var{z} and @var{a} */
 mpz_import (z, 20, 1, sizeof(a[0]), 0, 0, a);
 @end example
 
@@ -4166,15 +4175,15 @@ Remove any factors that are common to the numerator and denominator of
 @cindex Rational initialization functions
 @cindex Initialization functions
 
-@deftypefun void mpq_init (mpq_t @var{dest_rational})
-Initialize @var{dest_rational} and set it to 0/1.  Each variable should
-normally only be initialized once, or at least cleared out (using the function
-@code{mpq_clear}) between each initialization.
+@deftypefun void mpq_init (mpq_t @var{x})
+Initialize @var{x} and set it to 0/1.  Each variable should normally only be
+initialized once, or at least cleared out (using the function @code{mpq_clear})
+between each initialization.
 @end deftypefun
 
-@deftypefun void mpq_clear (mpq_t @var{rational_number})
-Free the space occupied by @var{rational_number}.  Make sure to call this
-function for all @code{mpq_t} variables when you are done with them.
+@deftypefun void mpq_clear (mpq_t @var{x})
+Free the space occupied by @var{x}.  Make sure to call this function for all
+@code{mpq_t} variables when you are done with them.
 @end deftypefun
 
 @deftypefun void mpq_set (mpq_t @var{rop}, mpq_t @var{op})
@@ -5124,6 +5133,29 @@ Multiply @{@var{s1p}, @var{n}@} and @{@var{s2p}, @var{n}@}, and write the
 The destination has to have space for 2*@var{n} limbs, even if the product's
 most significant limb is zero.  No overlap is permitted between the
 destination and either source.
+
+If the two input operands are the same, use @code{mpn_sqr_n}.
+@end deftypefun
+
+@deftypefun mp_limb_t mpn_mul (mp_limb_t *@var{rp}, const mp_limb_t *@var{s1p}, mp_size_t @var{s1n}, const mp_limb_t *@var{s2p}, mp_size_t @var{s2n})
+Multiply @{@var{s1p}, @var{s1n}@} and @{@var{s2p}, @var{s2n}@}, and write the
+(@var{s1n}+@var{s2n})-limb result to @var{rp}.  Return the most significant
+limb of the result.
+
+The destination has to have space for @var{s1n} + @var{s2n} limbs, even if the
+product's most significant limb is zero.  No overlap is permitted between the
+destination and either source.
+
+This function requires that @var{s1n} is greater than or equal to @var{s2n}.
+@end deftypefun
+
+@deftypefun void mpn_sqr_n (mp_limb_t *@var{rp}, const mp_limb_t *@var{s1p}, mp_size_t @var{n})
+Compute the square of @{@var{s1p}, @var{n}@} and write the 2*@var{n}-limb
+result to @var{rp}.
+
+The destination has to have space for 2*@var{n} limbs, even if the result's
+most significant limb is zero.  No overlap is permitted between the
+destination and the source.
 @end deftypefun
 
 @deftypefun mp_limb_t mpn_mul_1 (mp_limb_t *@var{rp}, const mp_limb_t *@var{s1p}, mp_size_t @var{n}, mp_limb_t @var{s2limb})
@@ -5160,17 +5192,6 @@ borrow-out from the subtraction.
 This is a low-level function that is a building block for general
 multiplication and division as well as other operations in GMP@.  It is written
 in assembly for most CPUs.
-@end deftypefun
-
-@deftypefun mp_limb_t mpn_mul (mp_limb_t *@var{rp}, const mp_limb_t *@var{s1p}, mp_size_t @var{s1n}, const mp_limb_t *@var{s2p}, mp_size_t @var{s2n})
-Multiply @{@var{s1p}, @var{s1n}@} and @{@var{s2p}, @var{s2n}@}, and write the
-result to @var{rp}.  Return the most significant limb of the result.
-
-The destination has to have space for @var{s1n} + @var{s2n} limbs, even if the
-result might be one limb smaller.
-
-This function requires that @var{s1n} is greater than or equal to
-@var{s2n}.  The destination must be distinct from both input operands.
 @end deftypefun
 
 @deftypefun void mpn_tdiv_qr (mp_limb_t *@var{qp}, mp_limb_t *@var{rp}, mp_size_t @var{qxn}, const mp_limb_t *@var{np}, mp_size_t @var{nn}, const mp_limb_t *@var{dp}, mp_size_t @var{dn})
@@ -5313,40 +5334,47 @@ positive value if @math{@var{s1} > @var{s2}}, 0 if they are equal, or a
 negative value if @math{@var{s1} < @var{s2}}.
 @end deftypefun
 
-@deftypefun mp_size_t mpn_gcd (mp_limb_t *@var{rp}, mp_limb_t *@var{s1p}, mp_size_t @var{s1n}, mp_limb_t *@var{s2p}, mp_size_t @var{s2n})
-Set @{@var{rp}, @var{retval}@} to the greatest common divisor of @{@var{s1p},
-@var{s1n}@} and @{@var{s2p}, @var{s2n}@}.  The result can be up to @var{s2n}
-limbs, the return value is the actual number produced.  Both source operands
-are destroyed.
+@deftypefun mp_size_t mpn_gcd (mp_limb_t *@var{rp}, mp_limb_t *@var{xp}, mp_size_t @var{xn}, mp_limb_t *@var{yp}, mp_size_t @var{yn})
+Set @{@var{rp}, @var{retval}@} to the greatest common divisor of @{@var{xp},
+@var{xn}@} and @{@var{yp}, @var{yn}@}.  The result can be up to @var{yn} limbs,
+the return value is the actual number produced.  Both source operands are
+destroyed.
 
-@{@var{s1p}, @var{s1n}@} must have at least as many bits as @{@var{s2p},
-@var{s2n}@}.  @{@var{s2p}, @var{s2n}@} must be odd.  Both operands must have
-non-zero most significant limbs.  No overlap is permitted between @{@var{s1p},
-@var{s1n}@} and @{@var{s2p}, @var{s2n}@}.
+@{@var{xp}, @var{xn}@} must have at least as many bits as @{@var{yp},
+@var{yn}@}.  @{@var{yp}, @var{yn}@} must be odd.  Both operands must have
+non-zero most significant limbs.  No overlap is permitted between @{@var{xp},
+@var{xn}@} and @{@var{yp}, @var{yn}@}.
 @end deftypefun
 
-@deftypefun mp_limb_t mpn_gcd_1 (const mp_limb_t *@var{s1p}, mp_size_t @var{s1n}, mp_limb_t @var{s2limb})
-Return the greatest common divisor of @{@var{s1p}, @var{s1n}@} and
-@var{s2limb}.  Both operands must be non-zero.
+@deftypefun mp_limb_t mpn_gcd_1 (const mp_limb_t *@var{xp}, mp_size_t @var{xn}, mp_limb_t @var{ylimb})
+Return the greatest common divisor of @{@var{xp}, @var{xn}@} and @var{ylimb}.
+Both operands must be non-zero.
 @end deftypefun
 
-@deftypefun mp_size_t mpn_gcdext (mp_limb_t *@var{r1p}, mp_limb_t *@var{r2p}, mp_size_t *@var{r2n}, mp_limb_t *@var{s1p}, mp_size_t @var{s1n}, mp_limb_t *@var{s2p}, mp_size_t @var{s2n})
-Calculate the greatest common divisor of @{@var{s1p}, @var{s1n}@} and
-@{@var{s2p}, @var{s2n}@}.  Store the gcd at @{@var{r1p}, @var{retval}@} and
-the first cofactor at @{@var{r2p}, *@var{r2n}@}, with *@var{r2n} negative if
-the cofactor is negative.  @var{r1p} and @var{r2p} should each have room for
-@math{@var{s1n}+1} limbs, but the return value and value stored through
-@var{r2n} indicate the actual number produced.
+@deftypefun mp_size_t mpn_gcdext (mp_limb_t *@var{gp}, mp_limb_t *@var{sp}, mp_size_t *@var{sn}, mp_limb_t *@var{xp}, mp_size_t @var{xn}, mp_limb_t *@var{yp}, mp_size_t @var{yn})
+Let @m{U,@var{U}} be defined by @{@var{xp}, @var{xn}@} and let @m{V,@var{V}} be
+defined by @{@var{yp}, @var{yn}@}.
 
-@math{@{@var{s1p}, @var{s1n}@} @ge{} @{@var{s2p}, @var{s2n}@}} is required,
-and both must be non-zero.  The regions @{@var{s1p}, @math{@var{s1n}+1}@} and
-@{@var{s2p}, @math{@var{s2n}+1}@} are destroyed (i.e.@: the operands plus an
-extra limb past the end of each).
+Compute the greatest common divisor @math{G} of @math{U} and @math{V}.  Compute
+a cofactor @math{S} such that @math{G = US + VT}.  The second cofactor @var{T}
+is not computed but can easily be obtained from @m{(G - US) / V, (@var{G} -
+@var{U}*@var{S}) / @var{V}} (the division will be exact).  It is required that
+@math{U @ge V > 0}.
 
-The cofactor @var{r2} will satisfy @m{r_2 s_1 + k s_2 = r_1, @var{r2}*@var{s1}
-+ @var{k}*@var{s2} = @var{r1}}.  The second cofactor @var{k} is not calculated
-but can easily be obtained from @m{(r_1 - r_2 s_1) / s_2, (@var{r1} -
-@var{r2}*@var{s1}) / @var{s2}} (this division will be exact).
+@math{S} satisfies @math{S = 1} or @math{@GMPabs{S} < V / (2 G)}. @math{S =
+0} if and only if @math{V} divides @math{U} (i.e., @math{G = V}).
+
+Store @math{G} at @var{gp} and let the return value define its limb count.
+Store @math{S} at @var{sp} and let |*@var{sn}| define its limb count.  @math{S}
+can be negative; when this happens *@var{sn} will be negative.  The areas at
+@var{gp} and @var{sp} should each have room for @math{@var{xn}+1} limbs.
+
+The areas @{@var{xp}, @math{@var{xn}+1}@} and @{@var{yp}, @math{@var{yn}+1}@}
+are destroyed (i.e.@: the input operands plus an extra limb past the end of
+each).
+
+Compatibility note: GMP 4.3.0 and 4.3.1 defined @math{S} less strictly.
+Earlier as well as later GMP releases define @math{S} as described here.
 @end deftypefun
 
 @deftypefun mp_size_t mpn_sqrtrem (mp_limb_t *@var{r1p}, mp_limb_t *@var{r2p}, const mp_limb_t *@var{sp}, mp_size_t @var{n})
@@ -8056,14 +8084,14 @@ N@cross{}1 division is implemented using repeated 2@cross{}1 divisions from
 high to low, either with a hardware divide instruction or a multiplication by
 inverse, whichever is best on a given CPU.
 
-The multiply by inverse follows section 8 of ``Division by Invariant Integers
-using Multiplication'' by Granlund and Montgomery (@pxref{References}) and is
-implemented as @code{udiv_qrnnd_preinv} in @file{gmp-impl.h}.  The idea is to
-have a fixed-point approximation to @math{1/d} (see @code{invert_limb}) and
-then multiply by the high limb (plus one bit) of the dividend to get a
-quotient @math{q}.  With @math{d} normalized (high bit set), @math{q} is no
-more than 1 too small.  Subtracting @m{qd,q*d} from the dividend gives a
-remainder, and reveals whether @math{q} or @math{q-1} is correct.
+The multiply by inverse follows ``Improved division by invariant integers'' by
+M@"oller and Granlund (@pxref{References}) and is implemented as
+@code{udiv_qrnnd_preinv} in @file{gmp-impl.h}.  The idea is to have a
+fixed-point approximation to @math{1/d} (see @code{invert_limb}) and then
+multiply by the high limb (plus one bit) of the dividend to get a quotient
+@math{q}.  With @math{d} normalized (high bit set), @math{q} is no more than 1
+too small.  Subtracting @m{qd,q*d} from the dividend gives a remainder, and
+reveals whether @math{q} or @math{q-1} is correct.
 
 The result is a division done with two multiplications and four or five
 arithmetic operations.  On CPUs with low latency multipliers this can be much
@@ -9476,7 +9504,7 @@ two 32-bit parts.
 likewise @math{p48} and @math{r48}.  @math{p00} and @math{p16} can be summed
 with @math{r64} and @math{r80} from the previous iteration.
 
-For each loop then, four 49-bit quantities are transfered to the integer unit,
+For each loop then, four 49-bit quantities are transferred to the integer unit,
 aligned as follows,
 
 @tex
@@ -10202,7 +10230,7 @@ wrote the new GMP 4.3 nth root code (with Torbj@"orn).
 
 Ken Weber (Kent State University, Universidade Federal do Rio Grande do Sul)
 contributed @code{mpz_gcd}, @code{mpz_divexact}, @code{mpn_gcd}, and
-@code{mpn_bdivmod}, partially supported by CNPq (Brazil) grant 301314194-2.c
+@code{mpn_bdivmod}, partially supported by CNPq (Brazil) grant 301314194-2.
 
 Per Bothner of Cygnus Support helped to set up GMP to use Cygnus' configure.
 He has also made valuable suggestions and tested numerous intermediary
@@ -10258,14 +10286,13 @@ and found the optimal strategies for evaluation and interpolation in Toom
 multiplication.  Marco also helped implement the new Toom multiply code for
 GMP 4.3.
 
-David Harvey suggested the internal function @code{mpn_bdiv_dbm1},
-implementing division relevant to Toom multiplication.  He also worked on
-fast assembly sequences, in particular on a fast AMD64
-@code{mpn_mul_basecase}.
+David Harvey suggested the internal function @code{mpn_bdiv_dbm1}, implementing
+division relevant to Toom multiplication.  He also worked on fast assembly
+sequences, in particular on a fast AMD64 @code{mpn_mul_basecase}.
 
 (This list is chronological, not ordered after significance.  If you have
-contributed to GMP but are not listed above, please tell @email{tege@@gmplib.org}
-about the omission!)
+contributed to GMP but are not listed above, please tell
+@email{gmp-devel@@gmplib.org} about the omission!)
 
 The development of floating point functions of GNU MP 2, were supported in part
 by the ESPRIT-BRA (Basic Research Activities) 6846 project POSSO (POlynomial
@@ -10297,6 +10324,11 @@ Jonathan M. Borwein and Peter B. Borwein, ``Pi and the AGM: A Study in
 Analytic Number Theory and Computational Complexity'', Wiley, 1998.
 
 @item
+Richard Crandall and Carl Pomerance, ``Prime Numbers: A Computational
+Perspective'', 2nd edition, Springer-Verlag, 2005.
+@texlinebreak{} @uref{http://math.dartmouth.edu/~carlp/}
+
+@item
 Henri Cohen, ``A Course in Computational Algebraic Number Theory'', Graduate
 Texts in Mathematics number 138, Springer-Verlag, 1993.
 @texlinebreak{} @uref{http://www.math.u-bordeaux.fr/~cohen/}
@@ -10315,9 +10347,10 @@ Alfred J. Menezes, Paul C. van Oorschot and Scott A. Vanstone, ``Handbook of
 Applied Cryptography'', @uref{http://www.cacr.math.uwaterloo.ca/hac/}
 
 @item
-Richard M. Stallman, ``Using and Porting GCC'', Free Software Foundation, 1999,
-available online @uref{http://gcc.gnu.org/onlinedocs/}, and in
-the GCC package @uref{ftp://ftp.gnu.org/gnu/gcc/}
+Richard M. Stallman and the GCC Developer Community, ``Using the GNU Compiler
+Collection'', Free Software Foundation, 2008, available online
+@uref{http://gcc.gnu.org/onlinedocs/}, and in the GCC package
+@uref{ftp://ftp.gnu.org/gnu/gcc/}
 @end itemize
 
 @section Papers
@@ -10339,6 +10372,14 @@ Torbj@"orn Granlund and Peter L. Montgomery, ``Division by Invariant Integers
 using Multiplication'', in Proceedings of the SIGPLAN PLDI'94 Conference, June
 1994.  Also available @uref{ftp://ftp.cwi.nl/pub/pmontgom/divcnst.psa4.gz}
 (and .psl.gz).
+
+@item
+Niels M"oller and Torbj@"orn Granlund, ``Improved division by invariant
+integers'', to appear.
+
+@item
+Torbj@"orn Granlund and Niels M"oller, ``Division of integers large and
+small'', to appear.
 
 @item
 Tudor Jebelean,
@@ -10429,7 +10470,7 @@ volume 43, number 8, August 1994, pp.@: 899-908.
 @cindex GNU Free Documentation License
 @cindex Free Documentation License
 @cindex Documentation license
-@include fdl.texi
+@include fdl-1.3.texi
 
 
 @node Concept Index, Function Index, GNU Free Documentation License, Top
