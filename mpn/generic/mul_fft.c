@@ -6,8 +6,8 @@
    SAFE TO REACH THEM THROUGH DOCUMENTED INTERFACES.  IN FACT, IT IS ALMOST
    GUARANTEED THAT THEY WILL CHANGE OR DISAPPEAR IN A FUTURE GNU MP RELEASE.
 
-Copyright 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
-Free Software Foundation, Inc.
+Copyright 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+2009, 2010 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -60,8 +60,8 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
 #include "gmp-impl.h"
 
 #ifdef WANT_ADDSUB
-#include "generic/addsub_n.c"
-#define HAVE_NATIVE_mpn_addsub_n 1
+#include "generic/add_n_sub_n.c"
+#define HAVE_NATIVE_mpn_add_n_sub_n 1
 #endif
 
 static mp_limb_t mpn_mul_fft_internal
@@ -180,44 +180,6 @@ mpn_fft_initl (int **l, int k)
     }
 }
 
-/* Shift {up, n} of cnt bits to the left, store the complemented result
-   in {rp, n}, and output the shifted bits (not complemented).
-   Same as:
-     cc = mpn_lshift (rp, up, n, cnt);
-     mpn_com_n (rp, rp, n);
-     return cc;
-
-   Assumes n >= 1, 1 < cnt < GMP_NUMB_BITS, rp >= up.
-*/
-#ifndef HAVE_NATIVE_mpn_lshiftc
-#undef mpn_lshiftc
-static mp_limb_t
-mpn_lshiftc (mp_ptr rp, mp_srcptr up, mp_size_t n, unsigned int cnt)
-{
-  mp_limb_t high_limb, low_limb;
-  unsigned int tnc;
-  mp_size_t i;
-  mp_limb_t retval;
-
-  up += n;
-  rp += n;
-
-  tnc = GMP_NUMB_BITS - cnt;
-  low_limb = *--up;
-  retval = low_limb >> tnc;
-  high_limb = (low_limb << cnt);
-
-  for (i = n - 1; i != 0; i--)
-    {
-      low_limb = *--up;
-      *--rp = (~(high_limb | (low_limb >> tnc))) & GMP_NUMB_MASK;
-      high_limb = low_limb << cnt;
-    }
-  *--rp = (~high_limb) & GMP_NUMB_MASK;
-
-  return retval;
-}
-#endif
 
 /* r <- a*2^e mod 2^(n*GMP_NUMB_BITS)+1 with a = {a, n+1}
    Assumes a is semi-normalized, i.e. a[n] <= 1.
@@ -250,7 +212,7 @@ mpn_fft_mul_2exp_modF (mp_ptr r, mp_srcptr a, unsigned int d, mp_size_t n)
 	{
 	  MPN_COPY (r, a + n - d, d);
 	  rd = a[n];
-	  mpn_com_n (r + d, a, n - d);
+	  mpn_com (r + d, a, n - d);
 	  cc = 0;
 	}
 
@@ -287,7 +249,7 @@ mpn_fft_mul_2exp_modF (mp_ptr r, mp_srcptr a, unsigned int d, mp_size_t n)
   else
     {
       /* r[d] is not used below, but we save a test for d=0 */
-      mpn_com_n (r, a + n - d, d + 1);
+      mpn_com (r, a + n - d, d + 1);
       rd = a[n];
       MPN_COPY (r + d, a, n - d);
       cc = 0;
@@ -387,8 +349,8 @@ mpn_fft_fft (mp_ptr *Ap, mp_size_t K, int **ll,
   if (K == 2)
     {
       mp_limb_t cy;
-#if HAVE_NATIVE_mpn_addsub_n
-      cy = mpn_addsub_n (Ap[0], Ap[inc], Ap[0], Ap[inc], n + 1) & 1;
+#if HAVE_NATIVE_mpn_add_n_sub_n
+      cy = mpn_add_n_sub_n (Ap[0], Ap[inc], Ap[0], Ap[inc], n + 1) & 1;
 #else
       MPN_COPY (tp, Ap[0], n + 1);
       mpn_add_n (Ap[0], Ap[0], Ap[inc], n + 1);
@@ -529,7 +491,7 @@ mpn_fft_mul_modF_K (mp_ptr *ap, mp_ptr *bp, mp_size_t n, int K)
 	  a = *ap++;
 	  b = *bp++;
 	  if (sqr)
-	    mpn_sqr_n (tp, a, n);
+	    mpn_sqr (tp, a, n);
 	  else
 	    mpn_mul_n (tp, b, a, n);
 	  if (a[n] != 0)
@@ -562,8 +524,8 @@ mpn_fft_fftinv (mp_ptr *Ap, int K, mp_size_t omega, mp_size_t n, mp_ptr tp)
   if (K == 2)
     {
       mp_limb_t cy;
-#if HAVE_NATIVE_mpn_addsub_n
-      cy = mpn_addsub_n (Ap[0], Ap[1], Ap[0], Ap[1], n + 1) & 1;
+#if HAVE_NATIVE_mpn_add_n_sub_n
+      cy = mpn_add_n_sub_n (Ap[0], Ap[1], Ap[0], Ap[1], n + 1) & 1;
 #else
       MPN_COPY (tp, Ap[0], n + 1);
       mpn_add_n (Ap[0], Ap[0], Ap[1], n + 1);
@@ -933,6 +895,7 @@ mpn_mul_fft (mp_ptr op, mp_size_t pl,
   return h;
 }
 
+#if WANT_OLD_FFT_FULL
 /* multiply {n, nl} by {m, ml}, and put the result in {op, nl+ml} */
 void
 mpn_mul_fft_full (mp_ptr op,
@@ -974,23 +937,23 @@ mpn_mul_fft_full (mp_ptr op,
 
   ASSERT_ALWAYS(pl3 <= pl);
   cc = mpn_mul_fft (op, pl3, n, nl, m, ml, k3);     /* mu */
-  ASSERT_ALWAYS(cc == 0);
+  ASSERT(cc == 0);
   pad_op = __GMP_ALLOCATE_FUNC_LIMBS (pl2);
   cc = mpn_mul_fft (pad_op, pl2, n, nl, m, ml, k2); /* lambda */
   cc = -cc + mpn_sub_n (pad_op, pad_op, op, pl2);    /* lambda - low(mu) */
   /* 0 <= cc <= 1 */
-  ASSERT_ALWAYS(0 <= cc && cc <= 1);
+  ASSERT(0 <= cc && cc <= 1);
   l = pl3 - pl2; /* l = pl2 / 2 since pl3 = 3/2 * pl2 */
   c2 = mpn_add_n (pad_op, pad_op, op + pl2, l);
   cc = mpn_add_1 (pad_op + l, pad_op + l, l, (mp_limb_t) c2) - cc;
-  ASSERT_ALWAYS(-1 <= cc && cc <= 1);
+  ASSERT(-1 <= cc && cc <= 1);
   if (cc < 0)
     cc = mpn_add_1 (pad_op, pad_op, pl2, (mp_limb_t) -cc);
-  ASSERT_ALWAYS(0 <= cc && cc <= 1);
+  ASSERT(0 <= cc && cc <= 1);
   /* now lambda-mu = {pad_op, pl2} - cc mod 2^(pl2*GMP_NUMB_BITS)+1 */
   oldcc = cc;
-#if HAVE_NATIVE_mpn_addsub_n
-  c2 = mpn_addsub_n (pad_op + l, pad_op, pad_op, pad_op + l, l);
+#if HAVE_NATIVE_mpn_add_n_sub_n
+  c2 = mpn_add_n_sub_n (pad_op + l, pad_op, pad_op, pad_op + l, l);
   /* c2 & 1 is the borrow, c2 & 2 is the carry */
   cc += c2 >> 1; /* carry out from high <- low + high */
   c2 = c2 & 1; /* borrow out from low <- low - high */
@@ -1036,3 +999,4 @@ mpn_mul_fft_full (mp_ptr op,
   /* since the final result has at most pl limbs, no carry out below */
   mpn_add_1 (op + pl2, op + pl2, pl - pl2, (mp_limb_t) c2);
 }
+#endif

@@ -1,7 +1,7 @@
 /* Shared speed subroutines.
 
-Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006 Free Software
-Foundation, Inc.
+Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2010
+Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -452,9 +452,9 @@ speed_memcpy (struct speed_params *s)
   SPEED_ROUTINE_MPN_COPY_BYTES (memcpy);
 }
 double
-speed_mpn_com_n (struct speed_params *s)
+speed_mpn_com (struct speed_params *s)
 {
-  SPEED_ROUTINE_MPN_COPY (mpn_com_n);
+  SPEED_ROUTINE_MPN_COPY (mpn_com);
 }
 
 
@@ -557,6 +557,11 @@ double
 speed_mpn_lshift (struct speed_params *s)
 {
   SPEED_ROUTINE_MPN_UNARY_1 (mpn_lshift);
+}
+double
+speed_mpn_lshiftc (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_UNARY_1 (mpn_lshiftc);
 }
 double
 speed_mpn_rshift (struct speed_params *s)
@@ -674,6 +679,26 @@ speed_mpn_preinv_mod_1 (struct speed_params *s)
 {
   SPEED_ROUTINE_MPN_PREINV_MOD_1 (mpn_preinv_mod_1);
 }
+double
+speed_mpn_mod_1_1 (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_MOD_1_1 (mpn_mod_1_1p,mpn_mod_1_1p_cps);
+}
+double
+speed_mpn_mod_1_2 (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_MOD_1_N (mpn_mod_1s_2p,mpn_mod_1s_2p_cps,2);
+}
+double
+speed_mpn_mod_1_3 (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_MOD_1_N (mpn_mod_1s_3p,mpn_mod_1s_3p_cps,3);
+}
+double
+speed_mpn_mod_1_4 (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_MOD_1_N (mpn_mod_1s_4p,mpn_mod_1s_4p_cps,4);
+}
 
 double
 speed_mpn_divexact_1 (struct speed_params *s)
@@ -691,6 +716,18 @@ double
 speed_mpn_bdiv_dbm1c (struct speed_params *s)
 {
   SPEED_ROUTINE_MPN_BDIV_DBM1C (mpn_bdiv_dbm1c);
+}
+
+double
+speed_mpn_bdiv_q_1 (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_BDIV_Q_1 (mpn_bdiv_q_1);
+}
+
+double
+speed_mpn_pi1_bdiv_q_1 (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_PI1_BDIV_Q_1 (mpn_pi1_bdiv_q_1);
 }
 
 #if HAVE_NATIVE_mpn_modexact_1_odd
@@ -714,40 +751,9 @@ speed_mpn_dc_tdiv_qr (struct speed_params *s)
   SPEED_ROUTINE_MPN_DC_TDIV_QR (mpn_tdiv_qr);
 }
 double
-speed_mpn_dc_divrem_n (struct speed_params *s)
+speed_mpn_dcpi1_div_qr_n (struct speed_params *s)
 {
-  SPEED_ROUTINE_MPN_DC_DIVREM_N (mpn_dc_divrem_n);
-}
-double
-speed_mpn_dc_divrem_sb (struct speed_params *s)
-{
-  SPEED_ROUTINE_MPN_DC_DIVREM_SB (mpn_sb_divrem_mn);
-}
-double
-speed_mpn_dc_divrem_sb_div (struct speed_params *s)
-{
-  SPEED_ROUTINE_MPN_DC_DIVREM_SB (mpn_sb_divrem_mn_div);
-}
-double
-speed_mpn_dc_divrem_sb_inv (struct speed_params *s)
-{
-  SPEED_ROUTINE_MPN_DC_DIVREM_SB (mpn_sb_divrem_mn_inv);
-}
-
-double
-speed_mpn_sb_divrem_m3 (struct speed_params *s)
-{
-  SPEED_ROUTINE_MPN_SB_DIVREM_M3 (mpn_sb_divrem_mn);
-}
-double
-speed_mpn_sb_divrem_m3_div (struct speed_params *s)
-{
-  SPEED_ROUTINE_MPN_SB_DIVREM_M3 (mpn_sb_divrem_mn_div);
-}
-double
-speed_mpn_sb_divrem_m3_inv (struct speed_params *s)
-{
-  SPEED_ROUTINE_MPN_SB_DIVREM_M3 (mpn_sb_divrem_mn_inv);
+  SPEED_ROUTINE_MPN_DC_DIVREM_N (mpn_dcpi1_div_qr_n);
 }
 
 double
@@ -755,10 +761,117 @@ speed_mpz_mod (struct speed_params *s)
 {
   SPEED_ROUTINE_MPZ_MOD (mpz_mod);
 }
+
+double
+speed_mpn_sbpi1_div_qr (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_PI1_DIV (mpn_sbpi1_div_qr, inv.inv32);
+}
+double
+speed_mpn_dcpi1_div_qr (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_PI1_DIV (mpn_dcpi1_div_qr, &inv);
+}
+double
+speed_mpn_sbpi1_divappr_q (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_PI1_DIV (mpn_sbpi1_divappr_q, inv.inv32);
+}
+double
+speed_mpn_dcpi1_divappr_q (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_PI1_DIV (mpn_dcpi1_divappr_q, &inv);
+}
+double
+speed_mpn_mu_div_qr (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_MU_DIV_QR (mpn_mu_div_qr, mpn_mu_div_qr_itch);
+}
+double
+speed_mpn_mu_divappr_q (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_MU_DIV_Q (mpn_mu_divappr_q, mpn_mu_divappr_q_itch);
+}
+double
+speed_mpn_mu_div_q (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_MU_DIV_Q (mpn_mu_div_q, mpn_mu_div_q_itch);
+}
+double
+speed_mpn_mupi_div_qr (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_MUPI_DIV_QR (mpn_preinv_mu_div_qr, mpn_mu_div_qr_itch);
+}
+
+double
+speed_mpn_sbpi1_bdiv_qr (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_PI1_BDIV_QR (mpn_sbpi1_bdiv_qr);
+}
+double
+speed_mpn_dcpi1_bdiv_qr (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_PI1_BDIV_QR (mpn_dcpi1_bdiv_qr);
+}
+double
+speed_mpn_sbpi1_bdiv_q (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_PI1_BDIV_Q (mpn_sbpi1_bdiv_q);
+}
+double
+speed_mpn_dcpi1_bdiv_q (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_PI1_BDIV_Q (mpn_dcpi1_bdiv_q);
+}
+double
+speed_mpn_mu_bdiv_q (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_MU_BDIV_Q (mpn_mu_bdiv_q, mpn_mu_bdiv_q_itch);
+}
+double
+speed_mpn_mu_bdiv_qr (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_MU_BDIV_QR (mpn_mu_bdiv_qr, mpn_mu_bdiv_qr_itch);
+}
+
+double
+speed_mpn_binvert (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_BINVERT (mpn_binvert, mpn_binvert_itch);
+}
+
+double
+speed_mpn_invert (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_INVERT (mpn_invert, mpn_invert_itch);
+}
+
+double
+speed_mpn_invertappr (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_INVERTAPPR (mpn_invertappr, mpn_invertappr_itch);
+}
+
+double
+speed_mpn_ni_invertappr (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_INVERTAPPR (mpn_ni_invertappr, mpn_invertappr_itch);
+}
+
 double
 speed_mpn_redc_1 (struct speed_params *s)
 {
   SPEED_ROUTINE_REDC_1 (mpn_redc_1);
+}
+double
+speed_mpn_redc_2 (struct speed_params *s)
+{
+  SPEED_ROUTINE_REDC_2 (mpn_redc_2);
+}
+double
+speed_mpn_redc_n (struct speed_params *s)
+{
+  SPEED_ROUTINE_REDC_N (mpn_redc_n);
 }
 
 
@@ -785,11 +898,11 @@ speed_mpn_sub_n (struct speed_params *s)
 SPEED_ROUTINE_MPN_BINARY_N (mpn_sub_n);
 }
 
-#if HAVE_NATIVE_mpn_addsub_n
+#if HAVE_NATIVE_mpn_add_n_sub_n
 double
-speed_mpn_addsub_n (struct speed_params *s)
+speed_mpn_add_n_sub_n (struct speed_params *s)
 {
-  SPEED_ROUTINE_MPN_ADDSUB_N_CALL (mpn_addsub_n (ap, sp, s->xp, s->yp, s->size));
+  SPEED_ROUTINE_MPN_ADDSUB_N_CALL (mpn_add_n_sub_n (ap, sp, s->xp, s->yp, s->size));
 }
 #endif
 
@@ -805,6 +918,34 @@ double
 speed_mpn_sublsh1_n (struct speed_params *s)
 {
   SPEED_ROUTINE_MPN_BINARY_N (mpn_sublsh1_n);
+}
+#endif
+#if HAVE_NATIVE_mpn_rsblsh1_n
+double
+speed_mpn_rsblsh1_n (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_BINARY_N (mpn_rsblsh1_n);
+}
+#endif
+#if HAVE_NATIVE_mpn_addlsh2_n
+double
+speed_mpn_addlsh2_n (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_BINARY_N (mpn_addlsh2_n);
+}
+#endif
+#if HAVE_NATIVE_mpn_sublsh2_n
+double
+speed_mpn_sublsh2_n (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_BINARY_N (mpn_sublsh2_n);
+}
+#endif
+#if HAVE_NATIVE_mpn_rsblsh2_n
+double
+speed_mpn_rsblsh2_n (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_BINARY_N (mpn_rsblsh2_n);
 }
 #endif
 #if HAVE_NATIVE_mpn_rsh1add_n
@@ -872,9 +1013,9 @@ speed_mpn_mul_n (struct speed_params *s)
   SPEED_ROUTINE_MPN_MUL_N (mpn_mul_n);
 }
 double
-speed_mpn_sqr_n (struct speed_params *s)
+speed_mpn_sqr (struct speed_params *s)
 {
-  SPEED_ROUTINE_MPN_SQR (mpn_sqr_n);
+  SPEED_ROUTINE_MPN_SQR (mpn_sqr);
 }
 double
 speed_mpn_mul_n_sqr (struct speed_params *s)
@@ -908,27 +1049,121 @@ speed_mpn_sqr_diagonal (struct speed_params *s)
 #endif
 
 double
-speed_mpn_kara_mul_n (struct speed_params *s)
+speed_mpn_toom2_sqr (struct speed_params *s)
 {
-  SPEED_ROUTINE_MPN_KARA_MUL_N (mpn_kara_mul_n);
+  SPEED_ROUTINE_MPN_TOOM2_SQR (mpn_toom2_sqr);
 }
 double
-speed_mpn_kara_sqr_n (struct speed_params *s)
+speed_mpn_toom3_sqr (struct speed_params *s)
 {
-  SPEED_ROUTINE_MPN_KARA_SQR_N (mpn_kara_sqr_n);
+  SPEED_ROUTINE_MPN_TOOM3_SQR (mpn_toom3_sqr);
+}
+double
+speed_mpn_toom4_sqr (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_TOOM4_SQR (mpn_toom4_sqr);
+}
+double
+speed_mpn_toom6_sqr (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_TOOM6_SQR (mpn_toom6_sqr);
+}
+double
+speed_mpn_toom8_sqr (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_TOOM8_SQR (mpn_toom8_sqr);
+}
+double
+speed_mpn_toom22_mul (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_TOOM22_MUL_N (mpn_toom22_mul);
+}
+double
+speed_mpn_toom33_mul (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_TOOM33_MUL_N (mpn_toom33_mul);
+}
+double
+speed_mpn_toom44_mul (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_TOOM44_MUL_N (mpn_toom44_mul);
+}
+double
+speed_mpn_toom6h_mul (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_TOOM6H_MUL_N (mpn_toom6h_mul);
+}
+double
+speed_mpn_toom8h_mul (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_TOOM8H_MUL_N (mpn_toom8h_mul);
 }
 
 double
-speed_mpn_toom3_mul_n (struct speed_params *s)
+speed_mpn_toom32_mul (struct speed_params *s)
 {
-  SPEED_ROUTINE_MPN_TOOM3_MUL_N (mpn_toom3_mul_n);
+  SPEED_ROUTINE_MPN_TOOM32_MUL (mpn_toom32_mul);
 }
 double
-speed_mpn_toom3_sqr_n (struct speed_params *s)
+speed_mpn_toom42_mul (struct speed_params *s)
 {
-  SPEED_ROUTINE_MPN_TOOM3_SQR_N (mpn_toom3_sqr_n);
+  SPEED_ROUTINE_MPN_TOOM42_MUL (mpn_toom42_mul);
+}
+double
+speed_mpn_toom43_mul (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_TOOM43_MUL (mpn_toom43_mul);
+}
+double
+speed_mpn_toom63_mul (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_TOOM63_MUL (mpn_toom63_mul);
+}
+double
+speed_mpn_toom32_for_toom43_mul (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_TOOM32_FOR_TOOM43_MUL (mpn_toom32_mul);
+}
+double
+speed_mpn_toom43_for_toom32_mul (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_TOOM43_FOR_TOOM32_MUL (mpn_toom43_mul);
+}
+double
+speed_mpn_toom32_for_toom53_mul (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_TOOM32_FOR_TOOM53_MUL (mpn_toom32_mul);
+}
+double
+speed_mpn_toom53_for_toom32_mul (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_TOOM53_FOR_TOOM32_MUL (mpn_toom53_mul);
+}
+double
+speed_mpn_toom42_for_toom53_mul (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_TOOM42_FOR_TOOM53_MUL (mpn_toom42_mul);
+}
+double
+speed_mpn_toom53_for_toom42_mul (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_TOOM53_FOR_TOOM42_MUL (mpn_toom53_mul);
 }
 
+double
+speed_mpn_nussbaumer_mul (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_MUL_N_CALL
+    (mpn_nussbaumer_mul (wp, s->xp, s->size, s->yp, s->size));
+}
+double
+speed_mpn_nussbaumer_mul_sqr (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_SQR_CALL
+    (mpn_nussbaumer_mul (wp, s->xp, s->size, s->xp, s->size));
+}
+
+#if WANT_OLD_FFT_FULL
 double
 speed_mpn_mul_fft_full (struct speed_params *s)
 {
@@ -941,7 +1176,7 @@ speed_mpn_mul_fft_full_sqr (struct speed_params *s)
   SPEED_ROUTINE_MPN_SQR_CALL
     (mpn_mul_fft_full (wp, s->xp, s->size, s->xp, s->size));
 }
-
+#endif
 
 /* These are mod 2^N+1 multiplies and squares.  If s->r is supplied it's
    used as k, otherwise the best k for the size is used.  If s->size isn't a
@@ -999,14 +1234,50 @@ speed_mpn_mul_fft_sqr (struct speed_params *s)
 }
 
 double
-speed_mpn_mullow_n (struct speed_params *s)
+speed_mpn_fft_mul (struct speed_params *s)
 {
-  SPEED_ROUTINE_MPN_MULLOW_N (mpn_mullow_n);
+  SPEED_ROUTINE_MPN_MUL_N_CALL (mpn_fft_mul (wp, s->xp, s->size, s->yp, s->size));
+}
+
+double
+speed_mpn_fft_sqr (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_SQR_CALL (mpn_fft_mul (wp, s->xp, s->size, s->xp, s->size));
+}
+
+double
+speed_mpn_mullo_n (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_MULLO_N (mpn_mullo_n);
 }
 double
-speed_mpn_mullow_basecase (struct speed_params *s)
+speed_mpn_mullo_basecase (struct speed_params *s)
 {
-  SPEED_ROUTINE_MPN_MULLOW_BASECASE (mpn_mullow_basecase);
+  SPEED_ROUTINE_MPN_MULLO_BASECASE (mpn_mullo_basecase);
+}
+
+double
+speed_mpn_mulmod_bnm1 (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_MULMOD_BNM1_CALL (mpn_mulmod_bnm1 (wp, s->size, s->xp, s->size, s->yp, s->size, tp));
+}
+
+double
+speed_mpn_bc_mulmod_bnm1 (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_MULMOD_BNM1_CALL (mpn_bc_mulmod_bnm1 (wp, s->xp, s->yp, s->size, tp));
+}
+
+double
+speed_mpn_mulmod_bnm1_rounded (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_MULMOD_BNM1_ROUNDED (mpn_mulmod_bnm1);
+}
+
+double
+speed_mpn_sqrmod_bnm1 (struct speed_params *s)
+{
+  SPEED_ROUTINE_MPN_MULMOD_BNM1_CALL (mpn_sqrmod_bnm1 (wp, s->size, s->xp, s->size, tp));
 }
 
 double
@@ -1072,7 +1343,7 @@ speed_mpn_hgcd (struct speed_params *s)
   mp_size_t hgcd_scratch = mpn_hgcd_itch (s->size);
   mp_ptr ap;
   mp_ptr bp;
-  mp_ptr tmp1, tmp2;
+  mp_ptr tmp1;
 
   struct hgcd_matrix hgcd;
   int res;
@@ -1117,7 +1388,7 @@ speed_mpn_hgcd_lehmer (struct speed_params *s)
   mp_size_t hgcd_scratch = MPN_HGCD_LEHMER_ITCH (s->size);
   mp_ptr ap;
   mp_ptr bp;
-  mp_ptr tmp1, tmp2;
+  mp_ptr tmp1;
 
   struct hgcd_matrix hgcd;
   int res;
@@ -1159,19 +1430,6 @@ speed_mpn_gcd (struct speed_params *s)
 {
   SPEED_ROUTINE_MPN_GCD (mpn_gcd);
 }
-#if 0
-double
-speed_mpn_gcd_binary (struct speed_params *s)
-{
-  SPEED_ROUTINE_MPN_GCD (mpn_gcd_binary);
-}
-double
-speed_mpn_gcd_accel (struct speed_params *s)
-{
-  SPEED_ROUTINE_MPN_GCD (mpn_gcd_accel);
-}
-#endif
-
 
 double
 speed_mpn_gcdext (struct speed_params *s)
@@ -1473,7 +1731,7 @@ speed_mpf_init_clear (struct speed_params *s)
 
 
 /* Compare this to mpn_add_n to see how much overhead mpz_add adds.  Note
-   that repeatedly calling mpz_add with the same data gives branch predition
+   that repeatedly calling mpz_add with the same data gives branch prediction
    in it an advantage.  */
 
 double
@@ -1740,7 +1998,7 @@ speed_mpn_umul_ppmm_r (struct speed_params *s)
     /* divisor from "r" parameter, or a default */      \
     d = s->r;                                           \
     if (d == 0)                                         \
-      d = __mp_bases[10].big_base;                      \
+      d = mp_bases[10].big_base;                        \
                                                         \
     if (normalize)                                      \
       {                                                 \
@@ -1910,7 +2168,7 @@ speed_operator_div (struct speed_params *s)
   /* divisor from "r" parameter, or a default */
   d = s->r;
   if (d == 0)
-    d = __mp_bases[10].big_base;
+    d = mp_bases[10].big_base;
 
   x = s->xp[0];
   q = 0;
@@ -1951,7 +2209,7 @@ speed_operator_mod (struct speed_params *s)
   /* divisor from "r" parameter, or a default */
   d = s->r;
   if (d == 0)
-    d = __mp_bases[10].big_base;
+    d = mp_bases[10].big_base;
 
   x = s->xp[0];
   r = 0;
@@ -1985,7 +2243,7 @@ speed_operator_mod (struct speed_params *s)
    be typical for count_trailing_zeros in a GCD etc.
 
    r==1 measures on data with the resultant count uniformly distributed
-   between 0 and BITS_PER_MP_LIMB-1.  This is probably sensible for
+   between 0 and GMP_LIMB_BITS-1.  This is probably sensible for
    count_leading_zeros on the high limbs of divisors.  */
 
 int
@@ -2012,7 +2270,7 @@ speed_routine_count_zeros_setup (struct speed_params *s,
          rest below.  */
       for (i = 0; i < SPEED_BLOCK_SIZE; i++)
         {
-          mp_limb_t  set = CNST_LIMB(1) << (s->yp_block[i] % BITS_PER_MP_LIMB);
+          mp_limb_t  set = CNST_LIMB(1) << (s->yp_block[i] % GMP_LIMB_BITS);
           mp_limb_t  keep_below = set-1;
           mp_limb_t  keep_above = MP_LIMB_T_MAX ^ keep_below;
           mp_limb_t  keep = (leading ? keep_below : keep_above);

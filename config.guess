@@ -735,7 +735,7 @@ main ()
 	  else if (model <= 12)	modelstr = "pentium3";
 	  else if (model <= 14)	modelstr = "pentiumm";
 	  else if (model <= 25)	modelstr = "core2";
-	  else if (model <= 27)	modelstr = "core2"; /* core i5, i7 */
+	  else if (model <= 27)	modelstr = "corei"; /* core i5, i7 */
 	  else if (model == 28)	modelstr = "atom";
 	  else if (model == 29)	modelstr = "core2";
 	  break;
@@ -775,7 +775,8 @@ main ()
 	{
 	case 6:
 	  if (model < 9)	modelstr = "viac3";
-	  else			modelstr = "viac32";
+	  else if (model < 15)	modelstr = "viac32";
+	  else			modelstr = "nano";
 	  break;
 	}
     }
