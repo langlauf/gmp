@@ -234,7 +234,7 @@ mpn_mu_bdiv_q_itch (mp_size_t nn, mp_size_t dn)
       else
 	{
 	  tn = mpn_mulmod_bnm1_next_size (dn);
-	  itch_out = mpn_mulmod_bnm1_itch (tn);
+	  itch_out = mpn_mulmod_bnm1_itch (tn, dn, in);
 	}
       itch_binvert = mpn_binvert_itch (in);
       itches = dn + tn + itch_out;
@@ -251,7 +251,7 @@ mpn_mu_bdiv_q_itch (mp_size_t nn, mp_size_t dn)
       else
 	{
 	  tn = mpn_mulmod_bnm1_next_size (qn);
-	  itch_out = mpn_mulmod_bnm1_itch (tn);
+	  itch_out = mpn_mulmod_bnm1_itch (tn, qn, in);
 	}
       itch_binvert = mpn_binvert_itch (in);
       itches = tn + itch_out;

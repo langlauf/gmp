@@ -460,13 +460,13 @@ typedef __mpq_struct *mpq_ptr;
 #define __GMP_EXTERN_INLINE  __inline
 #endif
 
-/* Recent enough Sun C compilers accept "extern inline" */
+/* Recent enough Sun C compilers want "inline" */
 #if defined (__SUNPRO_C) && __SUNPRO_C >= 0x560 \
   && ! defined (__GMP_EXTERN_INLINE)
-#define __GMP_EXTERN_INLINE  extern inline
+#define __GMP_EXTERN_INLINE  inline
 #endif
 
-/* Somewhat older Sun C compilers accept "static inline" */
+/* Somewhat older Sun C compilers want "static inline" */
 #if defined (__SUNPRO_C) && __SUNPRO_C >= 0x540 \
   && ! defined (__GMP_EXTERN_INLINE)
 #define __GMP_EXTERN_INLINE  static inline
@@ -2273,7 +2273,8 @@ enum
 /* Major version number is the value of __GNU_MP__ too, above and in mp.h. */
 #define __GNU_MP_VERSION 5
 #define __GNU_MP_VERSION_MINOR 0
-#define __GNU_MP_VERSION_PATCHLEVEL 0
+#define __GNU_MP_VERSION_PATCHLEVEL 1
+#define __GMP_MP_RELEASE (__GNU_MP_VERSION * 10000 + __GNU_MP_VERSION_MINOR * 100 + __GNU_MP_VERSION_PATCHLEVEL)
 
 #define __GMP_H__
 #endif /* __GMP_H__ */

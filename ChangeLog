@@ -1,3 +1,194 @@
+2010-02-05  Torbjorn Granlund  <tege@gmplib.org>
+
+	* Version 5.0.1 released.
+
+	* mpn/generic/powm.c: Use rp target area for power table computation in
+	order to use less scratch.
+
+	* mpn/generic/binvert.c (mpn_binvert_itch): Enable more economical
+	mpn_mulmod_bnm1_itch call.
+
+	* mpn/generic/mu_div_qr.c: Remove always true #if.
+	* mpn/generic/mu_divappr_q.c: Likewise.
+	* mpn/generic/mu_bdiv_q.c: Likewise.
+	* mpn/generic/mu_bdiv_qr.c: Likewise.
+
+2010-02-01  Torbjorn Granlund  <tege@gmplib.org>
+
+	* Makefile.am (LIBGMP_LT_*, LIBGMPXX_LT_*, LIBMP_LT_*):
+	Bump version info.
+
+	* mpn/powerpc64/mode64/gmp-mparam.h: Remove {MUL,SQR}_FFT_TABLE2.
+	* mpn/x86/p6/gmp-mparam.h: Likewise.
+	* mpn/x86/p6/mmx/gmp-mparam.h: Likewise.
+	* mpn/generic/mul_fft.c: Don't depend on FFT_TABLE2, it was broken.
+
+2010-01-29  Torbjorn Granlund  <tege@gmplib.org>
+
+	* mpn/generic/mul_fft.c (mpn_mul_fft_internal): Remove arguments n, m,
+	k and rec; add argument sqr.  Don't call mpn_mul_fft_decompose here,
+	instead do that in all callers.
+	(mpn_mul_fft): Trim allocation when squaring, and use TMP_ALLOC*, not
+	explicit alloc/free.
+	(mpn_fft_div_2exp_modF): Avoid a scalar division.
+	(mpn_fft_mul_modF_K): Replace some multiplies by K with shifting by k.
+	(mpn_fft_mul_2exp_modF): Make function more symmetrical.
+
+2010-01-27  Torbjorn Granlund  <tege@gmplib.org>
+
+	* mpn/generic/mu_div_q.c (mpn_mu_div_q_itch): Rewrite.
+	* mpn/generic/mu_div_qr.c (mpn_mu_div_qr_itch): Re-enable
+	better mulmod itch estimate.
+	* mpn/generic/mu_divappr_q.c (mpn_mu_divappr_q_itch): Likewise.
+	* mpn/generic/mu_bdiv_qr.c (mpn_mu_bdiv_qr_itch): Likewise.
+	* mpn/generic/mu_bdiv_q.c (mpn_mu_bdiv_q_itch): Likewise.
+
+2010-01-27 Marco Bodrato <bodrato@mail.dm.unipi.it>
+
+	* mpn/generic/mu_div_qr.c (mpn_mu_div_qr_itch): Disabled guessed
+	estimate, enabled a conservative one.
+	* mpn/generic/mu_divappr_q.c (mpn_mu_divappr_q_itch): Likewise.
+	* mpn/generic/mu_bdiv_qr.c (mpn_mu_bdiv_qr_itch): Likewise.
+	* mpn/generic/mu_bdiv_q.c (mpn_mu_bdiv_q_itch): Likewise.
+
+2010-01-26 Marco Bodrato <bodrato@mail.dm.unipi.it>
+
+	* mpn/generic/mulmod_bnm1.c (mpn_mulmod_bnm1): Partial rewrite to
+	reduce memory usage.
+	* mpn/generic/sqrmod_bnm1.c (mpn_sqrmod_bnm1): Likewise.
+	(mpn_sqrmod_bnm1_next_size): New function.
+
+	* gmp-impl.h (mpn_mulmod_bnm1_itch): Accepts 3 parameters now.
+	(mpn_sqrmod_bnm1_itch): New inline function.
+	(mpn_sqrmod_bnm1_next_size): Declaration and mangling.
+	* mpn/generic/nussbaumer_mul.c: Use the new functions.
+
+	* mpn/generic/invertappr.c (mpn_ni_invertappr): Use new syntax for
+	mpn_mulmod_bnm1_itch.
+	* mpn/generic/mu_divappr_q.c (mpn_mu_divappr_q_itch): Likewise.
+	* mpn/generic/mu_bdiv_qr.c (mpn_mu_bdiv_qr_itch): Likewise.
+	* mpn/generic/mu_bdiv_q.c (mpn_mu_bdiv_q_itch): Likewise.
+	* mpn/generic/mu_div_qr.c (mpn_mu_div_qr_itch): Likewise.
+	* mpn/generic/binvert.c (mpn_binvert_itch): Likewise.
+	* tune/speed.h (SPEED_ROUTINE_MPN_MULMOD_BNM1_CALL): Likewise.
+	(SPEED_ROUTINE_MPN_MULMOD_BNM1_ROUNDED): Likewise.
+
+	* tests/mpn/t-sqrmod_bnm1.c, tests/mpn/t-mulmod_bnm1.c: Test
+	reduced memory usage.
+
+2010-01-25  Torbjorn Granlund  <tege@gmplib.org>
+
+	* tune/tuneup.c (INSERT_FFTTAB): New macro, like old insertion code but
+	also inserting a sentinel.
+	(fftmes): Use INSERT_FFTTAB for inserting new measurements.
+	Limit k range to best_k - 4 ... best_k + 4.
+
+2010-01-23  Torbjorn Granlund  <tege@gmplib.org>
+
+	* gmp-h.in (__GNU_MP_VERSION_PATCHLEVEL): Bump.
+	(__GMP_MP_RELEASE): New macro.
+
+	* mpf/div.c: Rewrite to use mpn_div_q.
+
+2010-01-21  Torbjorn Granlund  <tege@gmplib.org>
+
+	* Add FFT_TABLE3 tables for a basic set of machines.
+
+	* configure.in: Use -mtune=nocona for 64-bit pentium4.
+
+	* config.guess: Recognise many more Intel processors.
+
+	* tune/common.c: Whitespace cleanup.
+	(speed_mpn_matrix22_mul): Rewrite.
+
+2010-01-21  Niels Möller  <nisse@lysator.liu.se>
+
+	* mpn/generic/nussbaumer_mul.c (mpn_nussbaumer_mul): Take
+	advantage of new mpn_mulmod_bnm1 interface, to reduce allocation.
+
+	* tests/mpn/t-mulmod_bnm1.c (ref_mulmod_bnm1, main): Adapted to
+	mpn_mulmod_bnm1 interface change.
+
+	* mpn/generic/mulmod_bnm1.c (mpn_mulmod_bnm1): Interface change,
+	in case an + bn < rn, only write an + bn output limbs. New input
+	requirement, an + bn > rn/2.
+	* mpn/generic/sqrmod_bnm1.c (mpn_sqrmod_bnm1): Corresponding
+	changes.
+
+2010-01-19  Torbjorn Granlund  <tege@gmplib.org>
+
+	* tune/tuneup.c (fftmes): Round up initial n according to initial k.
+	Limit k to 24 in loop.  Remove an obsolete always-true condition.
+	Remove a redundant trace printout.
+
+2010-01-18  Torbjorn Granlund  <tege@gmplib.org>
+
+	* tune/tuneup.c (fftmes): New function
+	(fft): Rewrite.
+	(mpn_mul_fft_lcm): New function, copied from mpn/generic/mul_fft.c.
+	(fftfill): New function, code taken from mul_fft.c (mpn_mul_fft).
+	(cached_measure): New function.
+
+	* gmp-impl.h (struct fft_table_nk): Moved from mul_fft.c.
+	(MUL_FFT_TABLE3, SQR_FFT_TABLE3): Provide dummy versions for tuneup
+	builds.
+	(FFT_TABLE3_SIZE): Increase value for tuneup builds.
+
+	* mpn/generic/mul_fft.c: Handle a new FFT threshold table type ("3").
+	Misc cleanups to old table type code.
+
+2010-01-16  Torbjorn Granlund  <tege@gmplib.org>
+
+	* mpn/x86_64/darwin.m4: Fix typo in last change.
+
+2010-01-15  Torbjorn Granlund  <tege@gmplib.org>
+
+	* gmp-h.in (__GMP_EXTERN_INLINE): Remove "extern" for newer Sun C.
+
+	* gmp-impl.h (GMP_LIMB_BYTES): New define.
+
+	* mpn/x86_64/darwin.m4 (LEA): New define.
+
+	* mpn/x86/invert_limb.asm (approx_tab): Use DEF_OBJECT.
+	Rename and globalise it to work around Mac OS bug.
+
+	With Philip McLaughlin:
+	* mpn/x86_64/gcd_1.asm (ctz_table): Don't use local prefix, but
+	use DEF_OBJECT...END_OBJECT.
+	Keep stack pointer at ABI mandated alignment over call.
+
+2010-01-12  Torbjorn Granlund  <tege@gmplib.org>
+
+	* tune/speed.c (routine): Remove obsolete mpn_dc_tdiv_qr and
+	mpn_dc_div_qr_n.
+	* tune/common.c (speed_mpn_dc_tdiv_qr, speed_mpn_dcpi1_div_qr_n):
+	Remove now unused functions.
+	* tune/speed.h (SPEED_ROUTINE_MPN_DC_DIVREM_N,
+	SPEED_ROUTINE_MPN_DC_DIVREM_SB, SPEED_ROUTINE_MPN_DC_TDIV_QR): Remove
+	now unused macros.
+
+	* mpn/x86_64/fat/fat_entry.asm (mpn_cpuid_available): Remove function.
+
+	* ltmain.sh: Upgrade from 1.5.24 to 2.2.6b.
+	* ylwrap: New file.
+	* .bootstrap: Remove explicit versions.
+
+	* doc/gmp.texi (Block-wise Barrett Division): New node.
+
+	* mpn/generic/powm.c: Change some #if to plain 'if' to avoid fat build
+	problems.
+
+2010-01-11  Torbjorn Granlund  <tege@gmplib.org>
+
+	* tune/speed.h (SPEED_ROUTINE_MPN_PI1_DIV): Accept arguments for size
+	restrictions.
+	* tune/common.c (speed_mpn_sbpi1_div_qr, speed_mpn_dcpi1_div_qr,
+	(speed_mpn_sbpi1_divappr_q, speed_mpn_dcpi1_divappr_q): Pass size
+	limits for SPEED_ROUTINE_MPN_PI1_DIV.
+
+	* tune/speed.c (routine): Allow .r argument for mpn_sbpi1_divappr_q and
+	mpn_dcpi1_divappr_q.
+
 2010-01-08  Torbjorn Granlund  <tege@gmplib.org>
 
 	* Version 5.0.0 released.
@@ -552,7 +743,7 @@
 	* mpn/generic/mul_fft.c (mpn_mul_fft_full): Disable.
 
 	* gmp-impl.h: Define mpn_fft_mul as an alias for mpn_nussbaumer_mul.
-	* mpn/generic/mul.c: Refer Call_fft_mul.
+	* mpn/generic/mul.c: Refer mpn_fft_mul.
 	* mpn/generic/mul_n.c: Likewise.
 	* mpn/generic/sqr_n.c: Likewise.
 	* mpn/generic/mullo_n.c: Likewise.
@@ -1520,7 +1711,7 @@
 	(mpn_mul_fft_internal): Likewise.
 
 	* mpn/generic/mulmod_bnm1.c: New file, by Niels Möller.
-	* configure.in (gmp_mpn_functions):  Add mulmod_bnm1.
+	* configure.in (gmp_mpn_functions): Add mulmod_bnm1.
 	* gmp-impl.h: Add related declarations.
 	* tune/tuneup.c: Tune MULMOD_BNM1_THRESHOLD.
 	* tune/speed.h (SPEED_ROUTINE_MPN_MULMOD_BNM1): New macro.
@@ -5962,7 +6153,7 @@
 	* tune/common.c (speed_mpn_hgcd_lehmer): Disabled function.
 
 	* mpn/generic/hgcd.c (mpn_hgcd_lehmer_itch, mpn_hgcd_lehmer)
-	(mpn_hgcd_equal):  Deleted functions.
+	(mpn_hgcd_equal): Deleted functions.
 
 	* mpn/generic/gcd.c (hgcd_start_row_p): Deleted function.
 	(gcd_schoenhage): Deleted assertion code using mpn_hgcd_lehmer.

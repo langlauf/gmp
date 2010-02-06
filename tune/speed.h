@@ -161,8 +161,6 @@ double speed_mpn_addmul_8 __GMP_PROTO ((struct speed_params *s));
 double speed_mpn_com __GMP_PROTO ((struct speed_params *s));
 double speed_mpn_copyd __GMP_PROTO ((struct speed_params *s));
 double speed_mpn_copyi __GMP_PROTO ((struct speed_params *s));
-double speed_mpn_dcpi1_div_qr_n __GMP_PROTO ((struct speed_params *s));
-double speed_mpn_dc_tdiv_qr __GMP_PROTO ((struct speed_params *s));
 double speed_MPN_COPY __GMP_PROTO ((struct speed_params *s));
 double speed_MPN_COPY_DECR __GMP_PROTO ((struct speed_params *s));
 double speed_MPN_COPY_INCR __GMP_PROTO ((struct speed_params *s));
@@ -1030,7 +1028,7 @@ int speed_routine_count_zeros_setup
 									\
     SPEED_RESTRICT_COND (s->size >= 1);					\
 									\
-    itch = mpn_mulmod_bnm1_itch (s->size);				\
+    itch = mpn_mulmod_bnm1_itch (s->size, s->size, s->size);		\
 									\
     TMP_MARK;								\
     SPEED_TMP_ALLOC_LIMBS (wp, 2 * s->size, s->align_wp);		\
@@ -1063,7 +1061,7 @@ int speed_routine_count_zeros_setup
     SPEED_RESTRICT_COND (s->size >= 1);					\
 									\
     size = mpn_mulmod_bnm1_next_size (s->size);				\
-    itch = mpn_mulmod_bnm1_itch (size);					\
+    itch = mpn_mulmod_bnm1_itch (size, size, size);			\
 									\
     TMP_MARK;								\
     SPEED_TMP_ALLOC_LIMBS (wp, size, s->align_wp);			\
@@ -1436,17 +1434,6 @@ int speed_routine_count_zeros_setup
     return t;								\
   }
 
-#define SPEED_ROUTINE_MPN_DC_DIVREM_N(function)				\
-  SPEED_ROUTINE_MPN_DC_DIVREM_CALL((*function) (q, a, d, s->size, &dinv, r))
-
-#define SPEED_ROUTINE_MPN_DC_DIVREM_SB(function)			\
-  SPEED_ROUTINE_MPN_DC_DIVREM_CALL					\
-    ((*function) (q, a, 2*s->size, d, s->size))
-
-#define SPEED_ROUTINE_MPN_DC_TDIV_QR(function)				\
-  SPEED_ROUTINE_MPN_DC_DIVREM_CALL					\
-    ((*function) (q, r, 0, a, 2*s->size, d, s->size))
-
 
 /* A remainder 2*s->size by s->size limbs */
 
@@ -1479,7 +1466,7 @@ int speed_routine_count_zeros_setup
     return speed_endtime ();						\
   }
 
-#define SPEED_ROUTINE_MPN_PI1_DIV(function, INV)			\
+#define SPEED_ROUTINE_MPN_PI1_DIV(function, INV, DMIN, QMIN)		\
   {									\
     unsigned   i;							\
     mp_ptr     dp, tp, ap, qp;						\
@@ -1490,8 +1477,8 @@ int speed_routine_count_zeros_setup
 									\
     size1 = (s->r == 0 ? 2 * s->size : s->r);				\
 									\
-    SPEED_RESTRICT_COND (s->size >= 1);					\
-    SPEED_RESTRICT_COND (size1 >= s->size);				\
+    SPEED_RESTRICT_COND (s->size >= DMIN);				\
+    SPEED_RESTRICT_COND (size1 - s->size >= QMIN);			\
 									\
     TMP_MARK;								\
     SPEED_TMP_ALLOC_LIMBS (ap, size1, s->align_xp);			\

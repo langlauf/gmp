@@ -2,7 +2,7 @@ This is ../../gmp/doc/gmp.info, produced by makeinfo version 4.8 from
 ../../gmp/doc/gmp.texi.
 
    This manual describes how to install and use the GNU multiple
-precision arithmetic library, version 5.0.0.
+precision arithmetic library, version 5.0.1.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010 Free
@@ -20,6 +20,17 @@ INFO-DIR-SECTION GNU libraries
 START-INFO-DIR-ENTRY
 * gmp: (gmp).                   GNU Multiple Precision Arithmetic Library.
 END-INFO-DIR-ENTRY
+
+
+File: gmp.info,  Node: Powering Algorithms,  Next: Root Extraction Algorithms,  Prev: Greatest Common Divisor Algorithms,  Up: Algorithms
+
+16.4 Powering Algorithms
+========================
+
+* Menu:
+
+* Normal Powering Algorithm::
+* Modular Powering Algorithm::
 
 
 File: gmp.info,  Node: Normal Powering Algorithm,  Next: Modular Powering Algorithm,  Prev: Powering Algorithms,  Up: Powering Algorithms

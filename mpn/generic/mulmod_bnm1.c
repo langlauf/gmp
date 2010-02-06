@@ -70,7 +70,7 @@ mpn_bc_mulmod_bnp1 (mp_ptr rp, mp_srcptr ap, mp_srcptr bp, mp_size_t rn,
 }
 
 
-/* Computes {rp,rn} <- {ap,an}*{bp,bn} Mod(B^rn-1)
+/* Computes {rp,MIN(rn,an+bn)} <- {ap,an}*{bp,bn} Mod(B^rn-1)
  *
  * The result is expected to be ZERO if and only if one of the operand
  * already is. Otherwise the class [0] Mod(B^rn-1) is represented by
@@ -81,10 +81,10 @@ mpn_bc_mulmod_bnp1 (mp_ptr rp, mp_srcptr ap, mp_srcptr bp, mp_size_t rn,
  * compute the full product with an+bn <= rn, because this condition
  * implies (B^an-1)(B^bn-1) < (B^rn-1) .
  *
- * Requires both 0 < bn <= an <= rn
- * Scratch need: rn + 2 + (need for recursive call OR rn + 2). This gives
+ * Requires 0 < bn <= an <= rn and an + bn > rn/2
+ * Scratch need: rn + (need for recursive call OR rn + 4). This gives
  *
- * S(n) <= rn + 2 + MAX (rn + 2, S(n/2)) <= 2rn + 2 log2 rn + 2
+ * S(n) <= rn + MAX (rn + 4, S(n/2)) <= 2rn + 4
  */
 void
 mpn_mulmod_bnm1 (mp_ptr rp, mp_size_t rn, mp_srcptr ap, mp_size_t an, mp_srcptr bp, mp_size_t bn, mp_ptr tp)
@@ -100,7 +100,6 @@ mpn_mulmod_bnm1 (mp_ptr rp, mp_size_t rn, mp_srcptr ap, mp_size_t an, mp_srcptr 
 	  if (UNLIKELY (an + bn <= rn))
 	    {
 	      mpn_mul (rp, ap, an, bp, bn);
-	      MPN_ZERO (rp + an + bn, rn - (an + bn));
 	    }
 	  else
 	    {
@@ -121,6 +120,14 @@ mpn_mulmod_bnm1 (mp_ptr rp, mp_size_t rn, mp_srcptr ap, mp_size_t an, mp_srcptr 
 
       n = rn >> 1;
 
+      /* We need at least an + bn >= n, to be able to fit one of the
+	 recursive products at rp. Requiring strict inequality makes
+	 the coded slightly simpler. If desired, we could avoid this
+	 restriction by initially halving rn as long as rn is even and
+	 an + bn <= rn/2. */
+
+      ASSERT (an + bn > n);
+
       /* Compute xm = a*b mod (B^n - 1), xp = a*b mod (B^n + 1)
 	 and crt together as
 
@@ -135,33 +142,44 @@ mpn_mulmod_bnm1 (mp_ptr rp, mp_size_t rn, mp_srcptr ap, mp_size_t an, mp_srcptr 
 #define xp  tp	/* 2n + 2 */
       /* am1  maybe in {xp, n} */
       /* bm1  maybe in {xp + n, n} */
-#define so (tp + 2*n + 2)
-      /* ap1  maybe in {so, n + 1} */
-      /* bp1  maybe in {so + n + 1, n + 1} */
+#define sp1 (tp + 2*n + 2)
+      /* ap1  maybe in {sp1, n + 1} */
+      /* bp1  maybe in {sp1 + n + 1, n + 1} */
 
       {
 	mp_srcptr am1, bm1;
 	mp_size_t anm, bnm;
+	mp_ptr so;
 
-	if( an > n ) {
-	  am1 = xp;
-	  cy = mpn_add (xp, a0, n, a1, an - n);
-	  MPN_INCR_U (xp, n, cy);
-	  anm = n;
-	} else {
-	  am1 = a0;
-	  anm = an;
-	}
-
-	if( bn > n ) {
-	  bm1 = xp + n;
-	  cy = mpn_add (xp + n, b0, n, b1, bn - n);
-	  MPN_INCR_U (xp + n, n, cy);
-	  bnm = n;
-	} else {
-	  bm1 = b0;
-	  bnm = bn;
-	}
+	if (LIKELY (an > n))
+	  {
+	    am1 = xp;
+	    cy = mpn_add (xp, a0, n, a1, an - n);
+	    MPN_INCR_U (xp, n, cy);
+	    anm = n;
+	    if (LIKELY (bn > n))
+	      {
+		bm1 = xp + n;
+		cy = mpn_add (xp + n, b0, n, b1, bn - n);
+		MPN_INCR_U (xp + n, n, cy);
+		bnm = n;
+		so = xp + 2*n;
+	      }
+	    else
+	      {
+		so = xp + n;
+		bm1 = b0;
+		bnm = bn;
+	      }
+	  }
+	else
+	  {
+	    so = xp;
+	    am1 = a0;
+	    anm = an;
+	    bm1 = b0;
+	    bnm = bn;
+	  }
 
 	mpn_mulmod_bnm1 (rp, n, am1, anm, bm1, bnm, so);
       }
@@ -171,22 +189,22 @@ mpn_mulmod_bnm1 (mp_ptr rp, mp_size_t rn, mp_srcptr ap, mp_size_t an, mp_srcptr 
 	mp_srcptr ap1, bp1;
 	mp_size_t anp, bnp;
 
-	if( an > n ) {
-	  ap1 = so;
-	  cy = mpn_sub (so, a0, n, a1, an - n);
-	  so[n] = 0;
-	  MPN_INCR_U (so, n + 1, cy);
+	if (LIKELY (an > n)) {
+	  ap1 = sp1;
+	  cy = mpn_sub (sp1, a0, n, a1, an - n);
+	  sp1[n] = 0;
+	  MPN_INCR_U (sp1, n + 1, cy);
 	  anp = n + ap1[n];
 	} else {
 	  ap1 = a0;
 	  anp = an;
 	}
 
-	if( bn > n ) {
-	  bp1 = so + n + 1;
-	  cy = mpn_sub (so + n + 1, b0, n, b1, bn - n);
-	  so[n+1+n] = 0;
-	  MPN_INCR_U (so + n + 1, n + 1, cy);
+	if (LIKELY (bn > n)) {
+	  bp1 = sp1 + n + 1;
+	  cy = mpn_sub (sp1 + n + 1, b0, n, b1, bn - n);
+	  sp1[2*n+1] = 0;
+	  MPN_INCR_U (sp1 + n + 1, n + 1, cy);
 	  bnp = n + bp1[n];
 	} else {
 	  bp1 = b0;
@@ -204,20 +222,21 @@ mpn_mulmod_bnm1 (mp_ptr rp, mp_size_t rn, mp_srcptr ap, mp_size_t an, mp_srcptr 
 	  }
 	if (k >= FFT_FIRST_K)
 	  xp[n] = mpn_mul_fft (xp, n, ap1, anp, bp1, bnp, k);
-	else
+	else if (UNLIKELY (bp1 == b0))
 	  {
-	    if (UNLIKELY (bp1 == b0)) {
-	      bp1 = so + n + 1;
-	      MPN_COPY (so + n + 1, b0, bnp);
-	      MPN_ZERO (so + n + 1 + bnp, n + 1 - bnp);
-	      if (UNLIKELY (ap1 == a0)) { /* bn <= an, test can be nested. */
-		ap1 = so;
-		MPN_COPY (so, a0, anp);
-		MPN_ZERO (so + anp, n + 1 - anp);
-	      }
-	    }
-	    mpn_bc_mulmod_bnp1 (xp, ap1, bp1, n, xp);
+	    ASSERT (anp + bnp <= 2*n+1);
+	    ASSERT (anp + bnp > n);
+	    ASSERT (anp >= bnp);
+	    mpn_mul (xp, ap1, anp, bp1, bnp);
+	    anp = anp + bnp - n;
+	    ASSERT (anp <= n || xp[2*n]==0);
+	    anp-= anp > n;
+	    cy = mpn_sub (xp, xp, n, xp + n, anp);
+	    xp[n] = 0;
+	    MPN_INCR_U (xp, n+1, cy);
 	  }
+	else
+	  mpn_bc_mulmod_bnp1 (xp, ap1, bp1, n, xp);
       }
 
       /* Here the CRT recomposition begins.
@@ -275,17 +294,39 @@ mpn_mulmod_bnm1 (mp_ptr rp, mp_size_t rn, mp_srcptr ap, mp_size_t an, mp_srcptr 
       /* Compute the highest half:
 	 ([(xp + xm)/2 mod (B^n-1)] - xp ) * B^n
        */
-      cy = xp[n] + mpn_sub_n (rp + n, rp, xp, n);
-      /* cy = 1 only if {xp,n+1} is not ZERO, i.e. {rp,n} is not ZERO.
-	 DECR will affect _at most_ the lowest n limbs. */
-      MPN_DECR_U (rp, 2*n, cy);
+      if (UNLIKELY (an + bn < rn))
+	{
+	  /* Note that in this case, the only way the result can equal
+	     zero mod B^{rn} - 1 is if one of the inputs is zero, and
+	     then the output of both the recursive calls and this CRT
+	     reconstruction is zero, not B^{rn} - 1. Which is good,
+	     since the latter representation doesn't fit in the output
+	     area.*/
+	  cy = mpn_sub_n (rp + n, rp, xp, an + bn - n);
 
+	  /* FIXME: This subtraction of the high parts is not really
+	     necessary, we do it to get the carry out, and for sanity
+	     checking. */
+	  cy = xp[n] + mpn_sub_nc (xp + an + bn - n, rp + an + bn - n,
+				   xp + an + bn - n, rn - (an + bn), cy);
+	  ASSERT (an + bn == rn - 1 ||
+		  mpn_zero_p (xp + an + bn - n + 1, rn - 1 - (an + bn)));
+	  cy = mpn_sub_1 (rp, rp, an + bn, cy);
+	  ASSERT (cy == (xp + an + bn - n)[0]);
+	}
+      else
+	{
+	  cy = xp[n] + mpn_sub_n (rp + n, rp, xp, n);
+	  /* cy = 1 only if {xp,n+1} is not ZERO, i.e. {rp,n} is not ZERO.
+	     DECR will affect _at most_ the lowest n limbs. */
+	  MPN_DECR_U (rp, 2*n, cy);
+	}
 #undef a0
 #undef a1
 #undef b0
 #undef b1
 #undef xp
-#undef so
+#undef sp1
     }
 }
 

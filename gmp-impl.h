@@ -175,6 +175,7 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
 #ifndef BYTES_PER_MP_LIMB
 #define BYTES_PER_MP_LIMB  SIZEOF_MP_LIMB_T
 #endif
+#define GMP_LIMB_BYTES  BYTES_PER_MP_LIMB
 #ifndef GMP_LIMB_BITS
 #define GMP_LIMB_BITS  (8 * SIZEOF_MP_LIMB_T)
 #endif
@@ -947,10 +948,27 @@ __GMP_DECLSPEC void mpn_bc_mulmod_bnm1 __GMP_PROTO ((mp_ptr, mp_srcptr, mp_srcpt
 __GMP_DECLSPEC void mpn_mulmod_bnm1 __GMP_PROTO ((mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr));
 #define mpn_mulmod_bnm1_next_size __MPN(mulmod_bnm1_next_size)
 __GMP_DECLSPEC mp_size_t mpn_mulmod_bnm1_next_size __GMP_PROTO ((mp_size_t)) ATTRIBUTE_CONST;
-#define mpn_mulmod_bnm1_itch(n) (2*(n) + 2*GMP_LIMB_BITS +2)
+static inline mp_size_t
+mpn_mulmod_bnm1_itch (mp_size_t rn, mp_size_t an, mp_size_t bn) {
+  mp_size_t n, itch;
+  n = rn >> 1;
+  itch = rn + 4 +
+    (an > n ? (bn > n ? rn : n) : 0);
+  return itch;
+}
 
 #define mpn_sqrmod_bnm1 __MPN(sqrmod_bnm1)
 __GMP_DECLSPEC void mpn_sqrmod_bnm1 __GMP_PROTO ((mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr));
+#define mpn_sqrmod_bnm1_next_size __MPN(sqrmod_bnm1_next_size)
+__GMP_DECLSPEC mp_size_t mpn_sqrmod_bnm1_next_size __GMP_PROTO ((mp_size_t)) ATTRIBUTE_CONST;
+static inline mp_size_t
+mpn_sqrmod_bnm1_itch (mp_size_t rn, mp_size_t an) {
+  mp_size_t n, itch;
+  n = rn >> 1;
+  itch = rn + 3 +
+    (an > n ? an : 0);
+  return itch;
+}
 
 typedef __gmp_randstate_struct *gmp_randstate_ptr;
 typedef const __gmp_randstate_struct *gmp_randstate_srcptr;
@@ -1888,6 +1906,12 @@ __GMP_DECLSPEC unsigned long int gmp_nextprime (gmp_primesieve_t *);
     SQR_TOOM3_THRESHOLD * 288, /* k=10 */       \
     0 }
 #endif
+
+struct fft_table_nk
+{
+  unsigned int n:27;
+  unsigned int k:5;
+};
 
 #ifndef FFT_TABLE_ATTRS
 #define FFT_TABLE_ATTRS   static const
@@ -4239,6 +4263,9 @@ extern mp_size_t			mul_fft_modf_threshold;
 #undef	MUL_FFT_TABLE
 #define MUL_FFT_TABLE			{ 0 }
 
+#undef	MUL_FFT_TABLE3
+#define MUL_FFT_TABLE3			{ {0,0} }
+
 /* A native mpn_sqr_basecase is not tuned and SQR_BASECASE_THRESHOLD should
    remain as zero (always use it). */
 #if ! HAVE_NATIVE_mpn_sqr_basecase
@@ -4282,6 +4309,9 @@ extern mp_size_t			sqr_fft_modf_threshold;
 
 #undef	SQR_FFT_TABLE
 #define SQR_FFT_TABLE			{ 0 }
+
+#undef	SQR_FFT_TABLE3
+#define SQR_FFT_TABLE3			{ {0,0} }
 
 #undef	MULLO_BASECASE_THRESHOLD
 #define MULLO_BASECASE_THRESHOLD	mullo_basecase_threshold
@@ -4444,6 +4474,8 @@ extern mp_size_t			set_str_precompute_threshold;
 #undef  FFT_TABLE_ATTRS
 #define FFT_TABLE_ATTRS
 extern mp_size_t  mpn_fft_table[2][MPN_FFT_TABLE_SIZE];
+#define FFT_TABLE3_SIZE 2000	/* generous space for tuning */
+extern struct fft_table_nk mpn_fft_table3[2][FFT_TABLE3_SIZE];
 
 /* Sizes the tune program tests up to, used in a couple of recompilations. */
 #undef MUL_TOOM22_THRESHOLD_LIMIT

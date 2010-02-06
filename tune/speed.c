@@ -238,9 +238,6 @@ const struct routine_t {
   { "mpn_mod_34lsub1",   speed_mpn_mod_34lsub1 },
 #endif
 
-  { "mpn_dc_tdiv_qr",       speed_mpn_dc_tdiv_qr       },
-  { "mpn_dc_div_qr_n",      speed_mpn_dcpi1_div_qr_n   },
-
   { "mpn_lshift",        speed_mpn_lshift, FLAG_R   },
   { "mpn_lshiftc",       speed_mpn_lshiftc, FLAG_R   },
   { "mpn_rshift",        speed_mpn_rshift, FLAG_R   },
@@ -337,8 +334,8 @@ const struct routine_t {
   { "mpn_dcpi1_div_qr",        speed_mpn_dcpi1_div_qr,    FLAG_R_OPTIONAL},
   { "mpn_mu_div_qr",           speed_mpn_mu_div_qr,       FLAG_R_OPTIONAL},
   { "mpn_mupi_div_qr",         speed_mpn_mupi_div_qr,     FLAG_R_OPTIONAL},
-  { "mpn_sbpi1_divappr_q",     speed_mpn_sbpi1_divappr_q     },
-  { "mpn_dcpi1_divappr_q",     speed_mpn_dcpi1_divappr_q     },
+  { "mpn_sbpi1_divappr_q",     speed_mpn_sbpi1_divappr_q, FLAG_R_OPTIONAL},
+  { "mpn_dcpi1_divappr_q",     speed_mpn_dcpi1_divappr_q, FLAG_R_OPTIONAL},
 
   { "mpn_sbpi1_bdiv_qr",       speed_mpn_sbpi1_bdiv_qr       },
   { "mpn_dcpi1_bdiv_qr",       speed_mpn_dcpi1_bdiv_qr       },

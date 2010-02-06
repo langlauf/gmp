@@ -40,24 +40,6 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
 
  Things to work on:
 
-  * Passing k isn't a great interface.  Either 'in' should be passed, or
-    determined by the code.
-
-  * The current mpn_mu_div_qr_itch isn't exactly scientifically written.
-    Scratch space buffer overruns are not unlikely before some analysis is
-    applied.  Since scratch requirements are expected to change, such an
-    analysis will have to wait til things settle.
-
-  * This isn't optimal when the remainder isn't needed, since the final
-    multiplication could be made special and take O(1) time on average, in that
-    case.  This is particularly bad when qn << dn.  At some level, code as in
-    GMP 4 mpn_tdiv_qr should be used, effectively dividing the leading 2qn
-    dividend limbs by the qn divisor limbs.
-
-  * This isn't optimal when the quotient isn't needed, as it might take a lot
-    of space.  The computation is always needed, though, so there is no time to
-    save with special code.
-
   * The itch/scratch scheme isn't perhaps such a good idea as it once seemed,
     demonstrated by the fact that the mpn_invertappr function's scratch needs
     mean that we need to keep a large allocation long after it is needed.
@@ -355,9 +337,16 @@ mpn_mu_divappr_q_choose_in (mp_size_t qn, mp_size_t dn, int k)
 mp_size_t
 mpn_mu_divappr_q_itch (mp_size_t nn, mp_size_t dn, int mua_k)
 {
-  mp_size_t itch_local = mpn_mulmod_bnm1_next_size (dn + 1);
-  mp_size_t itch_out = mpn_mulmod_bnm1_itch (itch_local);
-  mp_size_t in = mpn_mu_div_qr_choose_in (nn - dn, dn, mua_k);
+  mp_size_t qn, in, itch_local, itch_out;
 
+  qn = nn - dn;
+  if (qn + 1 < dn)
+    {
+      dn = qn + 1;
+    }
+  in = mpn_mu_divappr_q_choose_in (qn, dn, mua_k);
+
+  itch_local = mpn_mulmod_bnm1_next_size (dn + 1);
+  itch_out = mpn_mulmod_bnm1_itch (itch_local, dn, in);
   return in + dn + itch_local + itch_out;
 }
