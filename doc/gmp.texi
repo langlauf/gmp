@@ -15,7 +15,8 @@ This manual describes how to install and use the GNU multiple precision
 arithmetic library, version @value{VERSION}.
 
 Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002,
-2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010 Free Software Foundation, Inc.
+2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Free Software
+Foundation, Inc.
 
 Permission is granted to copy, distribute and/or modify this document under
 the terms of the GNU Free Documentation License, Version 1.3 or any later
@@ -1321,15 +1322,15 @@ gcc  -m64
 @cindex AIX
 The @samp{mode32} ABI uses a 64-bit @code{long long} limb but with the chip
 still in 32-bit mode and using 32-bit calling conventions.  This is the default
-on for systems where the true 64-bit ABIs are unavailable.  No special compiler
-options are needed for applications.
+for systems where the true 64-bit ABI is unavailable.  No special compiler
+options are typically needed for applications.
 
 @item @samp{ABI=32}
 This is the basic 32-bit PowerPC ABI, with a 32-bit limb.  No special compiler
 options are needed for applications.
 @end table
 
-GMP speed is greatest in @samp{aix64} and @samp{mode32}.  In @samp{ABI=32}
+GMP's speed is greatest for @samp{aix64} and @samp{mode64}.  In @samp{ABI=32}
 only the 32-bit ISA is used and this doesn't make full use of a 64-bit chip.
 On a suitable system we could perhaps use more of the ISA, but there are no
 plans to do so.
@@ -1621,10 +1622,10 @@ that the GCC default @samp{-mapp-regs} does (@pxref{SPARC Options,, SPARC
 Options, gcc, Using the GNU Compiler Collection (GCC)}).
 
 This makes that code unsuitable for use with the special V9
-@samp{-mcmodel=embmedany} (which uses @code{g4} as a data segment pointer),
-and for applications wanting to use those registers for special purposes.  In
-these cases the only suggestion currently is to build GMP with CPU @samp{none}
-to avoid the assembly code.
+@samp{-mcmodel=embmedany} (which uses @code{g4} as a data segment pointer), and
+for applications wanting to use those registers for special purposes.  In these
+cases the only suggestion currently is to build GMP with CPU @samp{none} to
+avoid the assembly code.
 
 @item SunOS 4
 @cindex SunOS
@@ -1789,7 +1790,7 @@ make tuneup
 
 will generate better contents for the @file{gmp-mparam.h} parameter file.
 
-To use the results, put the output in the file file indicated in the
+To use the results, put the output in the file indicated in the
 @samp{Parameters for ...} header.  Then recompile from scratch.
 
 The @code{tuneup} program takes one useful parameter, @samp{-f NNN}, which
@@ -3810,13 +3811,15 @@ Test bit @var{bit_index} in @var{op} and return 0 or 1 accordingly.
 @cindex I/O functions
 
 Functions that perform input from a stdio stream, and functions that output to
-a stdio stream.  Passing a @code{NULL} pointer for a @var{stream} argument to any of
-these functions will make them read from @code{stdin} and write to
-@code{stdout}, respectively.
+a stdio stream, of @code{mpz} numbers.  Passing a @code{NULL} pointer for a
+@var{stream} argument to any of these functions will make them read from
+@code{stdin} and write to @code{stdout}, respectively.
 
 When using any of these functions, it is a good idea to include @file{stdio.h}
 before @file{gmp.h}, since that will allow @file{gmp.h} to define prototypes
 for these functions.
+
+See also @ref{Formatted Output} and @ref{Formatted Input}.
 
 @deftypefun size_t mpz_out_str (FILE *@var{stream}, int @var{base}, mpz_t @var{op})
 Output @var{op} on stdio stream @var{stream}, as a string of digits in base
@@ -4114,7 +4117,7 @@ room for the larger of the two operands, plus an extra
 @code{mp_bits_per_limb}.
 
 @item
-@code{mpz_mul}, @code{mpz_mul_ui} and @code{mpz_mul_ui} need room for the sum
+@code{mpz_mul}, @code{mpz_mul_ui} and @code{mpz_mul_si} need room for the sum
 of the number of bits in their operands, but each rounded up to a multiple of
 @code{mp_bits_per_limb}.
 
@@ -4433,13 +4436,16 @@ recommended instead of these functions.
 @cindex Output functions
 @cindex I/O functions
 
-When using any of these functions, it's a good idea to include @file{stdio.h}
+Functions that perform input from a stdio stream, and functions that output to
+a stdio stream, of @code{mpq} numbers.  Passing a @code{NULL} pointer for a
+@var{stream} argument to any of these functions will make them read from
+@code{stdin} and write to @code{stdout}, respectively.
+
+When using any of these functions, it is a good idea to include @file{stdio.h}
 before @file{gmp.h}, since that will allow @file{gmp.h} to define prototypes
 for these functions.
 
-Passing a @code{NULL} pointer for a @var{stream} argument to any of these
-functions will make them read from @code{stdin} and write to @code{stdout},
-respectively.
+See also @ref{Formatted Output} and @ref{Formatted Input}.
 
 @deftypefun size_t mpq_out_str (FILE *@var{stream}, int @var{base}, mpq_t @var{op})
 Output @var{op} on stdio stream @var{stream}, as a string of digits in base
@@ -4934,13 +4940,15 @@ multiple times.
 @cindex I/O functions
 
 Functions that perform input from a stdio stream, and functions that output to
-a stdio stream.  Passing a @code{NULL} pointer for a @var{stream} argument to
-any of these functions will make them read from @code{stdin} and write to
-@code{stdout}, respectively.
+a stdio stream, of @code{mpf} numbers.  Passing a @code{NULL} pointer for a
+@var{stream} argument to any of these functions will make them read from
+@code{stdin} and write to @code{stdout}, respectively.
 
 When using any of these functions, it is a good idea to include @file{stdio.h}
 before @file{gmp.h}, since that will allow @file{gmp.h} to define prototypes
 for these functions.
+
+See also @ref{Formatted Output} and @ref{Formatted Input}.
 
 @deftypefun size_t mpf_out_str (FILE *@var{stream}, int @var{base}, size_t @var{n_digits}, mpf_t @var{op})
 Print @var{op} to @var{stream}, as a string of digits.  Return the number of
@@ -5029,7 +5037,8 @@ truncated to an integer.
 @cindex Random number functions
 @cindex Float random number functions
 Generate a uniformly distributed random float in @var{rop}, such that @math{0
-@le{} @var{rop} < 1}, with @var{nbits} significant bits in the mantissa.
+@le{} @var{rop} < 1}, with @var{nbits} significant bits in the mantissa or
+less if the precision of @var{rop} is smaller.
 
 The variable @var{state} must be initialized by calling one of the
 @code{gmp_randinit} functions (@ref{Random State Initialization}) before
@@ -5322,7 +5331,7 @@ be 0, 1 or 2 (these are both borrows really).  When @math{c=0} clearly
 @code{mp_bits_per_limb} is even, which is always so currently).
 @end deftypefn
 
-@deftypefun mp_limb_t mpn_mod_1 (mp_limb_t *@var{s1p}, mp_size_t @var{s1n}, mp_limb_t @var{s2limb})
+@deftypefun mp_limb_t mpn_mod_1 (const mp_limb_t *@var{s1p}, mp_size_t @var{s1n}, mp_limb_t @var{s2limb})
 Divide @{@var{s1p}, @var{s1n}@} by @var{s2limb}, and return the remainder.
 @var{s1n} can be zero.
 @end deftypefun
@@ -5493,6 +5502,8 @@ different bit values.
 
 @deftypefun int mpn_perfect_square_p (const mp_limb_t *@var{s1p}, mp_size_t @var{n})
 Return non-zero iff @{@var{s1p}, @var{n}@} is a perfect square.
+The most significant limb of the input @{@var{s1p}, @var{n}@} must be
+non-zero.
 @end deftypefun
 
 @deftypefun void mpn_and_n (mp_limb_t *@var{rp}, const mp_limb_t *@var{s1p}, const mp_limb_t *@var{s2p}, mp_size_t @var{n})
@@ -6501,23 +6512,21 @@ anything.
 @node C++ Interface Integers, C++ Interface Rationals, C++ Interface General, C++ Class Interface
 @section C++ Interface Integers
 
-@deftypefun void mpz_class::mpz_class (type @var{n})
+@deftypefun {} mpz_class::mpz_class (type @var{n})
 Construct an @code{mpz_class}.  All the standard C++ types may be used, except
 @code{long long} and @code{long double}, and all the GMP C++ classes can be
 used.  Any necessary conversion follows the corresponding C function, for
 example @code{double} follows @code{mpz_set_d} (@pxref{Assigning Integers}).
 @end deftypefun
 
-@deftypefun void mpz_class::mpz_class (mpz_t @var{z})
+@deftypefun explicit mpz_class::mpz_class (mpz_t @var{z})
 Construct an @code{mpz_class} from an @code{mpz_t}.  The value in @var{z} is
 copied into the new @code{mpz_class}, there won't be any permanent association
 between it and @var{z}.
 @end deftypefun
 
-@deftypefun void mpz_class::mpz_class (const char *@var{s})
-@deftypefunx void mpz_class::mpz_class (const char *@var{s}, int @var{base} = 0)
-@deftypefunx void mpz_class::mpz_class (const string& @var{s})
-@deftypefunx void mpz_class::mpz_class (const string& @var{s}, int @var{base} = 0)
+@deftypefun explicit mpz_class::mpz_class (const char *@var{s}, int @var{base} = 0)
+@deftypefunx explicit mpz_class::mpz_class (const string& @var{s}, int @var{base} = 0)
 Construct an @code{mpz_class} converted from a string using @code{mpz_set_str}
 (@pxref{Assigning Integers}).
 
@@ -6587,8 +6596,8 @@ And comparisons are always made exactly, as per @code{mpz_cmp_d}.
 In all the following constructors, if a fraction is given then it should be in
 canonical form, or if not then @code{mpq_class::canonicalize} called.
 
-@deftypefun void mpq_class::mpq_class (type @var{op})
-@deftypefunx void mpq_class::mpq_class (integer @var{num}, integer @var{den})
+@deftypefun {} mpq_class::mpq_class (type @var{op})
+@deftypefunx {} mpq_class::mpq_class (integer @var{num}, integer @var{den})
 Construct an @code{mpq_class}.  The initial value can be a single value of any
 type, or a pair of integers (@code{mpz_class} or standard C++ integer types)
 representing a fraction, except that @code{long long} and @code{long double}
@@ -6601,16 +6610,14 @@ mpq_class q (1, 3);
 @end example
 @end deftypefun
 
-@deftypefun void mpq_class::mpq_class (mpq_t @var{q})
+@deftypefun explicit mpq_class::mpq_class (mpq_t @var{q})
 Construct an @code{mpq_class} from an @code{mpq_t}.  The value in @var{q} is
 copied into the new @code{mpq_class}, there won't be any permanent association
 between it and @var{q}.
 @end deftypefun
 
-@deftypefun void mpq_class::mpq_class (const char *@var{s})
-@deftypefunx void mpq_class::mpq_class (const char *@var{s}, int @var{base} = 0)
-@deftypefunx void mpq_class::mpq_class (const string& @var{s})
-@deftypefunx void mpq_class::mpq_class (const string& @var{s}, int @var{base} = 0)
+@deftypefun explicit mpq_class::mpq_class (const char *@var{s}, int @var{base} = 0)
+@deftypefunx explicit mpq_class::mpq_class (const string& @var{s}, int @var{base} = 0)
 Construct an @code{mpq_class} converted from a string using @code{mpq_set_str}
 (@pxref{Initializing Rationals}).
 
@@ -6703,10 +6710,20 @@ mpf_class f(x+y);        // greater of precisions of x and y
 @end example
 @end deftypefun
 
-@deftypefun void mpf_class::mpf_class (const char *@var{s})
-@deftypefunx void mpf_class::mpf_class (const char *@var{s}, unsigned long @var{prec}, int @var{base} = 0)
-@deftypefunx void mpf_class::mpf_class (const string& @var{s})
-@deftypefunx void mpf_class::mpf_class (const string& @var{s}, unsigned long @var{prec}, int @var{base} = 0)
+@deftypefun explicit mpf_class::mpf_class (mpf_t @var{f})
+@deftypefunx {} mpf_class::mpf_class (mpf_t @var{f}, unsigned long @var{prec})
+Construct an @code{mpf_class} from an @code{mpf_t}.  The value in @var{f} is
+copied into the new @code{mpf_class}, there won't be any permanent association
+between it and @var{f}.
+
+If @var{prec} is given, the initial precision is that value, in bits.  If
+@var{prec} is not given, then the initial precision is that of @var{f}.
+@end deftypefun
+
+@deftypefun explicit mpf_class::mpf_class (const char *@var{s})
+@deftypefunx {} mpf_class::mpf_class (const char *@var{s}, unsigned long @var{prec}, int @var{base} = 0)
+@deftypefunx explicit mpf_class::mpf_class (const string& @var{s})
+@deftypefunx {} mpf_class::mpf_class (const string& @var{s}, unsigned long @var{prec}, int @var{base} = 0)
 Construct an @code{mpf_class} converted from a string using @code{mpf_set_str}
 (@pxref{Assigning Floats}).  If @var{prec} is given, the initial precision is
 that value, in bits.  If not, the default @code{mpf} precision
@@ -7215,6 +7232,12 @@ NTL @spaceuref{http://www.shoup.net/ntl/} @* A C++ number theory library.
 @c gmp-d @spaceuref{http://home.comcast.net/~benhinkle/gmp-d/}
 @c @end itemize
 
+@item Eiffel
+@itemize @bullet
+@item
+Eiffelroom @spaceuref{http://www.eiffelroom.org/node/442}
+@end itemize
+
 @item Fortran
 @itemize @bullet
 @item
@@ -7319,9 +7342,13 @@ Arbitrary precision floats.
 @item Python
 @itemize @bullet
 @item
-mpz module in the standard distribution, @uref{http://www.python.org/}
+GMPY @uref{http://code.google.com/p/gmpy/}
+@end itemize
+
+@item Ruby
+@itemize @bullet
 @item
-GMPY @uref{http://gmpy.sourceforge.net/}
+http://rubygems.org/gems/gmp
 @end itemize
 
 @item Scheme
@@ -8526,7 +8553,7 @@ single-limb elements. This is done by the function @code{mpn_hgcd2}. The
 resulting matrix is applied to the inputs using @code{mpn_mul_1} and
 @code{mpn_submul_1}. Each iteration usually reduces the inputs by almost one
 limb. In the rare case of a large quotient, no progress can be made by
-examining just the most significant two limbs, and the quotient is computing
+examining just the most significant two limbs, and the quotient is computed
 using plain division.
 
 The resulting algorithm is asymptotically @math{O(N^2)}, just as the Euclidean
@@ -10471,7 +10498,8 @@ using Multiplication'', in Proceedings of the SIGPLAN PLDI'94 Conference, June
 
 @item
 Niels M@"oller and Torbj@"orn Granlund, ``Improved division by invariant
-integers'', to appear.
+integers'', IEEE Transactions on Computers, 11 June 2010.
+@uref{http://gmplib.org/~tege/division-paper.pdf}
 
 @item
 Torbj@"orn Granlund and Niels M@"oller, ``Division of integers large and

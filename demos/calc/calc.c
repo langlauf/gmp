@@ -1,10 +1,9 @@
-
-/* A Bison parser, made by GNU Bison 2.4.1.  */
+/* A Bison parser, made by GNU Bison 2.4.3.  */
 
 /* Skeleton implementation for Bison's Yacc-like parsers in C
    
-      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
-   Free Software Foundation, Inc.
+      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006,
+   2009, 2010 Free Software Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -46,7 +45,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "2.4.1"
+#define YYBISON_VERSION "2.4.3"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -211,7 +210,7 @@ mpz_t  variable[26];
 
 
 /* Line 189 of yacc.c  */
-#line 215 "calc.c"
+#line 214 "calc.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -314,7 +313,7 @@ typedef union YYSTYPE
 
 
 /* Line 214 of yacc.c  */
-#line 318 "calc.c"
+#line 317 "calc.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -326,7 +325,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 330 "calc.c"
+#line 329 "calc.c"
 
 #ifdef short
 # undef short
@@ -376,7 +375,7 @@ typedef short int yytype_int16;
 #define YYSIZE_MAXIMUM ((YYSIZE_T) -1)
 
 #ifndef YY_
-# if YYENABLE_NLS
+# if defined YYENABLE_NLS && YYENABLE_NLS
 #  if ENABLE_NLS
 #   include <libintl.h> /* INFRINGES ON USER NAME SPACE */
 #   define YY_(msgid) dgettext ("bison-runtime", msgid)
@@ -892,9 +891,18 @@ static const yytype_uint8 yystos[] =
 
 /* Like YYERROR except do call yyerror.  This remains here temporarily
    to ease the transition to the new meaning of YYERROR, for GCC.
-   Once GCC version 2 has supplanted version 1, this can go.  */
+   Once GCC version 2 has supplanted version 1, this can go.  However,
+   YYFAIL appears to be in use.  Nevertheless, it is formally deprecated
+   in Bison 2.4.2's NEWS entry, where a plan to phase it out is
+   discussed.  */
 
 #define YYFAIL		goto yyerrlab
+#if defined YYFAIL
+  /* This is here to suppress warnings from the GCC cpp's
+     -Wunused-macros.  Normally we don't worry about that warning, but
+     some users do, and we want to make it easy for users to remove
+     YYFAIL uses, which will produce warnings from Bison 2.5.  */
+#endif
 
 #define YYRECOVERING()  (!!yyerrstatus)
 
@@ -951,7 +959,7 @@ while (YYID (0))
    we won't break user code: when these are the locations we know.  */
 
 #ifndef YY_LOCATION_PRINT
-# if YYLTYPE_IS_TRIVIAL
+# if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
 #  define YY_LOCATION_PRINT(File, Loc)			\
      fprintf (File, "%d.%d-%d.%d",			\
 	      (Loc).first_line, (Loc).first_column,	\
@@ -1690,14 +1698,14 @@ yyreduce:
     {
         case 6:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 173 "calc.y"
     { sp = stack[0]; yyerrok; }
     break;
 
   case 8:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 177 "calc.y"
     {
       mpz_out_str (stdout, obase, sp); putchar ('\n');
@@ -1708,7 +1716,7 @@ yyreduce:
 
   case 9:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 182 "calc.y"
     {
       CHECK_VARIABLE ((yyvsp[(1) - (3)].var));
@@ -1720,70 +1728,70 @@ yyreduce:
 
   case 10:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 188 "calc.y"
     { calc_help (); }
     break;
 
   case 11:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 189 "calc.y"
     { ibase = 16; obase = -16; }
     break;
 
   case 12:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 190 "calc.y"
     { ibase = 0;  obase = 10; }
     break;
 
   case 13:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 191 "calc.y"
     { exit (0); }
     break;
 
   case 15:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 198 "calc.y"
     { sp--; mpz_add    (sp, sp, sp+1); }
     break;
 
   case 16:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 199 "calc.y"
     { sp--; mpz_sub    (sp, sp, sp+1); }
     break;
 
   case 17:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 200 "calc.y"
     { sp--; mpz_mul    (sp, sp, sp+1); }
     break;
 
   case 18:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 201 "calc.y"
     { sp--; mpz_fdiv_q (sp, sp, sp+1); }
     break;
 
   case 19:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 202 "calc.y"
     { sp--; mpz_fdiv_r (sp, sp, sp+1); }
     break;
 
   case 20:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 203 "calc.y"
     { CHECK_UI ("Exponent", sp);
                     sp--; mpz_pow_ui (sp, sp, mpz_get_ui (sp+1)); }
@@ -1791,7 +1799,7 @@ yyreduce:
 
   case 21:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 205 "calc.y"
     { CHECK_UI ("Shift count", sp);
                     sp--; mpz_mul_2exp (sp, sp, mpz_get_ui (sp+1)); }
@@ -1799,7 +1807,7 @@ yyreduce:
 
   case 22:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 207 "calc.y"
     { CHECK_UI ("Shift count", sp);
                     sp--; mpz_fdiv_q_2exp (sp, sp, mpz_get_ui (sp+1)); }
@@ -1807,7 +1815,7 @@ yyreduce:
 
   case 23:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 209 "calc.y"
     { CHECK_UI ("Factorial", sp);
                     mpz_fac_ui (sp, mpz_get_ui (sp)); }
@@ -1815,77 +1823,77 @@ yyreduce:
 
   case 24:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 211 "calc.y"
     { mpz_neg (sp, sp); }
     break;
 
   case 25:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 213 "calc.y"
     { sp--; mpz_set_ui (sp, mpz_cmp (sp, sp+1) <  0); }
     break;
 
   case 26:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 214 "calc.y"
     { sp--; mpz_set_ui (sp, mpz_cmp (sp, sp+1) <= 0); }
     break;
 
   case 27:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 215 "calc.y"
     { sp--; mpz_set_ui (sp, mpz_cmp (sp, sp+1) == 0); }
     break;
 
   case 28:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 216 "calc.y"
     { sp--; mpz_set_ui (sp, mpz_cmp (sp, sp+1) != 0); }
     break;
 
   case 29:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 217 "calc.y"
     { sp--; mpz_set_ui (sp, mpz_cmp (sp, sp+1) >= 0); }
     break;
 
   case 30:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 218 "calc.y"
     { sp--; mpz_set_ui (sp, mpz_cmp (sp, sp+1) >  0); }
     break;
 
   case 31:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 220 "calc.y"
     { sp--; mpz_set_ui (sp, mpz_sgn (sp) && mpz_sgn (sp+1)); }
     break;
 
   case 32:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 221 "calc.y"
     { sp--; mpz_set_ui (sp, mpz_sgn (sp) || mpz_sgn (sp+1)); }
     break;
 
   case 33:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 223 "calc.y"
     { mpz_abs (sp, sp); }
     break;
 
   case 34:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 224 "calc.y"
     { sp--; CHECK_UI ("Binomial base", sp+1);
                                    mpz_bin_ui (sp, sp, mpz_get_ui (sp+1)); }
@@ -1893,7 +1901,7 @@ yyreduce:
 
   case 35:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 226 "calc.y"
     { CHECK_UI ("Fibonacci", sp);
                                    mpz_fib_ui (sp, mpz_get_ui (sp)); }
@@ -1901,7 +1909,7 @@ yyreduce:
 
   case 37:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 229 "calc.y"
     { sp--; mpz_set_si (sp,
                                          mpz_kronecker (sp, sp+1)); }
@@ -1909,7 +1917,7 @@ yyreduce:
 
   case 39:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 232 "calc.y"
     { CHECK_UI ("Lucas number", sp);
                                    mpz_lucnum_ui (sp, mpz_get_ui (sp)); }
@@ -1917,21 +1925,21 @@ yyreduce:
 
   case 40:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 234 "calc.y"
     { mpz_nextprime (sp, sp); }
     break;
 
   case 41:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 235 "calc.y"
     { sp -= 2; mpz_powm (sp, sp, sp+1, sp+2); }
     break;
 
   case 42:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 236 "calc.y"
     { sp--; CHECK_UI ("Nth-root", sp+1);
                                    mpz_root (sp, sp, mpz_get_ui (sp+1)); }
@@ -1939,14 +1947,14 @@ yyreduce:
 
   case 43:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 238 "calc.y"
     { mpz_sqrt (sp, sp); }
     break;
 
   case 44:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 240 "calc.y"
     {
         sp++;
@@ -1958,7 +1966,7 @@ yyreduce:
 
   case 45:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 246 "calc.y"
     {
         sp++;
@@ -1973,22 +1981,22 @@ yyreduce:
 
   case 47:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 258 "calc.y"
     { sp--; mpz_gcd (sp, sp, sp+1); }
     break;
 
   case 49:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 262 "calc.y"
     { sp--; mpz_lcm (sp, sp, sp+1); }
     break;
 
 
 
-/* Line 1455 of yacc.c  */
-#line 1992 "calc.c"
+/* Line 1464 of yacc.c  */
+#line 2000 "calc.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2199,7 +2207,7 @@ yyreturn:
 
 
 
-/* Line 1675 of yacc.c  */
+/* Line 1684 of yacc.c  */
 #line 264 "calc.y"
 
 

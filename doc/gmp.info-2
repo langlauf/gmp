@@ -2,10 +2,10 @@ This is ../../gmp/doc/gmp.info, produced by makeinfo version 4.8 from
 ../../gmp/doc/gmp.texi.
 
    This manual describes how to install and use the GNU multiple
-precision arithmetic library, version 5.0.1.
+precision arithmetic library, version 5.0.2.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010 Free
+2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Free
 Software Foundation, Inc.
 
    Permission is granted to copy, distribute and/or modify this
@@ -20,6 +20,27 @@ INFO-DIR-SECTION GNU libraries
 START-INFO-DIR-ENTRY
 * gmp: (gmp).                   GNU Multiple Precision Arithmetic Library.
 END-INFO-DIR-ENTRY
+
+
+File: gmp.info,  Node: Jacobi Symbol,  Prev: Extended GCD,  Up: Greatest Common Divisor Algorithms
+
+16.3.5 Jacobi Symbol
+--------------------
+
+`mpz_jacobi' and `mpz_kronecker' are currently implemented with a
+simple binary algorithm similar to that described for the GCDs (*note
+Binary GCD::).  They're not very fast when both inputs are large.
+Lehmer's multi-step improvement or a binary based multi-step algorithm
+is likely to be better.
+
+   When one operand fits a single limb, and that includes
+`mpz_kronecker_ui' and friends, an initial reduction is done with
+either `mpn_mod_1' or `mpn_modexact_1_odd', followed by the binary
+algorithm on a single limb.  The binary algorithm is well suited to a
+single limb, and the whole calculation in this case is quite efficient.
+
+   In all the routines sign changes for the result are accumulated
+using some bit twiddling, avoiding table lookups or conditional jumps.
 
 
 File: gmp.info,  Node: Powering Algorithms,  Next: Root Extraction Algorithms,  Prev: Greatest Common Divisor Algorithms,  Up: Algorithms
@@ -1566,7 +1587,8 @@ B.2 Papers
      `ftp://ftp.cwi.nl/pub/pmontgom/divcnst.psa4.gz' (and .psl.gz).
 
    * Niels Mo"ller and Torbjo"rn Granlund, "Improved division by
-     invariant integers", to appear.
+     invariant integers", IEEE Transactions on Computers, 11 June 2010.
+     `http://gmplib.org/~tege/division-paper.pdf'
 
    * Torbjo"rn Granlund and Niels Mo"ller, "Division of integers large
      and small", to appear.
@@ -2572,7 +2594,7 @@ Concept Index
 * Multi-threading:                       Reentrancy.          (line   6)
 * Multiplication algorithms:             Multiplication Algorithms.
                                                               (line   6)
-* Nails:                                 Low-level Functions. (line 478)
+* Nails:                                 Low-level Functions. (line 479)
 * Native compilation:                    Build Options.       (line  52)
 * NeXT:                                  Known Build Problems.
                                                               (line  57)
@@ -2801,24 +2823,26 @@ Function and Type Index
                                                               (line  12)
 * _mpz_realloc:                          Integer Special Functions.
                                                               (line  51)
-* abs <1>:                               C++ Interface Rationals.
+* abs <1>:                               C++ Interface Floats.
+                                                              (line  79)
+* abs <2>:                               C++ Interface Rationals.
                                                               (line  43)
-* abs <2>:                               C++ Interface Integers.
+* abs:                                   C++ Interface Integers.
                                                               (line  42)
-* abs:                                   C++ Interface Floats.
-                                                              (line  70)
 * ceil:                                  C++ Interface Floats.
-                                                              (line  71)
-* cmp <1>:                               C++ Interface Floats.
-                                                              (line  72)
-* cmp <2>:                               C++ Interface Rationals.
-                                                              (line  44)
-* cmp <3>:                               C++ Interface Integers.
-                                                              (line  44)
-* cmp:                                   C++ Interface Rationals.
-                                                              (line  45)
-* floor:                                 C++ Interface Floats.
                                                               (line  80)
+* cmp <1>:                               C++ Interface Floats.
+                                                              (line  81)
+* cmp <2>:                               C++ Interface Integers.
+                                                              (line  43)
+* cmp <3>:                               C++ Interface Floats.
+                                                              (line  82)
+* cmp <4>:                               C++ Interface Rationals.
+                                                              (line  45)
+* cmp:                                   C++ Interface Integers.
+                                                              (line  44)
+* floor:                                 C++ Interface Floats.
+                                                              (line  89)
 * gcd:                                   BSD Compatible Functions.
                                                               (line  82)
 * gmp_asprintf:                          Formatted Output Functions.
@@ -2833,12 +2857,12 @@ Function and Type Index
                                                               (line  29)
 * gmp_fscanf:                            Formatted Input Functions.
                                                               (line  25)
-* GMP_LIMB_BITS:                         Low-level Functions. (line 508)
-* GMP_NAIL_BITS:                         Low-level Functions. (line 506)
-* GMP_NAIL_MASK:                         Low-level Functions. (line 516)
-* GMP_NUMB_BITS:                         Low-level Functions. (line 507)
-* GMP_NUMB_MASK:                         Low-level Functions. (line 517)
-* GMP_NUMB_MAX:                          Low-level Functions. (line 525)
+* GMP_LIMB_BITS:                         Low-level Functions. (line 509)
+* GMP_NAIL_BITS:                         Low-level Functions. (line 507)
+* GMP_NAIL_MASK:                         Low-level Functions. (line 517)
+* GMP_NUMB_BITS:                         Low-level Functions. (line 508)
+* GMP_NUMB_MASK:                         Low-level Functions. (line 518)
+* GMP_NUMB_MAX:                          Low-level Functions. (line 526)
 * gmp_obstack_printf:                    Formatted Output Functions.
                                                               (line  79)
 * gmp_obstack_vprintf:                   Formatted Output Functions.
@@ -2854,13 +2878,13 @@ Function and Type Index
 * gmp_randclass::get_f:                  C++ Interface Random Numbers.
                                                               (line  45)
 * gmp_randclass::get_z_bits:             C++ Interface Random Numbers.
-                                                              (line  39)
+                                                              (line  38)
 * gmp_randclass::get_z_range:            C++ Interface Random Numbers.
                                                               (line  42)
 * gmp_randclass::gmp_randclass:          C++ Interface Random Numbers.
-                                                              (line  13)
+                                                              (line  27)
 * gmp_randclass::seed:                   C++ Interface Random Numbers.
-                                                              (line  33)
+                                                              (line  34)
 * gmp_randclear:                         Random State Initialization.
                                                               (line  62)
 * gmp_randinit:                          Random State Initialization.
@@ -2912,7 +2936,7 @@ Function and Type Index
 * gmp_vsscanf:                           Formatted Input Functions.
                                                               (line  31)
 * hypot:                                 C++ Interface Floats.
-                                                              (line  81)
+                                                              (line  90)
 * itom:                                  BSD Compatible Functions.
                                                               (line  29)
 * madd:                                  BSD Compatible Functions.
@@ -2951,39 +2975,39 @@ Function and Type Index
 * mpf_class:                             C++ Interface General.
                                                               (line  20)
 * mpf_class::fits_sint_p:                C++ Interface Floats.
-                                                              (line  74)
+                                                              (line  83)
 * mpf_class::fits_slong_p:               C++ Interface Floats.
-                                                              (line  75)
+                                                              (line  84)
 * mpf_class::fits_sshort_p:              C++ Interface Floats.
-                                                              (line  76)
+                                                              (line  85)
 * mpf_class::fits_uint_p:                C++ Interface Floats.
-                                                              (line  77)
+                                                              (line  86)
 * mpf_class::fits_ulong_p:               C++ Interface Floats.
-                                                              (line  78)
+                                                              (line  87)
 * mpf_class::fits_ushort_p:              C++ Interface Floats.
-                                                              (line  79)
+                                                              (line  88)
 * mpf_class::get_d:                      C++ Interface Floats.
-                                                              (line  82)
+                                                              (line  91)
 * mpf_class::get_mpf_t:                  C++ Interface General.
                                                               (line  66)
 * mpf_class::get_prec:                   C++ Interface Floats.
-                                                              (line 100)
+                                                              (line 109)
 * mpf_class::get_si:                     C++ Interface Floats.
-                                                              (line  83)
+                                                              (line  92)
 * mpf_class::get_str:                    C++ Interface Floats.
-                                                              (line  85)
+                                                              (line  94)
 * mpf_class::get_ui:                     C++ Interface Floats.
-                                                              (line  86)
+                                                              (line  95)
 * mpf_class::mpf_class:                  C++ Interface Floats.
-                                                              (line  38)
+                                                              (line  12)
 * mpf_class::operator=:                  C++ Interface Floats.
-                                                              (line  47)
+                                                              (line  56)
 * mpf_class::set_prec:                   C++ Interface Floats.
-                                                              (line 101)
+                                                              (line 110)
 * mpf_class::set_prec_raw:               C++ Interface Floats.
-                                                              (line 102)
+                                                              (line 111)
 * mpf_class::set_str:                    C++ Interface Floats.
-                                                              (line  88)
+                                                              (line  97)
 * mpf_clear:                             Initializing Floats. (line  37)
 * mpf_clears:                            Initializing Floats. (line  41)
 * mpf_cmp:                               Float Comparison.    (line   7)
@@ -3028,17 +3052,17 @@ Function and Type Index
 * mpf_init_set_ui:                       Simultaneous Float Init & Assign.
                                                               (line  17)
 * mpf_inits:                             Initializing Floats. (line  31)
-* mpf_inp_str:                           I/O of Floats.       (line  37)
+* mpf_inp_str:                           I/O of Floats.       (line  39)
 * mpf_integer_p:                         Miscellaneous Float Functions.
                                                               (line  14)
 * mpf_mul:                               Float Arithmetic.    (line  19)
 * mpf_mul_2exp:                          Float Arithmetic.    (line  50)
 * mpf_mul_ui:                            Float Arithmetic.    (line  21)
 * mpf_neg:                               Float Arithmetic.    (line  44)
-* mpf_out_str:                           I/O of Floats.       (line  17)
+* mpf_out_str:                           I/O of Floats.       (line  19)
 * mpf_pow_ui:                            Float Arithmetic.    (line  41)
 * mpf_random2:                           Miscellaneous Float Functions.
-                                                              (line  36)
+                                                              (line  37)
 * mpf_reldiff:                           Float Comparison.    (line  29)
 * mpf_set:                               Assigning Floats.    (line  10)
 * mpf_set_d:                             Assigning Floats.    (line  13)
@@ -3068,12 +3092,12 @@ Function and Type Index
 * mpn_add_1:                             Low-level Functions. (line  64)
 * mpn_add_n:                             Low-level Functions. (line  54)
 * mpn_addmul_1:                          Low-level Functions. (line 148)
-* mpn_and_n:                             Low-level Functions. (line 420)
-* mpn_andn_n:                            Low-level Functions. (line 435)
+* mpn_and_n:                             Low-level Functions. (line 421)
+* mpn_andn_n:                            Low-level Functions. (line 436)
 * mpn_cmp:                               Low-level Functions. (line 284)
-* mpn_com:                               Low-level Functions. (line 460)
-* mpn_copyd:                             Low-level Functions. (line 469)
-* mpn_copyi:                             Low-level Functions. (line 465)
+* mpn_com:                               Low-level Functions. (line 461)
+* mpn_copyd:                             Low-level Functions. (line 470)
+* mpn_copyi:                             Low-level Functions. (line 466)
 * mpn_divexact_by3:                      Low-level Functions. (line 229)
 * mpn_divexact_by3c:                     Low-level Functions. (line 231)
 * mpn_divmod:                            Low-level Functions. (line 224)
@@ -3085,16 +3109,16 @@ Function and Type Index
 * mpn_gcdext:                            Low-level Functions. (line 305)
 * mpn_get_str:                           Low-level Functions. (line 346)
 * mpn_hamdist:                           Low-level Functions. (line 410)
-* mpn_ior_n:                             Low-level Functions. (line 425)
-* mpn_iorn_n:                            Low-level Functions. (line 440)
+* mpn_ior_n:                             Low-level Functions. (line 426)
+* mpn_iorn_n:                            Low-level Functions. (line 441)
 * mpn_lshift:                            Low-level Functions. (line 260)
 * mpn_mod_1:                             Low-level Functions. (line 255)
 * mpn_mul:                               Low-level Functions. (line 114)
 * mpn_mul_1:                             Low-level Functions. (line 133)
 * mpn_mul_n:                             Low-level Functions. (line 103)
-* mpn_nand_n:                            Low-level Functions. (line 445)
+* mpn_nand_n:                            Low-level Functions. (line 446)
 * mpn_neg:                               Low-level Functions. (line  98)
-* mpn_nior_n:                            Low-level Functions. (line 450)
+* mpn_nior_n:                            Low-level Functions. (line 451)
 * mpn_perfect_square_p:                  Low-level Functions. (line 416)
 * mpn_popcount:                          Low-level Functions. (line 406)
 * mpn_random:                            Low-level Functions. (line 395)
@@ -3110,9 +3134,9 @@ Function and Type Index
 * mpn_sub_n:                             Low-level Functions. (line  76)
 * mpn_submul_1:                          Low-level Functions. (line 159)
 * mpn_tdiv_qr:                           Low-level Functions. (line 171)
-* mpn_xnor_n:                            Low-level Functions. (line 455)
-* mpn_xor_n:                             Low-level Functions. (line 430)
-* mpn_zero:                              Low-level Functions. (line 472)
+* mpn_xnor_n:                            Low-level Functions. (line 456)
+* mpn_xor_n:                             Low-level Functions. (line 431)
+* mpn_zero:                              Low-level Functions. (line 473)
 * mpq_abs:                               Rational Arithmetic. (line  31)
 * mpq_add:                               Rational Arithmetic. (line   7)
 * mpq_canonicalize:                      Rational Number Functions.
@@ -3136,9 +3160,9 @@ Function and Type Index
 * mpq_class::get_str:                    C++ Interface Rationals.
                                                               (line  47)
 * mpq_class::mpq_class:                  C++ Interface Rationals.
-                                                              (line  22)
+                                                              (line  30)
 * mpq_class::set_str:                    C++ Interface Rationals.
-                                                              (line  49)
+                                                              (line  48)
 * mpq_clear:                             Initializing Rationals.
                                                               (line  16)
 * mpq_clears:                            Initializing Rationals.
@@ -3163,14 +3187,14 @@ Function and Type Index
                                                               (line   7)
 * mpq_inits:                             Initializing Rationals.
                                                               (line  12)
-* mpq_inp_str:                           I/O of Rationals.    (line  23)
+* mpq_inp_str:                           I/O of Rationals.    (line  26)
 * mpq_inv:                               Rational Arithmetic. (line  34)
 * mpq_mul:                               Rational Arithmetic. (line  15)
 * mpq_mul_2exp:                          Rational Arithmetic. (line  18)
 * mpq_neg:                               Rational Arithmetic. (line  28)
 * mpq_numref:                            Applying Integer Functions.
                                                               (line  17)
-* mpq_out_str:                           I/O of Rationals.    (line  15)
+* mpq_out_str:                           I/O of Rationals.    (line  18)
 * mpq_set:                               Initializing Rationals.
                                                               (line  24)
 * mpq_set_d:                             Rational Conversions.
@@ -3242,9 +3266,9 @@ Function and Type Index
 * mpz_class::get_ui:                     C++ Interface Integers.
                                                               (line  54)
 * mpz_class::mpz_class:                  C++ Interface Integers.
-                                                              (line   7)
+                                                              (line  20)
 * mpz_class::set_str:                    C++ Interface Integers.
-                                                              (line  56)
+                                                              (line  55)
 * mpz_clear:                             Initializing Integers.
                                                               (line  44)
 * mpz_clears:                            Initializing Integers.
@@ -3334,8 +3358,8 @@ Function and Type Index
                                                               (line  28)
 * mpz_inits:                             Initializing Integers.
                                                               (line  29)
-* mpz_inp_raw:                           I/O of Integers.     (line  59)
-* mpz_inp_str:                           I/O of Integers.     (line  28)
+* mpz_inp_raw:                           I/O of Integers.     (line  61)
+* mpz_inp_str:                           I/O of Integers.     (line  30)
 * mpz_invert:                            Number Theoretic Functions.
                                                               (line  60)
 * mpz_ior:                               Integer Logic and Bit Fiddling.
@@ -3369,8 +3393,8 @@ Function and Type Index
                                                               (line  23)
 * mpz_odd_p:                             Miscellaneous Integer Functions.
                                                               (line  17)
-* mpz_out_raw:                           I/O of Integers.     (line  43)
-* mpz_out_str:                           I/O of Integers.     (line  16)
+* mpz_out_raw:                           I/O of Integers.     (line  45)
+* mpz_out_str:                           I/O of Integers.     (line  18)
 * mpz_perfect_power_p:                   Integer Roots.       (line  27)
 * mpz_perfect_square_p:                  Integer Roots.       (line  36)
 * mpz_popcount:                          Integer Logic and Bit Fiddling.
@@ -3461,10 +3485,11 @@ Function and Type Index
 * operator/:                             C++ Interface Integers.
                                                               (line  29)
 * operator<<:                            C++ Formatted Output.
-                                                              (line  20)
+                                                              (line  11)
 * operator>> <1>:                        C++ Formatted Input. (line  11)
-* operator>>:                            C++ Interface Rationals.
+* operator>> <2>:                        C++ Interface Rationals.
                                                               (line  77)
+* operator>>:                            C++ Formatted Input. (line  14)
 * pow:                                   BSD Compatible Functions.
                                                               (line  71)
 * rpow:                                  BSD Compatible Functions.
@@ -3476,13 +3501,13 @@ Function and Type Index
 * sgn <2>:                               C++ Interface Integers.
                                                               (line  57)
 * sgn:                                   C++ Interface Floats.
-                                                              (line  89)
-* sqrt <1>:                              C++ Interface Integers.
+                                                              (line  98)
+* sqrt <1>:                              C++ Interface Floats.
+                                                              (line  99)
+* sqrt:                                  C++ Interface Integers.
                                                               (line  58)
-* sqrt:                                  C++ Interface Floats.
-                                                              (line  90)
 * trunc:                                 C++ Interface Floats.
-                                                              (line  91)
+                                                              (line 100)
 * xtom:                                  BSD Compatible Functions.
                                                               (line  34)
 
