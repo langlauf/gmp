@@ -2,7 +2,7 @@ This is ../../gmp/doc/gmp.info, produced by makeinfo version 4.8 from
 ../../gmp/doc/gmp.texi.
 
    This manual describes how to install and use the GNU multiple
-precision arithmetic library, version 5.0.2.
+precision arithmetic library, version 5.0.3.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Free
@@ -20,6 +20,31 @@ INFO-DIR-SECTION GNU libraries
 START-INFO-DIR-ENTRY
 * gmp: (gmp).                   GNU Multiple Precision Arithmetic Library.
 END-INFO-DIR-ENTRY
+
+
+File: gmp.info,  Node: Extended GCD,  Next: Jacobi Symbol,  Prev: Subquadratic GCD,  Up: Greatest Common Divisor Algorithms
+
+16.3.4 Extended GCD
+-------------------
+
+The extended GCD function, or GCDEXT, calculates gcd(a,b) and also
+cofactors x and y satisfying a*x+b*y=gcd(a,b). All the algorithms used
+for plain GCD are extended to handle this case. The binary algorithm is
+used only for single-limb GCDEXT.  Lehmer's algorithm is used for sizes
+up to `GCDEXT_DC_THRESHOLD'. Above this threshold, GCDEXT is
+implemented as a loop around HGCD, but with more book-keeping to keep
+track of the cofactors. This gives the same asymptotic running time as
+for GCD and HGCD, O(M(N)*log(N))
+
+   One difference to plain GCD is that while the inputs a and b are
+reduced as the algorithm proceeds, the cofactors x and y grow in size.
+This makes the tuning of the chopping-point more difficult. The current
+code chops off the most significant half of the inputs for the call to
+HGCD in the first iteration, and the most significant two thirds for
+the remaining calls. This strategy could surely be improved. Also the
+stop condition for the loop, where Lehmer's algorithm is invoked once
+the inputs are reduced below `GCDEXT_DC_THRESHOLD', could maybe be
+improved by taking into account the current size of the cofactors.
 
 
 File: gmp.info,  Node: Jacobi Symbol,  Prev: Extended GCD,  Up: Greatest Common Divisor Algorithms
@@ -206,7 +231,7 @@ don't become too big.  `gen-psqr.c' does all the pre-calculations.
 
    A square root must still be taken for any value that passes these
 tests, to verify it's really a square and not one of the small fraction
-of non-squares that get through (ie. a pseudo-square to all the tested
+of non-squares that get through (i.e. a pseudo-square to all the tested
 bases).
 
    Clearly more residue tests could be done, `mpz_perfect_square_p' only
@@ -316,7 +341,7 @@ radix power.
 
    Another possible improvement for the sub-quadratic part would be to
 arrange for radix powers that balanced the sizes of quotient and
-remainder produced, ie. the highest power would be an b^(n*k)
+remainder produced, i.e. the highest power would be an b^(n*k)
 approximately equal to sqrt(t), not restricted to a 2^i factor.  That
 ought to smooth out a graph of times against sizes, but may or may not
 be a net speedup.
@@ -1547,7 +1572,7 @@ B.1 Books
 
    * Richard Crandall and Carl Pomerance, "Prime Numbers: A
      Computational Perspective", 2nd edition, Springer-Verlag, 2005.
-     `http://math.dartmouth.edu/~carlp/'
+     `http://www.math.dartmouth.edu/~carlp/'
 
    * Henri Cohen, "A Course in Computational Algebraic Number Theory",
      Graduate Texts in Mathematics number 138, Springer-Verlag, 1993.
@@ -1575,7 +1600,7 @@ B.2 Papers
    * Yves Bertot, Nicolas Magaud and Paul Zimmermann, "A Proof of GMP
      Square Root", Journal of Automated Reasoning, volume 29, 2002, pp.
      225-252.  Also available online as INRIA Research Report 4475,
-     June 2001, `http://www.inria.fr/rrrt/rr-4475.html'
+     June 2002, `http://hal.inria.fr/docs/00/07/21/13/PDF/RR-4475.pdf'
 
    * Christoph Burnikel and Joachim Ziegler, "Fast Recursive Division",
      Max-Planck-Institut fuer Informatik Research Report MPI-I-98-1-022,
@@ -1584,7 +1609,7 @@ B.2 Papers
    * Torbjo"rn Granlund and Peter L. Montgomery, "Division by Invariant
      Integers using Multiplication", in Proceedings of the SIGPLAN
      PLDI'94 Conference, June 1994.  Also available
-     `ftp://ftp.cwi.nl/pub/pmontgom/divcnst.psa4.gz' (and .psl.gz).
+     `http://gmplib.org/~tege/divcnst-pldi94.pdf'.
 
    * Niels Mo"ller and Torbjo"rn Granlund, "Improved division by
      invariant integers", IEEE Transactions on Computers, 11 June 2010.
@@ -1650,7 +1675,8 @@ B.2 Papers
      1995, pp. 111-122.
 
    * Paul Zimmermann, "Karatsuba Square Root", INRIA Research Report
-     3805, November 1999, `http://www.inria.fr/rrrt/rr-3805.html'
+     3805, November 1999,
+     `http://hal.inria.fr/inria-00072854/PDF/RR-3805.pdf'
 
    * Paul Zimmermann, "A Proof of GMP Fast Division and Square Root
      Implementations",
@@ -2233,7 +2259,7 @@ Concept Index
 * Binomial coefficient algorithm:        Binomial Coefficients Algorithm.
                                                               (line   6)
 * Binomial coefficient functions:        Number Theoretic Functions.
-                                                              (line 100)
+                                                              (line 102)
 * Binutils strip:                        Known Build Problems.
                                                               (line  28)
 * Bit manipulation functions:            Integer Logic and Bit Fiddling.
@@ -2349,12 +2375,12 @@ Concept Index
 * Expression parsing demo:               Demonstration Programs.
                                                               (line  18)
 * Extended GCD:                          Number Theoretic Functions.
-                                                              (line  45)
+                                                              (line  47)
 * Factor removal functions:              Number Theoretic Functions.
-                                                              (line  90)
+                                                              (line  92)
 * Factorial algorithm:                   Factorial Algorithm. (line   6)
 * Factorial functions:                   Number Theoretic Functions.
-                                                              (line  95)
+                                                              (line  97)
 * Factorization demo:                    Demonstration Programs.
                                                               (line  25)
 * Fast Fourier Transform:                FFT Multiplication.  (line   6)
@@ -2364,7 +2390,7 @@ Concept Index
 * Fibonacci number algorithm:            Fibonacci Numbers Algorithm.
                                                               (line   6)
 * Fibonacci sequence functions:          Number Theoretic Functions.
-                                                              (line 108)
+                                                              (line 110)
 * Float arithmetic functions:            Float Arithmetic.    (line   6)
 * Float assignment functions <1>:        Simultaneous Float Init & Assign.
                                                               (line   6)
@@ -2405,7 +2431,7 @@ Concept Index
 * GCD algorithms:                        Greatest Common Divisor Algorithms.
                                                               (line   6)
 * GCD extended:                          Number Theoretic Functions.
-                                                              (line  45)
+                                                              (line  47)
 * GCD functions:                         Number Theoretic Functions.
                                                               (line  30)
 * GDB:                                   Debugging.           (line  58)
@@ -2509,7 +2535,7 @@ Concept Index
 * Internals:                             Internals.           (line   6)
 * Introduction:                          Introduction to GMP. (line   6)
 * Inverse modulo functions:              Number Theoretic Functions.
-                                                              (line  60)
+                                                              (line  62)
 * IRIX <1>:                              Known Build Problems.
                                                               (line  38)
 * IRIX:                                  ABI and ISA.         (line 132)
@@ -2517,21 +2543,21 @@ Concept Index
 * istream input:                         C++ Formatted Input. (line   6)
 * Jacobi symbol algorithm:               Jacobi Symbol.       (line   6)
 * Jacobi symbol functions:               Number Theoretic Functions.
-                                                              (line  66)
+                                                              (line  68)
 * Karatsuba multiplication:              Karatsuba Multiplication.
                                                               (line   6)
 * Karatsuba square root algorithm:       Square Root Algorithm.
                                                               (line   6)
 * Kronecker symbol functions:            Number Theoretic Functions.
-                                                              (line  78)
+                                                              (line  80)
 * Language bindings:                     Language Bindings.   (line   6)
 * Latest version of GMP:                 Introduction to GMP. (line  38)
 * LCM functions:                         Number Theoretic Functions.
-                                                              (line  55)
+                                                              (line  57)
 * Least common multiple functions:       Number Theoretic Functions.
-                                                              (line  55)
+                                                              (line  57)
 * Legendre symbol functions:             Number Theoretic Functions.
-                                                              (line  69)
+                                                              (line  71)
 * libgmp:                                Headers and Libraries.
                                                               (line  22)
 * libgmpxx:                              Headers and Libraries.
@@ -2559,7 +2585,7 @@ Concept Index
 * Lucas number algorithm:                Lucas Numbers Algorithm.
                                                               (line   6)
 * Lucas number functions:                Number Theoretic Functions.
-                                                              (line 119)
+                                                              (line 121)
 * MacOS X:                               Known Build Problems.
                                                               (line  51)
 * Mailing lists:                         Introduction to GMP. (line  45)
@@ -2581,7 +2607,7 @@ Concept Index
 * MMX:                                   Notes for Particular Systems.
                                                               (line 132)
 * Modular inverse functions:             Number Theoretic Functions.
-                                                              (line  60)
+                                                              (line  62)
 * Most significant bit:                  Miscellaneous Integer Functions.
                                                               (line  34)
 * mp.h:                                  BSD Compatible Functions.
@@ -2708,7 +2734,7 @@ Concept Index
 * Reentrancy:                            Reentrancy.          (line   6)
 * References:                            References.          (line   6)
 * Remove factor functions:               Number Theoretic Functions.
-                                                              (line  90)
+                                                              (line  92)
 * Reporting bugs:                        Reporting Bugs.      (line   6)
 * Root extraction algorithm:             Nth Root Algorithm.  (line   6)
 * Root extraction algorithms:            Root Extraction Algorithms.
@@ -3229,9 +3255,9 @@ Function and Type Index
 * mpz_array_init:                        Integer Special Functions.
                                                               (line  11)
 * mpz_bin_ui:                            Number Theoretic Functions.
-                                                              (line  98)
-* mpz_bin_uiui:                          Number Theoretic Functions.
                                                               (line 100)
+* mpz_bin_uiui:                          Number Theoretic Functions.
+                                                              (line 102)
 * mpz_cdiv_q:                            Integer Division.    (line  13)
 * mpz_cdiv_q_2exp:                       Integer Division.    (line  24)
 * mpz_cdiv_q_ui:                         Integer Division.    (line  17)
@@ -3299,7 +3325,7 @@ Function and Type Index
 * mpz_export:                            Integer Import and Export.
                                                               (line  45)
 * mpz_fac_ui:                            Number Theoretic Functions.
-                                                              (line  95)
+                                                              (line  97)
 * mpz_fdiv_q:                            Integer Division.    (line  27)
 * mpz_fdiv_q_2exp:                       Integer Division.    (line  38)
 * mpz_fdiv_q_ui:                         Integer Division.    (line  31)
@@ -3310,9 +3336,9 @@ Function and Type Index
 * mpz_fdiv_r_ui:                         Integer Division.    (line  33)
 * mpz_fdiv_ui:                           Integer Division.    (line  37)
 * mpz_fib2_ui:                           Number Theoretic Functions.
-                                                              (line 108)
+                                                              (line 110)
 * mpz_fib_ui:                            Number Theoretic Functions.
-                                                              (line 106)
+                                                              (line 108)
 * mpz_fits_sint_p:                       Miscellaneous Integer Functions.
                                                               (line  10)
 * mpz_fits_slong_p:                      Miscellaneous Integer Functions.
@@ -3328,9 +3354,9 @@ Function and Type Index
 * mpz_gcd:                               Number Theoretic Functions.
                                                               (line  30)
 * mpz_gcd_ui:                            Number Theoretic Functions.
-                                                              (line  35)
+                                                              (line  37)
 * mpz_gcdext:                            Number Theoretic Functions.
-                                                              (line  45)
+                                                              (line  47)
 * mpz_get_d:                             Converting Integers. (line  27)
 * mpz_get_d_2exp:                        Converting Integers. (line  35)
 * mpz_get_si:                            Converting Integers. (line  18)
@@ -3361,27 +3387,27 @@ Function and Type Index
 * mpz_inp_raw:                           I/O of Integers.     (line  61)
 * mpz_inp_str:                           I/O of Integers.     (line  30)
 * mpz_invert:                            Number Theoretic Functions.
-                                                              (line  60)
+                                                              (line  62)
 * mpz_ior:                               Integer Logic and Bit Fiddling.
                                                               (line  14)
 * mpz_jacobi:                            Number Theoretic Functions.
-                                                              (line  66)
+                                                              (line  68)
 * mpz_kronecker:                         Number Theoretic Functions.
-                                                              (line  74)
-* mpz_kronecker_si:                      Number Theoretic Functions.
-                                                              (line  75)
-* mpz_kronecker_ui:                      Number Theoretic Functions.
                                                               (line  76)
+* mpz_kronecker_si:                      Number Theoretic Functions.
+                                                              (line  77)
+* mpz_kronecker_ui:                      Number Theoretic Functions.
+                                                              (line  78)
 * mpz_lcm:                               Number Theoretic Functions.
-                                                              (line  54)
+                                                              (line  56)
 * mpz_lcm_ui:                            Number Theoretic Functions.
-                                                              (line  55)
+                                                              (line  57)
 * mpz_legendre:                          Number Theoretic Functions.
-                                                              (line  69)
+                                                              (line  71)
 * mpz_lucnum2_ui:                        Number Theoretic Functions.
-                                                              (line 119)
+                                                              (line 121)
 * mpz_lucnum_ui:                         Number Theoretic Functions.
-                                                              (line 117)
+                                                              (line 119)
 * mpz_mod:                               Integer Division.    (line  91)
 * mpz_mod_ui:                            Integer Division.    (line  93)
 * mpz_mul:                               Integer Arithmetic.  (line  19)
@@ -3416,7 +3442,7 @@ Function and Type Index
 * mpz_realloc2:                          Initializing Integers.
                                                               (line  52)
 * mpz_remove:                            Number Theoretic Functions.
-                                                              (line  90)
+                                                              (line  92)
 * mpz_root:                              Integer Roots.       (line   7)
 * mpz_rootrem:                           Integer Roots.       (line  13)
 * mpz_rrandomb:                          Integer Random Numbers.
@@ -3436,7 +3462,7 @@ Function and Type Index
                                                               (line  51)
 * mpz_sgn:                               Integer Comparisons. (line  28)
 * mpz_si_kronecker:                      Number Theoretic Functions.
-                                                              (line  77)
+                                                              (line  79)
 * mpz_size:                              Integer Special Functions.
                                                               (line  68)
 * mpz_sizeinbase:                        Miscellaneous Integer Functions.
@@ -3462,7 +3488,7 @@ Function and Type Index
 * mpz_tstbit:                            Integer Logic and Bit Fiddling.
                                                               (line  60)
 * mpz_ui_kronecker:                      Number Theoretic Functions.
-                                                              (line  78)
+                                                              (line  80)
 * mpz_ui_pow_ui:                         Integer Exponentiation.
                                                               (line  33)
 * mpz_ui_sub:                            Integer Arithmetic.  (line  16)
