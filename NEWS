@@ -5,6 +5,44 @@ Verbatim copying and distribution of this entire article is permitted in any
 medium, provided this notice is preserved.
 
 
+Changes between GMP version 5.0.3 and 5.0.4
+
+  BUGS FIXED
+  * Thresholds in mpn_powm_sec for both fat and non-fat builds are now used
+    safely, plugging a one-word buffer overrun introduced in the 5.0.3 release
+    (for non-fat) and a multi-word buffer overrun that existed since 5.0 (for
+    fat).  (We have not been able to provoke malign stack smashing in any of
+    the ~100 configurations explored by the GMP nightly builds, but the bug
+    should be assumed to be exploitable.)
+
+  * Two bugs in multiplication code causing incorrect computation with
+    extremely low probability have been fixed.
+
+  * A bug in the test suite causing buffer overruns during "make check",
+    sometimes leading to subsequent malloc crashes, has been fixed.
+
+  * Two bugs in the gcd code have been fixed.  They could lead to incorrect
+    results, but for uniformly distributed random operands, the likelihood for
+    that is infinitesimally small.  (There was also a third bug, but that was
+    an incorrect ASSERT, which furthermore was not enabled by default.)
+
+  * A bug affecting 32-bit PowerPC division has been fixed.  The bug caused
+    miscomputation for certain divisors in the range 2^32 ... 2^64-1 (about 1
+    in 2^30 of these).
+
+  SPEEDUPS
+  * None, except indirectly through recognition of new CPUs, and through better
+    tuning parameters.
+
+  FEATURES
+  * Some more tests added to the self-check suite.
+
+  * The AMD "Bulldozer" CPU is now recognised.
+
+  MISC
+  * None.
+
+
 Changes between GMP version 5.0.2 and 5.0.3
 
   BUGS FIXED
