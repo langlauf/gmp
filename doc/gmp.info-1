@@ -2,11 +2,11 @@ This is ../../gmp/doc/gmp.info, produced by makeinfo version 4.13 from
 ../../gmp/doc/gmp.texi.
 
 This manual describes how to install and use the GNU multiple precision
-arithmetic library, version 5.0.4.
+arithmetic library, version 5.0.5.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Free
-Software Foundation, Inc.
+2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012
+Free Software Foundation, Inc.
 
    Permission is granted to copy, distribute and/or modify this
 document under the terms of the GNU Free Documentation License, Version
@@ -28,11 +28,11 @@ GNU MP
 ******
 
    This manual describes how to install and use the GNU multiple
-precision arithmetic library, version 5.0.4.
+precision arithmetic library, version 5.0.5.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Free
-Software Foundation, Inc.
+2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012
+Free Software Foundation, Inc.
 
    Permission is granted to copy, distribute and/or modify this
 document under the terms of the GNU Free Documentation License, Version
@@ -230,7 +230,7 @@ Build Directory
      directory.  For example
 
           cd /my/build/dir
-          /my/sources/gmp-5.0.4/configure
+          /my/sources/gmp-5.0.5/configure
 
      Not all `make' programs have the necessary features (`VPATH') to
      support this.  In particular, SunOS and Slowaris `make' have bugs
@@ -524,8 +524,9 @@ Temporary Memory, `--enable-alloca=<choice>'
 
 FFT Multiplication, `--disable-fft'
      By default multiplications are done using Karatsuba, 3-way Toom,
-     and Fermat FFT.  The FFT is only used on large to very large
-     operands and can be disabled to save code size if desired.
+     higher degree Toom, and Fermat FFT.  The FFT is only used on large
+     to very large operands and can be disabled to save code size if
+     desired.
 
 Berkeley MP, `--enable-mpbsd'
      The Berkeley MP compatibility library (`libmp') and header file
@@ -1491,7 +1492,7 @@ File: gmp.info,  Node: Useful Macros and Constants,  Next: Compatibility with ol
 
  -- Global Constant: const char * const gmp_version
      The GMP version number, as a null-terminated string, in the form
-     "i.j.k".  This release is "5.0.4".  Note that the format "i.j" was
+     "i.j.k".  This release is "5.0.5".  Note that the format "i.j" was
      used when k was zero was used before version 4.3.0.
 
  -- Macro: __GMP_CC
@@ -1807,7 +1808,7 @@ Source File Paths
      path to the source directory.
 
           cd /my/build/dir
-          /my/source/dir/gmp-5.0.4/configure
+          /my/source/dir/gmp-5.0.5/configure
 
      This works via `VPATH', and might require GNU `make'.  Alternately
      it might be possible to change the `.c.lo' rules appropriately.
@@ -2672,8 +2673,9 @@ File: gmp.info,  Node: Number Theoretic Functions,  Next: Integer Comparisons,  
  -- Function: int mpz_invert (mpz_t ROP, mpz_t OP1, mpz_t OP2)
      Compute the inverse of OP1 modulo OP2 and put the result in ROP.
      If the inverse exists, the return value is non-zero and ROP will
-     satisfy 0 <= ROP < OP2.  If an inverse doesn't exist the return
-     value is zero and ROP is undefined.
+     satisfy 0 < ROP < abs(OP2).  If an inverse doesn't exist the
+     return value is zero and ROP is undefined.  The behaviour of this
+     function is undefined when OP2 is zero.
 
  -- Function: int mpz_jacobi (mpz_t A, mpz_t B)
      Calculate the Jacobi symbol (A/B).  This is defined only for B odd.
@@ -6116,7 +6118,7 @@ File: gmp.info,  Node: Multiplication Algorithms,  Next: Division Algorithms,  P
 16.1 Multiplication
 ===================
 
-NxN limb multiplications and squares are done using one of five
+NxN limb multiplications and squares are done using one of seven
 algorithms, as the size N increases.
 
      Algorithm      Threshold
@@ -6124,6 +6126,8 @@ algorithms, as the size N increases.
      Karatsuba      `MUL_TOOM22_THRESHOLD'
      Toom-3         `MUL_TOOM33_THRESHOLD'
      Toom-4         `MUL_TOOM44_THRESHOLD'
+     Toom-6.5       `MUL_TOOM6H_THRESHOLD'
+     Toom-8.5       `MUL_TOOM8H_THRESHOLD'
      FFT            `MUL_FFT_THRESHOLD'
 
    Similarly for squaring, with the `SQR' thresholds.
@@ -6139,6 +6143,7 @@ Unbalanced Multiplication::).
 * Karatsuba Multiplication::
 * Toom 3-Way Multiplication::
 * Toom 4-Way Multiplication::
+* Higher degree Toom'n'half::
 * FFT Multiplication::
 * Other Multiplication::
 * Unbalanced Multiplication::
@@ -6379,8 +6384,8 @@ steps for quickly isolating the w[i].
    Squaring follows the same procedure as multiplication, but there's
 only one X(t) and it's evaluated at the 5 points, and those values
 squared to give values of W(t).  The interpolation is then identical,
-and in fact the same `toom3_interpolate' subroutine is used for both
-squaring and multiplying.
+and in fact the same `toom_interpolate_5pts' subroutine is used for
+both squaring and multiplying.
 
    Toom-3 is asymptotically O(N^1.465), the exponent being
 log(5)/log(3), representing 5 recursive multiplies of 1/3 the original
@@ -6417,7 +6422,7 @@ but again doesn't have to be implemented that way and for example with
 a bit of rearrangement just one division by 6 can be done.
 
 
-File: gmp.info,  Node: Toom 4-Way Multiplication,  Next: FFT Multiplication,  Prev: Toom 3-Way Multiplication,  Up: Multiplication Algorithms
+File: gmp.info,  Node: Toom 4-Way Multiplication,  Next: Higher degree Toom'n'half,  Prev: Toom 3-Way Multiplication,  Up: Multiplication Algorithms
 
 16.1.4 Toom 4-Way Multiplication
 --------------------------------
@@ -6451,9 +6456,36 @@ log(7)/log(4), representing 7 recursive multiplies of 1/4 the original
 size each.
 
 
-File: gmp.info,  Node: FFT Multiplication,  Next: Other Multiplication,  Prev: Toom 4-Way Multiplication,  Up: Multiplication Algorithms
+File: gmp.info,  Node: Higher degree Toom'n'half,  Next: FFT Multiplication,  Prev: Toom 4-Way Multiplication,  Up: Multiplication Algorithms
 
-16.1.5 FFT Multiplication
+16.1.5 Higher degree Toom'n'half
+--------------------------------
+
+The Toom algorithms described above (*note Toom 3-Way Multiplication::,
+*note Toom 4-Way Multiplication::) generalizes to split into an
+arbitrary number of pieces. In general a split of two equally long
+operands into r pieces leads to evaluations and pointwise
+multiplications done at 2*r-1 points. To fully exploit symmetries it
+would be better to have a multiple of 4 points, that's why for higher
+degree Toom'n'half is used.
+
+   Toom'n'half means that the existence of one more piece is considered
+for a single operand. It can be virtual, i.e. zero, or real, when the
+two operand are not exactly balanced. By chosing an even r, Toom-r+1/2
+requires 2r points, a multiple of four.
+
+   The four-plets of points inlcude 0, inf, +1, -1 and +-2^i, +-2^-i .
+Each of them giving shortcuts for the evaluation phase and for some
+steps in the interpolation phase. Further tricks are used to reduce the
+memory footprint of the whole multiplication algorithm to a memory
+buffer equanl in size to the result of the product.
+
+   Current GMP uses both Toom-6'n'half and Toom-8'n'half.
+
+
+File: gmp.info,  Node: FFT Multiplication,  Next: Other Multiplication,  Prev: Higher degree Toom'n'half,  Up: Multiplication Algorithms
+
+16.1.6 FFT Multiplication
 -------------------------
 
 At large to very large sizes a Fermat style FFT multiplication is used,
@@ -6557,7 +6589,7 @@ will be needed.
 
 File: gmp.info,  Node: Other Multiplication,  Next: Unbalanced Multiplication,  Prev: FFT Multiplication,  Up: Multiplication Algorithms
 
-16.1.6 Other Multiplication
+16.1.7 Other Multiplication
 ---------------------------
 
 The Toom algorithms described above (*note Toom 3-Way Multiplication::,
@@ -6602,7 +6634,7 @@ is of course of vital importance to GMP.
 
 File: gmp.info,  Node: Unbalanced Multiplication,  Prev: Other Multiplication,  Up: Multiplication Algorithms
 
-16.1.7 Unbalanced Multiplication
+16.1.8 Unbalanced Multiplication
 --------------------------------
 
 Multiplication of operands with different sizes, both below
@@ -7030,58 +7062,6 @@ optimizations:
      calculations half-way through, when the input numbers have been
      reduced in size from two limbs to one and a half.
 
-
-
-File: gmp.info,  Node: Subquadratic GCD,  Next: Extended GCD,  Prev: Lehmer's Algorithm,  Up: Greatest Common Divisor Algorithms
-
-16.3.3 Subquadratic GCD
------------------------
-
-For inputs larger than `GCD_DC_THRESHOLD', GCD is computed via the HGCD
-(Half GCD) function, as a generalization to Lehmer's algorithm.
-
-   Let the inputs a,b be of size N limbs each. Put S = floor(N/2) + 1.
-Then HGCD(a,b) returns a transformation matrix T with non-negative
-elements, and reduced numbers (c;d) = T^-1 (a;b). The reduced numbers
-c,d must be larger than S limbs, while their difference abs(c-d) must
-fit in S limbs. The matrix elements will also be of size roughly N/2.
-
-   The HGCD base case uses Lehmer's algorithm, but with the above stop
-condition that returns reduced numbers and the corresponding
-transformation matrix half-way through. For inputs larger than
-`HGCD_THRESHOLD', HGCD is computed recursively, using the divide and
-conquer algorithm in "On Schönhage's algorithm and subquadratic integer
-GCD computation" by Möller (*note References::). The recursive
-algorithm consists of these main steps.
-
-   * Call HGCD recursively, on the most significant N/2 limbs. Apply the
-     resulting matrix T_1 to the full numbers, reducing them to a size
-     just above 3N/2.
-
-   * Perform a small number of division or subtraction steps to reduce
-     the numbers to size below 3N/2. This is essential mainly for the
-     unlikely case of large quotients.
-
-   * Call HGCD recursively, on the most significant N/2 limbs of the
-     reduced numbers. Apply the resulting matrix T_2 to the full
-     numbers, reducing them to a size just above N/2.
-
-   * Compute T = T_1 T_2.
-
-   * Perform a small number of division and subtraction steps to
-     satisfy the requirements, and return.
-
-   GCD is then implemented as a loop around HGCD, similarly to Lehmer's
-algorithm. Where Lehmer repeatedly chops off the top two limbs, calls
-`mpn_hgcd2', and applies the resulting matrix to the full numbers, the
-subquadratic GCD chops off the most significant third of the limbs (the
-proportion is a tuning parameter, and 1/3 seems to be more efficient
-than, e.g, 1/2), calls `mpn_hgcd', and applies the resulting matrix.
-Once the input numbers are reduced to size below `GCD_DC_THRESHOLD',
-Lehmer's algorithm is used for the rest of the work.
-
-   The asymptotic running time of both HGCD and GCD is O(M(N)*log(N)),
-where M(N) is the time for multiplying two N-limb numbers.
 
 
 

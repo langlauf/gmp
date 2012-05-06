@@ -1,3 +1,48 @@
+2012-05-06  Torbjorn Granlund  <tege@gmplib.org>
+
+	* Version 5.0.5 released.
+
+	* mpn/Makefile.am (TARG_DIST): Remove thumb, since directory now empty.
+
+2012-04-28  Torbjorn Granlund  <tege@gmplib.org>
+
+	* mpn/thumb/add_n.s: Remove broken code.
+	* mpn/thumb/sub_n.s: Likewise.
+
+2012-04-02  Torbjorn Granlund  <tege@gmplib.org>
+
+	* gmp-h.in (__GNU_MP_VERSION_PATCHLEVEL): Bump.
+
+	* Makefile.am (LIBGMP_LT_*, LIBGMPXX_LT_*, LIBMP_LT_*):
+	Bump version info.
+
+	* gmp-h.in (_GMP_H_HAVE_FILE): Test also __STDIO_LOADED (for VMS).
+
+2012-03-27  Torbjorn Granlund  <tege@gmplib.org>
+
+	* config.guess: Fix typo in coreisbr recognition.
+
+2012-03-07  Torbjorn Granlund  <tege@gmplib.org>
+
+	* config.guess: Handle AMD 11h correctly.
+
+2012-03-04 Marco Bodrato <bodrato@mail.dm.unipi.it>
+
+	* tests/mpz/t-invert.c: Avoid testing mod 0.
+	* doc/gmp.texi (mpz_invert): Specify mod 0 is not handled.
+
+2012-02-24  Torbjorn Granlund  <tege@gmplib.org>
+
+	* tests/mpn/logic.c: New file.
+	* tests/mpn/Makefile.am (check_PROGRAMS): Add logic.
+
+	* tests/mpz/t-invert.c: New file.
+	* tests/mpz/Makefile.am (check_PROGRAMS): Add t-invert.
+
+2012-02-11 Marco Bodrato <bodrato@mail.dm.unipi.it>
+
+	* doc/gmp.texi (Multiplication Algorithms): Add Toom[68]'n'half.
+
 2012-02-10  Torbjorn Granlund  <tege@gmplib.org>
 
 	* Version 5.0.4 released.

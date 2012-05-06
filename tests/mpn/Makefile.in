@@ -55,13 +55,14 @@ check_PROGRAMS = t-asmtype$(EXEEXT) t-aors_1$(EXEEXT) \
 	t-divrem_1$(EXEEXT) t-mod_1$(EXEEXT) t-fat$(EXEEXT) \
 	t-get_d$(EXEEXT) t-instrument$(EXEEXT) t-iord_u$(EXEEXT) \
 	t-mp_bases$(EXEEXT) t-perfsqr$(EXEEXT) t-scan$(EXEEXT) \
-	t-toom22$(EXEEXT) t-toom32$(EXEEXT) t-toom33$(EXEEXT) \
-	t-toom42$(EXEEXT) t-toom43$(EXEEXT) t-toom44$(EXEEXT) \
-	t-toom52$(EXEEXT) t-toom53$(EXEEXT) t-toom62$(EXEEXT) \
-	t-toom63$(EXEEXT) t-toom6h$(EXEEXT) t-toom8h$(EXEEXT) \
-	t-mul$(EXEEXT) t-mullo$(EXEEXT) t-mulmod_bnm1$(EXEEXT) \
-	t-sqrmod_bnm1$(EXEEXT) t-hgcd$(EXEEXT) t-matrix22$(EXEEXT) \
-	t-invert$(EXEEXT) t-div$(EXEEXT) t-bdiv$(EXEEXT)
+	logic$(EXEEXT) t-toom22$(EXEEXT) t-toom32$(EXEEXT) \
+	t-toom33$(EXEEXT) t-toom42$(EXEEXT) t-toom43$(EXEEXT) \
+	t-toom44$(EXEEXT) t-toom52$(EXEEXT) t-toom53$(EXEEXT) \
+	t-toom62$(EXEEXT) t-toom63$(EXEEXT) t-toom6h$(EXEEXT) \
+	t-toom8h$(EXEEXT) t-mul$(EXEEXT) t-mullo$(EXEEXT) \
+	t-mulmod_bnm1$(EXEEXT) t-sqrmod_bnm1$(EXEEXT) t-hgcd$(EXEEXT) \
+	t-matrix22$(EXEEXT) t-invert$(EXEEXT) t-div$(EXEEXT) \
+	t-bdiv$(EXEEXT)
 subdir = tests/mpn
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -73,6 +74,11 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
+logic_SOURCES = logic.c
+logic_OBJECTS = logic$U.$(OBJEXT)
+logic_LDADD = $(LDADD)
+logic_DEPENDENCIES = $(top_builddir)/tests/libtests.la \
+	$(top_builddir)/libgmp.la
 t_aors_1_SOURCES = t-aors_1.c
 t_aors_1_OBJECTS = t-aors_1$U.$(OBJEXT)
 t_aors_1_LDADD = $(LDADD)
@@ -245,20 +251,20 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = t-aors_1.c t-asmtype.c t-bdiv.c t-div.c t-divrem_1.c t-fat.c \
-	t-get_d.c t-hgcd.c t-instrument.c t-invert.c t-iord_u.c \
-	t-matrix22.c t-mod_1.c t-mp_bases.c t-mul.c t-mullo.c \
-	t-mulmod_bnm1.c t-perfsqr.c t-scan.c t-sqrmod_bnm1.c \
-	t-toom22.c t-toom32.c t-toom33.c t-toom42.c t-toom43.c \
-	t-toom44.c t-toom52.c t-toom53.c t-toom62.c t-toom63.c \
-	t-toom6h.c t-toom8h.c
-DIST_SOURCES = t-aors_1.c t-asmtype.c t-bdiv.c t-div.c t-divrem_1.c \
+SOURCES = logic.c t-aors_1.c t-asmtype.c t-bdiv.c t-div.c t-divrem_1.c \
 	t-fat.c t-get_d.c t-hgcd.c t-instrument.c t-invert.c \
 	t-iord_u.c t-matrix22.c t-mod_1.c t-mp_bases.c t-mul.c \
 	t-mullo.c t-mulmod_bnm1.c t-perfsqr.c t-scan.c t-sqrmod_bnm1.c \
 	t-toom22.c t-toom32.c t-toom33.c t-toom42.c t-toom43.c \
 	t-toom44.c t-toom52.c t-toom53.c t-toom62.c t-toom63.c \
 	t-toom6h.c t-toom8h.c
+DIST_SOURCES = logic.c t-aors_1.c t-asmtype.c t-bdiv.c t-div.c \
+	t-divrem_1.c t-fat.c t-get_d.c t-hgcd.c t-instrument.c \
+	t-invert.c t-iord_u.c t-matrix22.c t-mod_1.c t-mp_bases.c \
+	t-mul.c t-mullo.c t-mulmod_bnm1.c t-perfsqr.c t-scan.c \
+	t-sqrmod_bnm1.c t-toom22.c t-toom32.c t-toom33.c t-toom42.c \
+	t-toom43.c t-toom44.c t-toom52.c t-toom53.c t-toom62.c \
+	t-toom63.c t-toom6h.c t-toom8h.c
 ETAGS = etags
 CTAGS = ctags
 am__tty_colors = \
@@ -471,6 +477,9 @@ clean-checkPROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
+logic$(EXEEXT): $(logic_OBJECTS) $(logic_DEPENDENCIES) 
+	@rm -f logic$(EXEEXT)
+	$(LINK) $(logic_OBJECTS) $(logic_LDADD) $(LIBS)
 t-aors_1$(EXEEXT): $(t_aors_1_OBJECTS) $(t_aors_1_DEPENDENCIES) 
 	@rm -f t-aors_1$(EXEEXT)
 	$(LINK) $(t_aors_1_OBJECTS) $(t_aors_1_LDADD) $(LIBS)
@@ -587,6 +596,8 @@ mostlyclean-kr:
 
 .c.lo:
 	$(LTCOMPILE) -c -o $@ $<
+logic_.c: logic.c $(ANSI2KNR)
+	$(CPP) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/logic.c; then echo $(srcdir)/logic.c; else echo logic.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > $@ || rm -f $@
 t-aors_1_.c: t-aors_1.c $(ANSI2KNR)
 	$(CPP) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/t-aors_1.c; then echo $(srcdir)/t-aors_1.c; else echo t-aors_1.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > $@ || rm -f $@
 t-asmtype_.c: t-asmtype.c $(ANSI2KNR)
@@ -651,23 +662,24 @@ t-toom6h_.c: t-toom6h.c $(ANSI2KNR)
 	$(CPP) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/t-toom6h.c; then echo $(srcdir)/t-toom6h.c; else echo t-toom6h.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > $@ || rm -f $@
 t-toom8h_.c: t-toom8h.c $(ANSI2KNR)
 	$(CPP) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) `if test -f $(srcdir)/t-toom8h.c; then echo $(srcdir)/t-toom8h.c; else echo t-toom8h.c; fi` | sed 's/^# \([0-9]\)/#line \1/' | $(ANSI2KNR) > $@ || rm -f $@
-t-aors_1_.$(OBJEXT) t-aors_1_.lo t-asmtype_.$(OBJEXT) t-asmtype_.lo \
-t-bdiv_.$(OBJEXT) t-bdiv_.lo t-div_.$(OBJEXT) t-div_.lo \
-t-divrem_1_.$(OBJEXT) t-divrem_1_.lo t-fat_.$(OBJEXT) t-fat_.lo \
-t-get_d_.$(OBJEXT) t-get_d_.lo t-hgcd_.$(OBJEXT) t-hgcd_.lo \
-t-instrument_.$(OBJEXT) t-instrument_.lo t-invert_.$(OBJEXT) \
-t-invert_.lo t-iord_u_.$(OBJEXT) t-iord_u_.lo t-matrix22_.$(OBJEXT) \
-t-matrix22_.lo t-mod_1_.$(OBJEXT) t-mod_1_.lo t-mp_bases_.$(OBJEXT) \
-t-mp_bases_.lo t-mul_.$(OBJEXT) t-mul_.lo t-mullo_.$(OBJEXT) \
-t-mullo_.lo t-mulmod_bnm1_.$(OBJEXT) t-mulmod_bnm1_.lo \
-t-perfsqr_.$(OBJEXT) t-perfsqr_.lo t-scan_.$(OBJEXT) t-scan_.lo \
-t-sqrmod_bnm1_.$(OBJEXT) t-sqrmod_bnm1_.lo t-toom22_.$(OBJEXT) \
-t-toom22_.lo t-toom32_.$(OBJEXT) t-toom32_.lo t-toom33_.$(OBJEXT) \
-t-toom33_.lo t-toom42_.$(OBJEXT) t-toom42_.lo t-toom43_.$(OBJEXT) \
-t-toom43_.lo t-toom44_.$(OBJEXT) t-toom44_.lo t-toom52_.$(OBJEXT) \
-t-toom52_.lo t-toom53_.$(OBJEXT) t-toom53_.lo t-toom62_.$(OBJEXT) \
-t-toom62_.lo t-toom63_.$(OBJEXT) t-toom63_.lo t-toom6h_.$(OBJEXT) \
-t-toom6h_.lo t-toom8h_.$(OBJEXT) t-toom8h_.lo : $(ANSI2KNR)
+logic_.$(OBJEXT) logic_.lo t-aors_1_.$(OBJEXT) t-aors_1_.lo \
+t-asmtype_.$(OBJEXT) t-asmtype_.lo t-bdiv_.$(OBJEXT) t-bdiv_.lo \
+t-div_.$(OBJEXT) t-div_.lo t-divrem_1_.$(OBJEXT) t-divrem_1_.lo \
+t-fat_.$(OBJEXT) t-fat_.lo t-get_d_.$(OBJEXT) t-get_d_.lo \
+t-hgcd_.$(OBJEXT) t-hgcd_.lo t-instrument_.$(OBJEXT) t-instrument_.lo \
+t-invert_.$(OBJEXT) t-invert_.lo t-iord_u_.$(OBJEXT) t-iord_u_.lo \
+t-matrix22_.$(OBJEXT) t-matrix22_.lo t-mod_1_.$(OBJEXT) t-mod_1_.lo \
+t-mp_bases_.$(OBJEXT) t-mp_bases_.lo t-mul_.$(OBJEXT) t-mul_.lo \
+t-mullo_.$(OBJEXT) t-mullo_.lo t-mulmod_bnm1_.$(OBJEXT) \
+t-mulmod_bnm1_.lo t-perfsqr_.$(OBJEXT) t-perfsqr_.lo t-scan_.$(OBJEXT) \
+t-scan_.lo t-sqrmod_bnm1_.$(OBJEXT) t-sqrmod_bnm1_.lo \
+t-toom22_.$(OBJEXT) t-toom22_.lo t-toom32_.$(OBJEXT) t-toom32_.lo \
+t-toom33_.$(OBJEXT) t-toom33_.lo t-toom42_.$(OBJEXT) t-toom42_.lo \
+t-toom43_.$(OBJEXT) t-toom43_.lo t-toom44_.$(OBJEXT) t-toom44_.lo \
+t-toom52_.$(OBJEXT) t-toom52_.lo t-toom53_.$(OBJEXT) t-toom53_.lo \
+t-toom62_.$(OBJEXT) t-toom62_.lo t-toom63_.$(OBJEXT) t-toom63_.lo \
+t-toom6h_.$(OBJEXT) t-toom6h_.lo t-toom8h_.$(OBJEXT) t-toom8h_.lo : \
+$(ANSI2KNR)
 
 mostlyclean-libtool:
 	-rm -f *.lo
