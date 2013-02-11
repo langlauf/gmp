@@ -2,11 +2,11 @@ This is ../../gmp/doc/gmp.info, produced by makeinfo version 4.13 from
 ../../gmp/doc/gmp.texi.
 
 This manual describes how to install and use the GNU multiple precision
-arithmetic library, version 5.1.0.
+arithmetic library, version 5.1.1.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012
-Free Software Foundation, Inc.
+2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012,
+2013 Free Software Foundation, Inc.
 
    Permission is granted to copy, distribute and/or modify this
 document under the terms of the GNU Free Documentation License, Version
@@ -20,6 +20,30 @@ INFO-DIR-SECTION GNU libraries
 START-INFO-DIR-ENTRY
 * gmp: (gmp).                   GNU Multiple Precision Arithmetic Library.
 END-INFO-DIR-ENTRY
+
+
+File: gmp.info,  Node: Jacobi Symbol,  Prev: Extended GCD,  Up: Greatest Common Divisor Algorithms
+
+15.3.5 Jacobi Symbol
+--------------------
+
+[This section is obsolete.  The current Jacobi code actually uses a very
+efficient algorithm.]
+
+   `mpz_jacobi' and `mpz_kronecker' are currently implemented with a
+simple binary algorithm similar to that described for the GCDs (*note
+Binary GCD::).  They're not very fast when both inputs are large.
+Lehmer's multi-step improvement or a binary based multi-step algorithm
+is likely to be better.
+
+   When one operand fits a single limb, and that includes
+`mpz_kronecker_ui' and friends, an initial reduction is done with
+either `mpn_mod_1' or `mpn_modexact_1_odd', followed by the binary
+algorithm on a single limb.  The binary algorithm is well suited to a
+single limb, and the whole calculation in this case is quite efficient.
+
+   In all the routines sign changes for the result are accumulated
+using some bit twiddling, avoiding table lookups or conditional jumps.
 
 
 File: gmp.info,  Node: Powering Algorithms,  Next: Root Extraction Algorithms,  Prev: Greatest Common Divisor Algorithms,  Up: Algorithms
@@ -57,7 +81,7 @@ exponent.  Larger exponents use larger values of k, the choice being
 made to minimize the average number of multiplications that must
 supplement the squaring.
 
-   The modular multiplies and squares use either a simple division or
+   The modular multiplies and squarings use either a simple division or
 the REDC method by Montgomery (*note References::).  REDC is a little
 faster, essentially saving N single limb divisions in a fashion similar
 to an exact remainder (*note Exact Remainder::).
@@ -570,7 +594,7 @@ GMP.
 
    Linear congruential generators are described in many text books, for
 instance Knuth volume 2 (*note References::).  With a modulus M and
-parameters A and C, a integer state S is iterated by the formula S <-
+parameters A and C, an integer state S is iterated by the formula S <-
 A*S+C mod M.  At each step the new state is a linear function of the
 previous, mod M, hence the name of the generator.
 

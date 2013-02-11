@@ -2,11 +2,11 @@ This is ../../gmp/doc/gmp.info, produced by makeinfo version 4.13 from
 ../../gmp/doc/gmp.texi.
 
 This manual describes how to install and use the GNU multiple precision
-arithmetic library, version 5.1.0.
+arithmetic library, version 5.1.1.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012
-Free Software Foundation, Inc.
+2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012,
+2013 Free Software Foundation, Inc.
 
    Permission is granted to copy, distribute and/or modify this
 document under the terms of the GNU Free Documentation License, Version
@@ -28,11 +28,11 @@ GNU MP
 ******
 
    This manual describes how to install and use the GNU multiple
-precision arithmetic library, version 5.1.0.
+precision arithmetic library, version 5.1.1.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012
-Free Software Foundation, Inc.
+2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012,
+2013 Free Software Foundation, Inc.
 
    Permission is granted to copy, distribute and/or modify this
 document under the terms of the GNU Free Documentation License, Version
@@ -229,7 +229,7 @@ Build Directory
      directory.  For example
 
           cd /my/build/dir
-          /my/sources/gmp-5.1.0/configure
+          /my/sources/gmp-5.1.1/configure
 
      Not all `make' programs have the necessary features (`VPATH') to
      support this.  In particular, SunOS and Slowaris `make' have bugs
@@ -1478,8 +1478,8 @@ File: gmp.info,  Node: Useful Macros and Constants,  Next: Compatibility with ol
 
  -- Global Constant: const char * const gmp_version
      The GMP version number, as a null-terminated string, in the form
-     "i.j.k".  This release is "5.1.0".  Note that the format "i.j" was
-     used when k was zero was used before version 4.3.0.
+     "i.j.k".  This release is "5.1.1".  Note that the format "i.j" was
+     used, before version 4.3.0, when k was zero.
 
  -- Macro: __GMP_CC
  -- Macro: __GMP_CFLAGS
@@ -1492,9 +1492,9 @@ File: gmp.info,  Node: Compatibility with older versions,  Next: Demonstration P
 3.9 Compatibility with older versions
 =====================================
 
-This version of GMP is upwardly binary compatible with all 4.x and 3.x
-versions, and upwardly compatible at the source level with all 2.x
-versions, with the following exceptions.
+This version of GMP is upwardly binary compatible with all 5.x, 4.x,
+and 3.x versions, and upwardly compatible at the source level with all
+2.x versions, with the following exceptions.
 
    * `mpn_gcd' had its source arguments swapped as of GMP 3.0, for
      consistency with other `mpn' functions.
@@ -1502,9 +1502,12 @@ versions, with the following exceptions.
    * `mpf_get_prec' counted precision slightly differently in GMP 3.0
      and 3.0.1, but in 3.1 reverted to the 2.x style.
 
+   * `mpn_bdivmod', documented as preliminary in GMP 4, has been
+     removed.
+
    There are a number of compatibility issues between GMP 1 and GMP 2
 that of course also apply when porting applications from GMP 1 to GMP
-4.  Please see the GMP 2 manual for details.
+5.  Please see the GMP 2 manual for details.
 
 
 File: gmp.info,  Node: Demonstration Programs,  Next: Efficiency,  Prev: Compatibility with older versions,  Up: GMP Basics
@@ -1791,7 +1794,7 @@ Source File Paths
      path to the source directory.
 
           cd /my/build/dir
-          /my/source/dir/gmp-5.1.0/configure
+          /my/source/dir/gmp-5.1.1/configure
 
      This works via `VPATH', and might require GNU `make'.  Alternately
      it might be possible to change the `.c.lo' rules appropriately.
@@ -2706,7 +2709,7 @@ File: gmp.info,  Node: Number Theoretic Functions,  Next: Integer Comparisons,  
 
  -- Function: void mpz_primorial_ui (mpz_t ROP, unsigned long int N)
      Set ROP to the primorial of N, i.e. the product of all positive
-     prime numbers smaller then or equal to N.
+     prime numbers <=N.
 
  -- Function: void mpz_bin_ui (mpz_t ROP, mpz_t N, unsigned long int K)
  -- Function: void mpz_bin_uiui (mpz_t ROP, unsigned long int N,
@@ -4313,7 +4316,7 @@ For example, {S1P, S1N}.
      remainder would have been zero or non-zero.
 
      A return value of zero indicates a perfect square.  See also
-     `mpz_perfect_square_p'.
+     `mpn_perfect_square_p'.
 
  -- Function: mp_size_t mpn_get_str (unsigned char *STR, int BASE,
           mp_limb_t *S1P, mp_size_t S1N)
@@ -7049,27 +7052,6 @@ the remaining calls. This strategy could surely be improved. Also the
 stop condition for the loop, where Lehmer's algorithm is invoked once
 the inputs are reduced below `GCDEXT_DC_THRESHOLD', could maybe be
 improved by taking into account the current size of the cofactors.
-
-
-File: gmp.info,  Node: Jacobi Symbol,  Prev: Extended GCD,  Up: Greatest Common Divisor Algorithms
-
-15.3.5 Jacobi Symbol
---------------------
-
-`mpz_jacobi' and `mpz_kronecker' are currently implemented with a
-simple binary algorithm similar to that described for the GCDs (*note
-Binary GCD::).  They're not very fast when both inputs are large.
-Lehmer's multi-step improvement or a binary based multi-step algorithm
-is likely to be better.
-
-   When one operand fits a single limb, and that includes
-`mpz_kronecker_ui' and friends, an initial reduction is done with
-either `mpn_mod_1' or `mpn_modexact_1_odd', followed by the binary
-algorithm on a single limb.  The binary algorithm is well suited to a
-single limb, and the whole calculation in this case is quite efficient.
-
-   In all the routines sign changes for the result are accumulated
-using some bit twiddling, avoiding table lookups or conditional jumps.
 
 
 
