@@ -556,6 +556,9 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.
 /* Version number of package */
 #undef VERSION
 
+/* Defined to 1 as per --enable-assembly */
+#undef WANT_ASSEMBLY
+
 /* Define to 1 to enable ASSERT checking, per --enable-assert */
 #undef WANT_ASSERT
 

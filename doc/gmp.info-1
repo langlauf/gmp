@@ -2,7 +2,7 @@ This is ../../gmp/doc/gmp.info, produced by makeinfo version 4.13 from
 ../../gmp/doc/gmp.texi.
 
 This manual describes how to install and use the GNU multiple precision
-arithmetic library, version 5.1.1.
+arithmetic library, version 5.1.2.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012,
@@ -28,7 +28,7 @@ GNU MP
 ******
 
    This manual describes how to install and use the GNU multiple
-precision arithmetic library, version 5.1.1.
+precision arithmetic library, version 5.1.2.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012,
@@ -229,7 +229,7 @@ Build Directory
      directory.  For example
 
           cd /my/build/dir
-          /my/sources/gmp-5.1.1/configure
+          /my/sources/gmp-5.1.2/configure
 
      Not all `make' programs have the necessary features (`VPATH') to
      support this.  In particular, SunOS and Slowaris `make' have bugs
@@ -1478,7 +1478,7 @@ File: gmp.info,  Node: Useful Macros and Constants,  Next: Compatibility with ol
 
  -- Global Constant: const char * const gmp_version
      The GMP version number, as a null-terminated string, in the form
-     "i.j.k".  This release is "5.1.1".  Note that the format "i.j" was
+     "i.j.k".  This release is "5.1.2".  Note that the format "i.j" was
      used, before version 4.3.0, when k was zero.
 
  -- Macro: __GMP_CC
@@ -1794,7 +1794,7 @@ Source File Paths
      path to the source directory.
 
           cd /my/build/dir
-          /my/source/dir/gmp-5.1.1/configure
+          /my/source/dir/gmp-5.1.2/configure
 
      This works via `VPATH', and might require GNU `make'.  Alternately
      it might be possible to change the `.c.lo' rules appropriately.

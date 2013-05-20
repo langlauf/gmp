@@ -53,7 +53,7 @@ IFDOS(`	define(`rp', ``%rcx'')	') dnl
 IFDOS(`	define(`v0', ``%r9'')	') dnl
 IFDOS(`	define(`r9', ``rdi'')	') dnl
 IFDOS(`	define(`n',  ``%r8'')	') dnl
-IFDOS(`	define(`r8', ``r11'')	') dnl
+IFDOS(`	define(`r8', ``rbx'')	') dnl
 
 ASM_START()
 	TEXT

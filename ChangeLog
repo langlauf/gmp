@@ -1,3 +1,113 @@
+2013-05-20  Torbjorn Granlund  <tege@gmplib.org>
+
+	* Version 5.1.2 released.
+
+	* mpn/arm/udiv.asm: Change spacing to work around binutils bug.
+
+2013-05-16  Torbjorn Granlund  <tege@gmplib.org>
+
+	* Makefile.am (LIBGMP_LT_*, LIBGMPXX_LT_*): Bump version info.
+	* gmp-h.in: Bump version.
+
+	* tests/misc.c (tests_hardware_getround, tests_hardware_setround):
+	Avoid assembly dependency unless WANT_ASSEMBLY.
+
+	* configure.ac (WANT_ASSEMBLY): Conditionally define.
+
+2013-05-14  Torbjorn Granlund  <tege@gmplib.org>
+
+	* configure.ac (arm1156): Don't fall back to plain v6 compiler option.
+
+2013-05-10  Torbjorn Granlund  <tege@gmplib.org>
+
+	* mpn/x86/p6/mmx/gmp-mparam.h: Set down SQR_TOOM2_THRESHOLD to parent
+	directory value.
+
+2013-05-09  Torbjorn Granlund  <tege@gmplib.org>
+
+	* mpn/x86_64/bd1/mul_1.asm: Fix typo.
+
+2013-04-29  Torbjorn Granlund  <tege@gmplib.org>
+
+	* configure.ac (sparc-*-*): Recognise t5 along with t3 and t4.
+	Remove sparc64/ultrasparct1 from path_64 for T3, T3, and T5.
+
+2013-04-27  Mike Frysinger  <vapier@gentoo.org>
+
+	* configure.ac (arm*-*-*): Set up path also for plainest CPU variants.
+
+2013-03-19  Torbjorn Granlund  <tege@gmplib.org>
+
+	* tests/arm32check.c: Get printing of clobbered register right.
+
+	* tests/Makefile.am (EXTRA_libtests_la_SOURCES): Add arm32call.asm and
+	arm32check.c.
+
+2013-03-18  Torbjorn Granlund  <tege@gmplib.org>
+
+	* configure.ac (arm*-*-*): Define CALLING_CONVENTIONS_OBJS.
+
+	* tests/arm32call.asm: New file.
+	* tests/arm32check.c: New file.
+
+	* mpn/arm/arm-defs.m4 (LEA): Rewrite to properly handle repeated use.
+	(EPILOGUE_cpu): Define.
+
+	* mpn/x86/darwin.m4 (m4append): Move definition from here...
+	* mpn/asm-defs.m4: ...to here.
+
+2012-03-17  Marc Glisse  <marc.glisse@inria.fr>
+
+	* tests/cxx/t-do-exceptions-work-at-all-with-this-compiler.cc: New file.
+	* tests/cxx/Makefile.am: Add new file. Reorder the tests.
+
+2013-03-11  Torbjorn Granlund  <tege@gmplib.org>
+
+	* tests/mpz/t-powm_ui.c: Test larger arguments.
+
+	* mpz/powm_ui.c (mod): Adhere to mpn_mu_div_qr's overlap requirements.
+
+2013-02-25  Niels Möller  <nisse@lysator.liu.se>
+
+	* mini-gmp/tests/t-double.c (testmain): Declare double variables
+	as volatile, to drop extended precision.
+
+	* mini-gmp/tests/testutils.c (testfree): New function. Use it
+	everywhere where test programs deallocate storage allocated via
+	the mini-gmp allocation functions, including uses of mpz_get_str
+	for various test failure messages.
+
+2013-02-20  Niels Möller  <nisse@lysator.liu.se>
+
+	* tests/mpq/t-get_d.c (check_random): Rewrote to make test less
+	dependent on float operations. Fixes problem with m68k-linux and
+	extended float precision.
+
+2013-02-19 Marco Bodrato <bodrato@mail.dm.unipi.it>
+
+	* mini-gmp/mini-gmp.c: Move asserts to work-around a compiler bug.
+
+	* mini-gmp/tests/t-reuse.c: Fix typo causing the same negation
+	condition to be applied to all operands. (See 2013-02-03, Torbjorn)
+
+2013-02-17  Marc Glisse  <marc.glisse@inria.fr>
+
+	* cxx/osdoprnti.cc: Use <stdarg.h> and <string.h> rather than <cstdarg>
+	and <cstring> (revert 2002-12-21).
+
+	* tests/cxx/Makefile.am: Link with libm.
+	* tests/cxx/t-ops2.cc: Comment about more tests. Use <math.h> rather
+	than <cmath> and using namespace. Don't include <iostream>.
+
+2013-02-16  Marc Glisse  <marc.glisse@inria.fr>
+
+	* gmpxx.h: Include <algorithm>.
+
+2013-02-16  Torbjorn Granlund  <tege@gmplib.org>
+
+	* mpn/x86_64/x86_64-defs.m4 (PROTECT): Emit '.hidden' instead of
+	'.protected" to please Sun's assembler, but also for semantic reasons.
+
 2013-02-10  Torbjorn Granlund  <tege@gmplib.org>
 
 	* Version 5.1.1 released.
