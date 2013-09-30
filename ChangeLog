@@ -1,3 +1,52 @@
+2013-09-29  Torbjorn Granlund  <tege@gmplib.org>
+
+	* Version 5.1.3 released.
+
+	* Makefile.am (LIBGMP_LT_*, LIBGMPXX_LT_*): Bump version info.
+	* gmp-h.in: Bump version.
+
+2013-09-27  Niels Möller  <nisse@lysator.liu.se>
+
+	* NEWS: Mention the ia64 mpn_divrem_2 bugfix.
+
+2013-07-16  Torbjorn Granlund  <tege@gmplib.org>
+
+	* doc/gmp.texi: Declare countless of function arguments as 'const'.
+
+2013-07-15  Torbjorn Granlund  <tege@gmplib.org>
+
+	* mpn/generic/sb_div_sec.c: Compute inverse as floor(B^2/(dh+1)), per
+	Niels' suggestion.
+	* mpn/generic/sbpi1_div_sec.c: Remove inverse rounding-up code.
+
+2013-07-12  Torbjorn Granlund  <tege@gmplib.org>
+
+	* mpn/generic/sbpi1_div_sec.c: Partial rewrite.
+
+2013-06-19  Torbjorn Granlund  <tege@gmplib.org>
+
+	* mpn/powerpc64/p6/lshift.asm: Rewrite switching-into-loop code.
+	* mpn/powerpc64/p6/rshift.asm: Likewise.
+	* mpn/powerpc64/p6/lshiftc.asm: Likewise.
+
+2013-06-17  Torbjorn Granlund  <tege@gmplib.org>
+
+	* mpn/powerpc64/p6/lshift.asm: Fix typo in label reference.
+	For 32-bit mode, zero extend `n' argument and split retval.
+	* mpn/powerpc64/p6/rshift.asm: Likewise.
+	* mpn/powerpc64/p6/lshiftc.asm: Likewise.
+
+2013-06-09  Marc Glisse  <marc.glisse@inria.fr>
+
+	* mpn/generic/get_d.c (mpn_get_d): Avoid signed overflow.
+	* mpz/kronzs.c (mpz_kronecker_si): Use ABS_CAST.
+
+2013-05-22  Torbjorn Granlund  <tege@gmplib.org>
+
+	* doc/gmp.texi (Reporting Bugs): Ask for configure's output.
+
+	* mpn/ia64/divrem_2.asm: Don't clobber f16-f18.
+
 2013-05-20  Torbjorn Granlund  <tege@gmplib.org>
 
 	* Version 5.1.2 released.

@@ -2,7 +2,7 @@ This is ../../gmp/doc/gmp.info, produced by makeinfo version 4.13 from
 ../../gmp/doc/gmp.texi.
 
 This manual describes how to install and use the GNU multiple precision
-arithmetic library, version 5.1.2.
+arithmetic library, version 5.1.3.
 
    Copyright 1991, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012,
@@ -20,6 +20,31 @@ INFO-DIR-SECTION GNU libraries
 START-INFO-DIR-ENTRY
 * gmp: (gmp).                   GNU Multiple Precision Arithmetic Library.
 END-INFO-DIR-ENTRY
+
+
+File: gmp.info,  Node: Extended GCD,  Next: Jacobi Symbol,  Prev: Subquadratic GCD,  Up: Greatest Common Divisor Algorithms
+
+15.3.4 Extended GCD
+-------------------
+
+The extended GCD function, or GCDEXT, calculates gcd(a,b) and also
+cofactors x and y satisfying a*x+b*y=gcd(a,b). All the algorithms used
+for plain GCD are extended to handle this case. The binary algorithm is
+used only for single-limb GCDEXT.  Lehmer's algorithm is used for sizes
+up to `GCDEXT_DC_THRESHOLD'. Above this threshold, GCDEXT is
+implemented as a loop around HGCD, but with more book-keeping to keep
+track of the cofactors. This gives the same asymptotic running time as
+for GCD and HGCD, O(M(N)*log(N))
+
+   One difference to plain GCD is that while the inputs a and b are
+reduced as the algorithm proceeds, the cofactors x and y grow in size.
+This makes the tuning of the chopping-point more difficult. The current
+code chops off the most significant half of the inputs for the call to
+HGCD in the first iteration, and the most significant two thirds for
+the remaining calls. This strategy could surely be improved. Also the
+stop condition for the loop, where Lehmer's algorithm is invoked once
+the inputs are reduced below `GCDEXT_DC_THRESHOLD', could maybe be
+improved by taking into account the current size of the cofactors.
 
 
 File: gmp.info,  Node: Jacobi Symbol,  Prev: Extended GCD,  Up: Greatest Common Divisor Algorithms
@@ -2265,15 +2290,15 @@ Concept Index
 * Binomial coefficient algorithm:        Binomial Coefficients Algorithm.
                                                               (line   6)
 * Binomial coefficient functions:        Number Theoretic Functions.
-                                                              (line 124)
+                                                              (line 128)
 * Binutils strip:                        Known Build Problems.
                                                               (line  28)
 * Bit manipulation functions:            Integer Logic and Bit Fiddling.
                                                               (line   6)
 * Bit scanning functions:                Integer Logic and Bit Fiddling.
-                                                              (line  38)
-* Bit shift left:                        Integer Arithmetic.  (line  35)
-* Bit shift right:                       Integer Division.    (line  53)
+                                                              (line  40)
+* Bit shift left:                        Integer Arithmetic.  (line  38)
+* Bit shift right:                       Integer Division.    (line  62)
 * Bits per limb:                         Useful Macros and Constants.
                                                               (line   7)
 * Bug reporting:                         Reporting Bugs.      (line   6)
@@ -2314,7 +2339,7 @@ Concept Index
 * Conditions for copying GNU MP:         Copying.             (line   6)
 * Configuring GMP:                       Installing GMP.      (line   6)
 * Congruence algorithm:                  Exact Remainder.     (line  30)
-* Congruence functions:                  Integer Division.    (line 124)
+* Congruence functions:                  Integer Division.    (line 137)
 * Constants:                             Useful Macros and Constants.
                                                               (line   6)
 * Contributors:                          Contributors.        (line   6)
@@ -2344,10 +2369,10 @@ Concept Index
 * Digits in an integer:                  Miscellaneous Integer Functions.
                                                               (line  23)
 * Divisibility algorithm:                Exact Remainder.     (line  30)
-* Divisibility functions:                Integer Division.    (line 124)
+* Divisibility functions:                Integer Division.    (line 137)
 * Divisibility testing:                  Efficiency.          (line  91)
 * Division algorithms:                   Division Algorithms. (line   6)
-* Division functions <1>:                Rational Arithmetic. (line  22)
+* Division functions <1>:                Rational Arithmetic. (line  24)
 * Division functions <2>:                Float Arithmetic.    (line  33)
 * Division functions:                    Integer Division.    (line   6)
 * DJGPP <1>:                             Notes for Particular Systems.
@@ -2363,7 +2388,7 @@ Concept Index
 * DVI:                                   Build Options.       (line 343)
 * Efficiency:                            Efficiency.          (line   6)
 * Emacs:                                 Emacs.               (line   6)
-* Exact division functions:              Integer Division.    (line 102)
+* Exact division functions:              Integer Division.    (line 112)
 * Exact remainder:                       Exact Remainder.     (line   6)
 * Example programs:                      Demonstration Programs.
                                                               (line   6)
@@ -2380,10 +2405,10 @@ Concept Index
 * Extended GCD:                          Number Theoretic Functions.
                                                               (line  49)
 * Factor removal functions:              Number Theoretic Functions.
-                                                              (line 105)
+                                                              (line 108)
 * Factorial algorithm:                   Factorial Algorithm. (line   6)
 * Factorial functions:                   Number Theoretic Functions.
-                                                              (line 113)
+                                                              (line 116)
 * Factorization demo:                    Demonstration Programs.
                                                               (line  25)
 * Fast Fourier Transform:                FFT Multiplication.  (line   6)
@@ -2393,7 +2418,7 @@ Concept Index
 * Fibonacci number algorithm:            Fibonacci Numbers Algorithm.
                                                               (line   6)
 * Fibonacci sequence functions:          Number Theoretic Functions.
-                                                              (line 132)
+                                                              (line 136)
 * Float arithmetic functions:            Float Arithmetic.    (line   6)
 * Float assignment functions <1>:        Simultaneous Float Init & Assign.
                                                               (line   6)
@@ -2413,7 +2438,7 @@ Concept Index
                                                               (line  27)
 * Float rounding functions:              Miscellaneous Float Functions.
                                                               (line   9)
-* Float sign tests:                      Float Comparison.    (line  33)
+* Float sign tests:                      Float Comparison.    (line  35)
 * Floating point mode:                   Notes for Particular Systems.
                                                               (line  34)
 * Floating-point functions:              Floating-point Functions.
@@ -2425,8 +2450,8 @@ Concept Index
 * Formatted output:                      Formatted Output.    (line   6)
 * Free Documentation License:            GNU Free Documentation License.
                                                               (line   6)
-* frexp <1>:                             Converting Integers. (line  42)
-* frexp:                                 Converting Floats.   (line  23)
+* frexp <1>:                             Converting Integers. (line  43)
+* frexp:                                 Converting Floats.   (line  24)
 * FTP of latest version:                 Introduction to GMP. (line  38)
 * Function classes:                      Function Classes.    (line   6)
 * FunctionCheck:                         Profiling.           (line  77)
@@ -2538,7 +2563,7 @@ Concept Index
 * Internals:                             Internals.           (line   6)
 * Introduction:                          Introduction to GMP. (line   6)
 * Inverse modulo functions:              Number Theoretic Functions.
-                                                              (line  74)
+                                                              (line  76)
 * IRIX <1>:                              Known Build Problems.
                                                               (line  38)
 * IRIX:                                  ABI and ISA.         (line 132)
@@ -2546,21 +2571,21 @@ Concept Index
 * istream input:                         C++ Formatted Input. (line   6)
 * Jacobi symbol algorithm:               Jacobi Symbol.       (line   6)
 * Jacobi symbol functions:               Number Theoretic Functions.
-                                                              (line  81)
+                                                              (line  83)
 * Karatsuba multiplication:              Karatsuba Multiplication.
                                                               (line   6)
 * Karatsuba square root algorithm:       Square Root Algorithm.
                                                               (line   6)
 * Kronecker symbol functions:            Number Theoretic Functions.
-                                                              (line  93)
+                                                              (line  95)
 * Language bindings:                     Language Bindings.   (line   6)
 * Latest version of GMP:                 Introduction to GMP. (line  38)
 * LCM functions:                         Number Theoretic Functions.
-                                                              (line  69)
+                                                              (line  70)
 * Least common multiple functions:       Number Theoretic Functions.
-                                                              (line  69)
+                                                              (line  70)
 * Legendre symbol functions:             Number Theoretic Functions.
-                                                              (line  84)
+                                                              (line  86)
 * libgmp:                                Headers and Libraries.
                                                               (line  22)
 * libgmpxx:                              Headers and Libraries.
@@ -2588,7 +2613,7 @@ Concept Index
 * Lucas number algorithm:                Lucas Numbers Algorithm.
                                                               (line   6)
 * Lucas number functions:                Number Theoretic Functions.
-                                                              (line 143)
+                                                              (line 147)
 * MacOS X:                               Known Build Problems.
                                                               (line  51)
 * Mailing lists:                         Introduction to GMP. (line  45)
@@ -2610,7 +2635,7 @@ Concept Index
 * MMX:                                   Notes for Particular Systems.
                                                               (line 133)
 * Modular inverse functions:             Number Theoretic Functions.
-                                                              (line  74)
+                                                              (line  76)
 * Most significant bit:                  Miscellaneous Integer Functions.
                                                               (line  34)
 * MPN_PATH:                              Build Options.       (line 328)
@@ -2663,10 +2688,10 @@ Concept Index
 * PDF:                                   Build Options.       (line 343)
 * Perfect power algorithm:               Perfect Power Algorithm.
                                                               (line   6)
-* Perfect power functions:               Integer Roots.       (line  27)
+* Perfect power functions:               Integer Roots.       (line  28)
 * Perfect square algorithm:              Perfect Square Algorithm.
                                                               (line   6)
-* Perfect square functions:              Integer Roots.       (line  36)
+* Perfect square functions:              Integer Roots.       (line  37)
 * perl:                                  Demonstration Programs.
                                                               (line  35)
 * Perl module:                           Demonstration Programs.
@@ -2691,7 +2716,7 @@ Concept Index
 * Prime testing functions:               Number Theoretic Functions.
                                                               (line   7)
 * Primorial functions:                   Number Theoretic Functions.
-                                                              (line 118)
+                                                              (line 121)
 * printf formatted output:               Formatted Output.    (line   6)
 * Probable prime testing functions:      Number Theoretic Functions.
                                                               (line   7)
@@ -2737,20 +2762,20 @@ Concept Index
 * Reentrancy:                            Reentrancy.          (line   6)
 * References:                            References.          (line   6)
 * Remove factor functions:               Number Theoretic Functions.
-                                                              (line 105)
+                                                              (line 108)
 * Reporting bugs:                        Reporting Bugs.      (line   6)
 * Root extraction algorithm:             Nth Root Algorithm.  (line   6)
 * Root extraction algorithms:            Root Extraction Algorithms.
                                                               (line   6)
 * Root extraction functions <1>:         Integer Roots.       (line   6)
 * Root extraction functions:             Float Arithmetic.    (line  37)
-* Root testing functions:                Integer Roots.       (line  36)
+* Root testing functions:                Integer Roots.       (line  37)
 * Rounding functions:                    Miscellaneous Float Functions.
                                                               (line   9)
 * Sample programs:                       Demonstration Programs.
                                                               (line   6)
 * Scan bit functions:                    Integer Logic and Bit Fiddling.
-                                                              (line  38)
+                                                              (line  40)
 * scanf formatted input:                 Formatted Input.     (line   6)
 * SCO:                                   Known Build Problems.
                                                               (line  38)
@@ -2765,7 +2790,7 @@ Concept Index
                                                               (line   9)
 * Sign tests <1>:                        Integer Comparisons. (line  28)
 * Sign tests <2>:                        Comparing Rationals. (line  27)
-* Sign tests:                            Float Comparison.    (line  33)
+* Sign tests:                            Float Comparison.    (line  35)
 * Size in digits:                        Miscellaneous Integer Functions.
                                                               (line  23)
 * Small operands:                        Efficiency.          (line   7)
@@ -2929,9 +2954,9 @@ Function and Type Index
 * gmp_randinit_set:                      Random State Initialization.
                                                               (line  43)
 * gmp_randseed:                          Random State Seeding.
-                                                              (line   7)
+                                                              (line   8)
 * gmp_randseed_ui:                       Random State Seeding.
-                                                              (line   9)
+                                                              (line  10)
 * gmp_randstate_t:                       Nomenclature and Types.
                                                               (line  46)
 * gmp_scanf:                             Formatted Input Functions.
@@ -3028,9 +3053,9 @@ Function and Type Index
 * mpf_cmp_si:                            Float Comparison.    (line  10)
 * mpf_cmp_ui:                            Float Comparison.    (line   9)
 * mpf_div:                               Float Arithmetic.    (line  29)
-* mpf_div_2exp:                          Float Arithmetic.    (line  53)
+* mpf_div_2exp:                          Float Arithmetic.    (line  55)
 * mpf_div_ui:                            Float Arithmetic.    (line  33)
-* mpf_eq:                                Float Comparison.    (line  17)
+* mpf_eq:                                Float Comparison.    (line  18)
 * mpf_fits_sint_p:                       Miscellaneous Float Functions.
                                                               (line  20)
 * mpf_fits_slong_p:                      Miscellaneous Float Functions.
@@ -3046,12 +3071,12 @@ Function and Type Index
 * mpf_floor:                             Miscellaneous Float Functions.
                                                               (line   8)
 * mpf_get_d:                             Converting Floats.   (line   7)
-* mpf_get_d_2exp:                        Converting Floats.   (line  16)
+* mpf_get_d_2exp:                        Converting Floats.   (line  17)
 * mpf_get_default_prec:                  Initializing Floats. (line  12)
 * mpf_get_prec:                          Initializing Floats. (line  62)
-* mpf_get_si:                            Converting Floats.   (line  27)
-* mpf_get_str:                           Converting Floats.   (line  37)
-* mpf_get_ui:                            Converting Floats.   (line  28)
+* mpf_get_si:                            Converting Floats.   (line  28)
+* mpf_get_str:                           Converting Floats.   (line  38)
+* mpf_get_ui:                            Converting Floats.   (line  29)
 * mpf_init:                              Initializing Floats. (line  19)
 * mpf_init2:                             Initializing Floats. (line  26)
 * mpf_init_set:                          Simultaneous Float Init & Assign.
@@ -3061,7 +3086,7 @@ Function and Type Index
 * mpf_init_set_si:                       Simultaneous Float Init & Assign.
                                                               (line  18)
 * mpf_init_set_str:                      Simultaneous Float Init & Assign.
-                                                              (line  25)
+                                                              (line  26)
 * mpf_init_set_ui:                       Simultaneous Float Init & Assign.
                                                               (line  17)
 * mpf_inits:                             Initializing Floats. (line  31)
@@ -3069,14 +3094,14 @@ Function and Type Index
 * mpf_integer_p:                         Miscellaneous Float Functions.
                                                               (line  14)
 * mpf_mul:                               Float Arithmetic.    (line  19)
-* mpf_mul_2exp:                          Float Arithmetic.    (line  50)
+* mpf_mul_2exp:                          Float Arithmetic.    (line  51)
 * mpf_mul_ui:                            Float Arithmetic.    (line  21)
 * mpf_neg:                               Float Arithmetic.    (line  44)
 * mpf_out_str:                           I/O of Floats.       (line  19)
 * mpf_pow_ui:                            Float Arithmetic.    (line  41)
 * mpf_random2:                           Miscellaneous Float Functions.
                                                               (line  37)
-* mpf_reldiff:                           Float Comparison.    (line  29)
+* mpf_reldiff:                           Float Comparison.    (line  31)
 * mpf_set:                               Assigning Floats.    (line  10)
 * mpf_set_d:                             Assigning Floats.    (line  13)
 * mpf_set_default_prec:                  Initializing Floats. (line   7)
@@ -3087,7 +3112,7 @@ Function and Type Index
 * mpf_set_str:                           Assigning Floats.    (line  18)
 * mpf_set_ui:                            Assigning Floats.    (line  11)
 * mpf_set_z:                             Assigning Floats.    (line  14)
-* mpf_sgn:                               Float Comparison.    (line  33)
+* mpf_sgn:                               Float Comparison.    (line  35)
 * mpf_sqrt:                              Float Arithmetic.    (line  36)
 * mpf_sqrt_ui:                           Float Arithmetic.    (line  37)
 * mpf_sub:                               Float Arithmetic.    (line  12)
@@ -3150,8 +3175,8 @@ Function and Type Index
 * mpn_xnor_n:                            Low-level Functions. (line 462)
 * mpn_xor_n:                             Low-level Functions. (line 437)
 * mpn_zero:                              Low-level Functions. (line 479)
-* mpq_abs:                               Rational Arithmetic. (line  31)
-* mpq_add:                               Rational Arithmetic. (line   7)
+* mpq_abs:                               Rational Arithmetic. (line  34)
+* mpq_add:                               Rational Arithmetic. (line   8)
 * mpq_canonicalize:                      Rational Number Functions.
                                                               (line  22)
 * mpq_class:                             C++ Interface General.
@@ -3187,8 +3212,8 @@ Function and Type Index
 * mpq_cmp_ui:                            Comparing Rationals. (line  15)
 * mpq_denref:                            Applying Integer Functions.
                                                               (line  18)
-* mpq_div:                               Rational Arithmetic. (line  22)
-* mpq_div_2exp:                          Rational Arithmetic. (line  25)
+* mpq_div:                               Rational Arithmetic. (line  24)
+* mpq_div_2exp:                          Rational Arithmetic. (line  28)
 * mpq_equal:                             Comparing Rationals. (line  33)
 * mpq_get_d:                             Rational Conversions.
                                                               (line   7)
@@ -3202,14 +3227,14 @@ Function and Type Index
                                                               (line   7)
 * mpq_inits:                             Initializing Rationals.
                                                               (line  12)
-* mpq_inp_str:                           I/O of Rationals.    (line  26)
-* mpq_inv:                               Rational Arithmetic. (line  34)
-* mpq_mul:                               Rational Arithmetic. (line  15)
-* mpq_mul_2exp:                          Rational Arithmetic. (line  18)
-* mpq_neg:                               Rational Arithmetic. (line  28)
+* mpq_inp_str:                           I/O of Rationals.    (line  27)
+* mpq_inv:                               Rational Arithmetic. (line  37)
+* mpq_mul:                               Rational Arithmetic. (line  16)
+* mpq_mul_2exp:                          Rational Arithmetic. (line  20)
+* mpq_neg:                               Rational Arithmetic. (line  31)
 * mpq_numref:                            Applying Integer Functions.
                                                               (line  17)
-* mpq_out_str:                           I/O of Rationals.    (line  18)
+* mpq_out_str:                           I/O of Rationals.    (line  19)
 * mpq_set:                               Initializing Rationals.
                                                               (line  24)
 * mpq_set_d:                             Rational Conversions.
@@ -3229,35 +3254,35 @@ Function and Type Index
 * mpq_set_z:                             Initializing Rationals.
                                                               (line  25)
 * mpq_sgn:                               Comparing Rationals. (line  27)
-* mpq_sub:                               Rational Arithmetic. (line  11)
+* mpq_sub:                               Rational Arithmetic. (line  12)
 * mpq_swap:                              Initializing Rationals.
                                                               (line  56)
 * mpq_t:                                 Nomenclature and Types.
                                                               (line  16)
 * mpz_2fac_ui:                           Number Theoretic Functions.
-                                                              (line 111)
-* mpz_abs:                               Integer Arithmetic.  (line  42)
+                                                              (line 114)
+* mpz_abs:                               Integer Arithmetic.  (line  45)
 * mpz_add:                               Integer Arithmetic.  (line   7)
 * mpz_add_ui:                            Integer Arithmetic.  (line   9)
-* mpz_addmul:                            Integer Arithmetic.  (line  25)
-* mpz_addmul_ui:                         Integer Arithmetic.  (line  27)
+* mpz_addmul:                            Integer Arithmetic.  (line  26)
+* mpz_addmul_ui:                         Integer Arithmetic.  (line  28)
 * mpz_and:                               Integer Logic and Bit Fiddling.
                                                               (line  11)
 * mpz_array_init:                        Integer Special Functions.
                                                               (line  11)
 * mpz_bin_ui:                            Number Theoretic Functions.
-                                                              (line 122)
+                                                              (line 126)
 * mpz_bin_uiui:                          Number Theoretic Functions.
-                                                              (line 124)
+                                                              (line 128)
 * mpz_cdiv_q:                            Integer Division.    (line  13)
-* mpz_cdiv_q_2exp:                       Integer Division.    (line  24)
-* mpz_cdiv_q_ui:                         Integer Division.    (line  17)
-* mpz_cdiv_qr:                           Integer Division.    (line  15)
-* mpz_cdiv_qr_ui:                        Integer Division.    (line  21)
+* mpz_cdiv_q_2exp:                       Integer Division.    (line  26)
+* mpz_cdiv_q_ui:                         Integer Division.    (line  18)
+* mpz_cdiv_qr:                           Integer Division.    (line  16)
+* mpz_cdiv_qr_ui:                        Integer Division.    (line  22)
 * mpz_cdiv_r:                            Integer Division.    (line  14)
-* mpz_cdiv_r_2exp:                       Integer Division.    (line  25)
-* mpz_cdiv_r_ui:                         Integer Division.    (line  19)
-* mpz_cdiv_ui:                           Integer Division.    (line  23)
+* mpz_cdiv_r_2exp:                       Integer Division.    (line  28)
+* mpz_cdiv_r_ui:                         Integer Division.    (line  20)
+* mpz_cdiv_ui:                           Integer Division.    (line  24)
 * mpz_class:                             C++ Interface General.
                                                               (line  18)
 * mpz_class::fits_sint_p:                C++ Interface Integers.
@@ -3293,7 +3318,7 @@ Function and Type Index
 * mpz_clears:                            Initializing Integers.
                                                               (line  53)
 * mpz_clrbit:                            Integer Logic and Bit Fiddling.
-                                                              (line  54)
+                                                              (line  56)
 * mpz_cmp:                               Integer Comparisons. (line   7)
 * mpz_cmp_d:                             Integer Comparisons. (line   8)
 * mpz_cmp_si:                            Integer Comparisons. (line   9)
@@ -3304,34 +3329,34 @@ Function and Type Index
 * mpz_com:                               Integer Logic and Bit Fiddling.
                                                               (line  20)
 * mpz_combit:                            Integer Logic and Bit Fiddling.
-                                                              (line  57)
-* mpz_congruent_2exp_p:                  Integer Division.    (line 124)
-* mpz_congruent_p:                       Integer Division.    (line 121)
-* mpz_congruent_ui_p:                    Integer Division.    (line 123)
-* mpz_divexact:                          Integer Division.    (line 101)
-* mpz_divexact_ui:                       Integer Division.    (line 102)
-* mpz_divisible_2exp_p:                  Integer Division.    (line 112)
-* mpz_divisible_p:                       Integer Division.    (line 110)
-* mpz_divisible_ui_p:                    Integer Division.    (line 111)
+                                                              (line  59)
+* mpz_congruent_2exp_p:                  Integer Division.    (line 137)
+* mpz_congruent_p:                       Integer Division.    (line 133)
+* mpz_congruent_ui_p:                    Integer Division.    (line 135)
+* mpz_divexact:                          Integer Division.    (line 110)
+* mpz_divexact_ui:                       Integer Division.    (line 112)
+* mpz_divisible_2exp_p:                  Integer Division.    (line 123)
+* mpz_divisible_p:                       Integer Division.    (line 120)
+* mpz_divisible_ui_p:                    Integer Division.    (line 122)
 * mpz_even_p:                            Miscellaneous Integer Functions.
                                                               (line  18)
 * mpz_export:                            Integer Import and Export.
                                                               (line  45)
 * mpz_fac_ui:                            Number Theoretic Functions.
-                                                              (line 110)
-* mpz_fdiv_q:                            Integer Division.    (line  27)
-* mpz_fdiv_q_2exp:                       Integer Division.    (line  38)
-* mpz_fdiv_q_ui:                         Integer Division.    (line  31)
-* mpz_fdiv_qr:                           Integer Division.    (line  29)
-* mpz_fdiv_qr_ui:                        Integer Division.    (line  35)
-* mpz_fdiv_r:                            Integer Division.    (line  28)
-* mpz_fdiv_r_2exp:                       Integer Division.    (line  39)
-* mpz_fdiv_r_ui:                         Integer Division.    (line  33)
-* mpz_fdiv_ui:                           Integer Division.    (line  37)
+                                                              (line 113)
+* mpz_fdiv_q:                            Integer Division.    (line  30)
+* mpz_fdiv_q_2exp:                       Integer Division.    (line  43)
+* mpz_fdiv_q_ui:                         Integer Division.    (line  35)
+* mpz_fdiv_qr:                           Integer Division.    (line  33)
+* mpz_fdiv_qr_ui:                        Integer Division.    (line  39)
+* mpz_fdiv_r:                            Integer Division.    (line  31)
+* mpz_fdiv_r_2exp:                       Integer Division.    (line  45)
+* mpz_fdiv_r_ui:                         Integer Division.    (line  37)
+* mpz_fdiv_ui:                           Integer Division.    (line  41)
 * mpz_fib2_ui:                           Number Theoretic Functions.
-                                                              (line 132)
+                                                              (line 136)
 * mpz_fib_ui:                            Number Theoretic Functions.
-                                                              (line 130)
+                                                              (line 134)
 * mpz_fits_sint_p:                       Miscellaneous Integer Functions.
                                                               (line  10)
 * mpz_fits_slong_p:                      Miscellaneous Integer Functions.
@@ -3351,9 +3376,9 @@ Function and Type Index
 * mpz_gcdext:                            Number Theoretic Functions.
                                                               (line  49)
 * mpz_get_d:                             Converting Integers. (line  27)
-* mpz_get_d_2exp:                        Converting Integers. (line  35)
+* mpz_get_d_2exp:                        Converting Integers. (line  36)
 * mpz_get_si:                            Converting Integers. (line  18)
-* mpz_get_str:                           Converting Integers. (line  46)
+* mpz_get_str:                           Converting Integers. (line  47)
 * mpz_get_ui:                            Converting Integers. (line  11)
 * mpz_getlimbn:                          Integer Special Functions.
                                                               (line  60)
@@ -3372,52 +3397,52 @@ Function and Type Index
 * mpz_init_set_si:                       Simultaneous Integer Init & Assign.
                                                               (line  29)
 * mpz_init_set_str:                      Simultaneous Integer Init & Assign.
-                                                              (line  34)
+                                                              (line  35)
 * mpz_init_set_ui:                       Simultaneous Integer Init & Assign.
                                                               (line  28)
 * mpz_inits:                             Initializing Integers.
                                                               (line  29)
-* mpz_inp_raw:                           I/O of Integers.     (line  61)
-* mpz_inp_str:                           I/O of Integers.     (line  30)
+* mpz_inp_raw:                           I/O of Integers.     (line  62)
+* mpz_inp_str:                           I/O of Integers.     (line  31)
 * mpz_invert:                            Number Theoretic Functions.
-                                                              (line  74)
+                                                              (line  76)
 * mpz_ior:                               Integer Logic and Bit Fiddling.
                                                               (line  14)
 * mpz_jacobi:                            Number Theoretic Functions.
-                                                              (line  81)
+                                                              (line  83)
 * mpz_kronecker:                         Number Theoretic Functions.
-                                                              (line  89)
-* mpz_kronecker_si:                      Number Theoretic Functions.
-                                                              (line  90)
-* mpz_kronecker_ui:                      Number Theoretic Functions.
                                                               (line  91)
+* mpz_kronecker_si:                      Number Theoretic Functions.
+                                                              (line  92)
+* mpz_kronecker_ui:                      Number Theoretic Functions.
+                                                              (line  93)
 * mpz_lcm:                               Number Theoretic Functions.
                                                               (line  68)
 * mpz_lcm_ui:                            Number Theoretic Functions.
-                                                              (line  69)
+                                                              (line  70)
 * mpz_legendre:                          Number Theoretic Functions.
-                                                              (line  84)
+                                                              (line  86)
 * mpz_lucnum2_ui:                        Number Theoretic Functions.
-                                                              (line 143)
+                                                              (line 147)
 * mpz_lucnum_ui:                         Number Theoretic Functions.
-                                                              (line 141)
+                                                              (line 145)
 * mpz_mfac_uiui:                         Number Theoretic Functions.
-                                                              (line 113)
-* mpz_mod:                               Integer Division.    (line  91)
-* mpz_mod_ui:                            Integer Division.    (line  93)
+                                                              (line 116)
+* mpz_mod:                               Integer Division.    (line 100)
+* mpz_mod_ui:                            Integer Division.    (line 102)
 * mpz_mul:                               Integer Arithmetic.  (line  19)
-* mpz_mul_2exp:                          Integer Arithmetic.  (line  35)
+* mpz_mul_2exp:                          Integer Arithmetic.  (line  38)
 * mpz_mul_si:                            Integer Arithmetic.  (line  20)
 * mpz_mul_ui:                            Integer Arithmetic.  (line  22)
-* mpz_neg:                               Integer Arithmetic.  (line  39)
+* mpz_neg:                               Integer Arithmetic.  (line  42)
 * mpz_nextprime:                         Number Theoretic Functions.
                                                               (line  25)
 * mpz_odd_p:                             Miscellaneous Integer Functions.
                                                               (line  17)
-* mpz_out_raw:                           I/O of Integers.     (line  45)
-* mpz_out_str:                           I/O of Integers.     (line  18)
-* mpz_perfect_power_p:                   Integer Roots.       (line  27)
-* mpz_perfect_square_p:                  Integer Roots.       (line  36)
+* mpz_out_raw:                           I/O of Integers.     (line  46)
+* mpz_out_str:                           I/O of Integers.     (line  19)
+* mpz_perfect_power_p:                   Integer Roots.       (line  28)
+* mpz_perfect_square_p:                  Integer Roots.       (line  37)
 * mpz_popcount:                          Integer Logic and Bit Fiddling.
                                                               (line  23)
 * mpz_pow_ui:                            Integer Exponentiation.
@@ -3429,7 +3454,7 @@ Function and Type Index
 * mpz_powm_ui:                           Integer Exponentiation.
                                                               (line  10)
 * mpz_primorial_ui:                      Number Theoretic Functions.
-                                                              (line 118)
+                                                              (line 121)
 * mpz_probab_prime_p:                    Number Theoretic Functions.
                                                               (line   7)
 * mpz_random:                            Integer Random Numbers.
@@ -3439,15 +3464,15 @@ Function and Type Index
 * mpz_realloc2:                          Initializing Integers.
                                                               (line  57)
 * mpz_remove:                            Number Theoretic Functions.
-                                                              (line 105)
-* mpz_root:                              Integer Roots.       (line   7)
-* mpz_rootrem:                           Integer Roots.       (line  13)
+                                                              (line 108)
+* mpz_root:                              Integer Roots.       (line   8)
+* mpz_rootrem:                           Integer Roots.       (line  14)
 * mpz_rrandomb:                          Integer Random Numbers.
                                                               (line  31)
 * mpz_scan0:                             Integer Logic and Bit Fiddling.
-                                                              (line  37)
-* mpz_scan1:                             Integer Logic and Bit Fiddling.
                                                               (line  38)
+* mpz_scan1:                             Integer Logic and Bit Fiddling.
+                                                              (line  40)
 * mpz_set:                               Assigning Integers.  (line  10)
 * mpz_set_d:                             Assigning Integers.  (line  13)
 * mpz_set_f:                             Assigning Integers.  (line  15)
@@ -3456,36 +3481,36 @@ Function and Type Index
 * mpz_set_str:                           Assigning Integers.  (line  21)
 * mpz_set_ui:                            Assigning Integers.  (line  11)
 * mpz_setbit:                            Integer Logic and Bit Fiddling.
-                                                              (line  51)
+                                                              (line  53)
 * mpz_sgn:                               Integer Comparisons. (line  28)
 * mpz_si_kronecker:                      Number Theoretic Functions.
-                                                              (line  92)
+                                                              (line  94)
 * mpz_size:                              Integer Special Functions.
                                                               (line  68)
 * mpz_sizeinbase:                        Miscellaneous Integer Functions.
                                                               (line  23)
-* mpz_sqrt:                              Integer Roots.       (line  17)
-* mpz_sqrtrem:                           Integer Roots.       (line  20)
+* mpz_sqrt:                              Integer Roots.       (line  18)
+* mpz_sqrtrem:                           Integer Roots.       (line  21)
 * mpz_sub:                               Integer Arithmetic.  (line  12)
 * mpz_sub_ui:                            Integer Arithmetic.  (line  14)
-* mpz_submul:                            Integer Arithmetic.  (line  30)
-* mpz_submul_ui:                         Integer Arithmetic.  (line  32)
+* mpz_submul:                            Integer Arithmetic.  (line  32)
+* mpz_submul_ui:                         Integer Arithmetic.  (line  34)
 * mpz_swap:                              Assigning Integers.  (line  37)
 * mpz_t:                                 Nomenclature and Types.
                                                               (line   6)
-* mpz_tdiv_q:                            Integer Division.    (line  41)
-* mpz_tdiv_q_2exp:                       Integer Division.    (line  52)
-* mpz_tdiv_q_ui:                         Integer Division.    (line  45)
-* mpz_tdiv_qr:                           Integer Division.    (line  43)
-* mpz_tdiv_qr_ui:                        Integer Division.    (line  49)
-* mpz_tdiv_r:                            Integer Division.    (line  42)
-* mpz_tdiv_r_2exp:                       Integer Division.    (line  53)
-* mpz_tdiv_r_ui:                         Integer Division.    (line  47)
-* mpz_tdiv_ui:                           Integer Division.    (line  51)
+* mpz_tdiv_q:                            Integer Division.    (line  47)
+* mpz_tdiv_q_2exp:                       Integer Division.    (line  60)
+* mpz_tdiv_q_ui:                         Integer Division.    (line  52)
+* mpz_tdiv_qr:                           Integer Division.    (line  50)
+* mpz_tdiv_qr_ui:                        Integer Division.    (line  56)
+* mpz_tdiv_r:                            Integer Division.    (line  48)
+* mpz_tdiv_r_2exp:                       Integer Division.    (line  62)
+* mpz_tdiv_r_ui:                         Integer Division.    (line  54)
+* mpz_tdiv_ui:                           Integer Division.    (line  58)
 * mpz_tstbit:                            Integer Logic and Bit Fiddling.
-                                                              (line  60)
+                                                              (line  62)
 * mpz_ui_kronecker:                      Number Theoretic Functions.
-                                                              (line  93)
+                                                              (line  95)
 * mpz_ui_pow_ui:                         Integer Exponentiation.
                                                               (line  33)
 * mpz_ui_sub:                            Integer Arithmetic.  (line  16)
